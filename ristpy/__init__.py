@@ -1,5 +1,3 @@
-__all__ = ("rist")
-
 def _replace(code: str, key: str, value: str = "") -> str:
     while key in code:
         code = code.replace(key, value)
@@ -7,9 +5,9 @@ def _replace(code: str, key: str, value: str = "") -> str:
     return code
 
 def _replaceall(code: str) -> str:
-    code = _replace("{", "(")
-    code = _replace("}", ")")
-    code = _replace(";", "")
+    code = _replace(code, "{", "(")
+    code = _replace(code,"}", ")")
+    code = _replace(code, ";", "")
     return code
 
 def rist(fp: str) -> str:
