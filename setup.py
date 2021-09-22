@@ -25,11 +25,6 @@ setup(
     version=version,
     description="A module for compiling my lang",
     license="CC0-1.0",
-    classifiers=[
-        "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3.8",
-    ],
     python_requires=">=3.8",
-    keywords="discord discord-py discord-bot utils utility",
-    packages=["ristpy"]
+    packages=find_packages()
 )
