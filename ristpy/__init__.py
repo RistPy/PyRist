@@ -1,17 +1,19 @@
-__all__ = ("compile")
+__all__ = ("rist")
 
-def __replace(code: str, key: str, value: str = "") -> str:
+def _replace(code: str, key: str, value: str = "") -> str:
     while key in code:
         code = code.replace(key, value)
 
     return code
 
-def __compile(code: str) -> str:
-    code = __replace("{", "(")
-    code = __replace("}", ")")
-    code = __replace(";", "")
+def _replaceall(code: str) -> str:
+    code = _replace("{", "(")
+    code = _replace("}", ")")
+    code = _replace(";", "")
     return code
 
-def compile(code: str) -> str:
-    code = __compile(code)
+def rist(fp: str) -> str:
+    with open(fp, 'r') as f:
+        code = f.read()
+    code = _replaceall(code)
     return code
