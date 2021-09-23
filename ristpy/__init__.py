@@ -19,5 +19,12 @@ def rist(arg: str, fp: bool = True) -> str:
     else:
         code = arg
 
+    lines = code.splitlines()
+    for line in lines:
+      if line == "":
+        continue
+
+      if not line.endswith(";"):
+        raise SyntaxError('invalid syntax\nper line should end with ";"')
     code = _replaceall(code)
     return code
