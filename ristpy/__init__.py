@@ -30,7 +30,7 @@ def rist(arg: str, fp: bool = True) -> str:
             continue
 
         if not line.endswith(";"):
-            raise SyntaxError(f'invalid syntax\nline {index}\nevery line should end with ";"')
+            raise SyntaxError(f'invalid syntax\nline {index+1}\nevery line should end with ";"')
 
     code = _replaceall(code)
     return code
