@@ -29,8 +29,8 @@ def rist(arg: str, fp: bool = True) -> str:
         if line == "":
             continue
 
-          if not line.endswith(";"):
-              raise SyntaxError('invalid syntax\nline {index}\nevery line should end with ";"')
+        if not line.endswith(";"):
+            raise SyntaxError('invalid syntax\nline {index}\nevery line should end with ";"')
 
     code = _replaceall(code)
     return code
