@@ -55,7 +55,7 @@ def wrap_code(code: str, args: str = '') -> ast.Module:
     return mod
 
 class CodeExecutor:
-    __slots__ = ('args', 'arg_names', 'code', 'loop', 'scope', 'source')
+    __slots__ = ('args', 'arg_names', 'code', 'loop', 'scope', 'source', 'fname')
 
     def __init__(self, code: str, fname: str = "<rist-executer>", scope: Scope = None, arg_dict: dict = None, loop: asyncio.BaseEventLoop = None):
         self.args = [self]
