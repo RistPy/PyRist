@@ -5,10 +5,12 @@ import linecache
 
 import import_expression
 
+from .scope import Scope
+from .tools import Sender
 from .walkers import KeywordTransformer
 
 CODE = """
-def _compiler_func({{0}}):
+def _runner_func({{0}}):
     import asyncio
     from importlib import import_module as {0}
     import aiohttp
@@ -51,3 +53,43 @@ def wrap_code(code: str, args: str = '') -> ast.Module:
         try_block.body[-1] = yield_expr
 
     return mod
+
+class CodeExecutor:
+    __slots__ = ('args', 'arg_names', 'code', 'loop', 'scope', 'source')
+
+    def __init__(self, code: str, fname: str = "<rist-executer>", scope: Scope = None, arg_dict: dict = None, loop: asyncio.BaseEventLoop = None):
+        self.args = [self]
+        self.arg_names = ['_executor']
+
+        if arg_dict:
+            for key, value in arg_dict.items():
+                self.arg_names.append(key)
+                self.args.append(value)
+
+        self.source = code
+        self.code = wrap_code(code, args=', '.join(self.arg_names))
+        self.scope = scope or Scope()
+        self.fname = fname
+        self.loop = loop or asyncio.get_event_loop()
+
+    def __iter__(self):
+        exec(compile(self.code, self.fname, 'exec'), self.scope.globals, self.scope.locals)
+        func_def = self.scope.locals.get('_runner_func') or self.scope.globals['_runner_func']
+
+        return self.traverse(func_def)
+
+    def traverse(self, func):
+        try:
+            if inspect.isgeneratorfunction(func):
+                for send, result in Sender(func(*self.args)):
+                    send((yield result))
+            else:
+                yield func(*self.args)
+        except Exception:
+            linecache.cache[self.fname] = (
+                len(self.source),
+                None,
+                [line + '\n' for line in self.source.splitlines()],
+                self.fname
+            )
+            raise
