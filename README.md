@@ -11,7 +11,7 @@ python3 -m pip install git+https://github.com/Rishiraj0100/PyRist/
 Create a file named `main.rist`<br />
 A sample code is given here
 ```rist
-@+ os;
+@+ os, pprint;
 +@ typing @+ Union;
 
 def cls{}:;
@@ -20,7 +20,7 @@ def cls{}:;
 cls{};
 
 def something{arg: Union[str, int]}:;
-  pprint!.pprint{["myText", [arg]]};
+  pprint.pprint{["myText", [arg]]};
 
 something{"text2"};
 ```
