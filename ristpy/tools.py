@@ -10,7 +10,7 @@ class Sender:
     def _internal(self, base):
         try:
             while True:
-                value = base.asend(self.send_value)
+                value = base.send(self.send_value)
                 self.send_value = None
                 yield self.set_send_value, value
         except StopIteration:
