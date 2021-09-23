@@ -1,3 +1,8 @@
+from .tools import *
+from .scope import *
+from .walkers import *
+from .compiler import *
+
 def _replace(code: str, key: str, value: str = "") -> str:
     while key in code:
         code = code.replace(key, value)
@@ -20,11 +25,19 @@ def rist(arg: str, fp: bool = True) -> str:
         code = arg
 
     lines = code.splitlines()
-    for line in lines:
-      if line == "":
-        continue
+    for index, line in enumerate(lines):
+        if line == "":
+            continue
 
-      if not line.endswith(";"):
-        raise SyntaxError('invalid syntax\nper line should end with ";"')
+          if not line.endswith(";"):
+              raise SyntaxError('invalid syntax\nline {index}\nevery line should end with ";"')
+
     code = _replaceall(code)
     return code
+
+def execute(code: str):
+    for send, result in Sender(CodeExecutor(code)):
+        if result is None:
+            continue
+
+        send((yield result))
