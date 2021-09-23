@@ -1,4 +1,4 @@
-@+ os;
+@+ os, pprint;
 +@ typing @+ Union;
 
 def cls{}:;
@@ -7,6 +7,6 @@ def cls{}:;
 cls{};
 
 def something{arg: Union[str, int]}:;
-  pprint!.pprint{["myText", [arg]]};
+  pprint.pprint{["myText", [arg]]};
 
 something{"text2"};
