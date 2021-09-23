@@ -13,7 +13,7 @@ def compile_to(parser, to_read, to_write):
     except OSError as exc:
         parser.error(f'could not create file ({exc})')
     else:
-        print('successfully compiled code at', directory)
+        print('successfully compiled code at', to_write)
 
 def compile_and_run(fp: str):
     if not fp.endswith(".rist"):
