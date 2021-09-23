@@ -1,7 +1,6 @@
 from setuptools import setup, find_packages
-import re
 
-version = "0.0.0.1a"
+version = "1.0"
 
 if version.endswith(('a', 'b', 'rc')):
     # append version identifier based on commit count
@@ -24,7 +23,7 @@ setup(
     name="PyRist",
     version=version,
     description="A module for compiling my lang",
-    license="CC0-1.0",
+    license="MIT",
     python_requires=">=3.8",
     packages=find_packages()
 )
