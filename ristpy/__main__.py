@@ -10,7 +10,7 @@ def compile_and_run(fp: str):
 
 def compile_fp(parser, args):
     if args.file:
-        compile(args.file)
+        compile_and_run(args.file)
 
 def parse_args():
     parser = argparse.ArgumentParser(prog='rist', description='Rist Lang')
