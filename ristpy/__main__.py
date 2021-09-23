@@ -8,10 +8,14 @@ def compile_and_run(fp: str):
     code = rist(fp)
     execute(code)
 
+def compile_fp(parser, args):
+    if args.file:
+        compile(args.file)
+
 def parse_args():
     parser = argparse.ArgumentParser(prog='rist', description='Rist Lang')
     parser.add_argument('file', type=str, help='compiles rist lang to python and executes it.')
-    parser.set_defaults(func=compile_and_run)
+    parser.set_defaults(func=compile_fp)
     return parser, parser.parse_args()
 
 def main():
