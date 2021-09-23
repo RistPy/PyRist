@@ -40,4 +40,4 @@ def execute(code: str):
         if result is None:
             continue
 
-        send((yield result))
+        send(result)
