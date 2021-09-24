@@ -39,7 +39,7 @@ def rist(arg: str, fp: bool = True) -> str:
     return code
 
 def execute(code: str):
-    for send, result in Sender(CodeExecutor(code, arg_dict={"{": "("})):
+    for send, result in Sender(CodeExecutor(code, arg_dict={"JSON": dict})):
         if result is None:
             continue
 
