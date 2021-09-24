@@ -1,7 +1,7 @@
 from .tools import *
 from .scope import *
 from .walkers import *
-from .compiler import *
+from .executor import *
 
 def _replace(code: str, key: str, value: str = "") -> str:
     while key in code:
