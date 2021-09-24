@@ -2,6 +2,7 @@ from .tools import *
 from .scope import *
 from .walkers import *
 from .executor import *
+from .builtins import *
 
 def _replace(code: str, key: str, value: str = "") -> str:
     while key in code:
@@ -39,7 +40,7 @@ def rist(arg: str, fp: bool = True) -> str:
     return code
 
 def execute(code: str):
-    for send, result in Sender(CodeExecutor(code, arg_dict={"JSON": dict})):
+    for send, result in Sender(CodeExecutor(code, arg_dict=get_builtins())):
         if result is None:
             continue
 
