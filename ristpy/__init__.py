@@ -14,6 +14,9 @@ def _replaceall(code: str) -> str:
     code = _replace(code, "@+", "import")
     code = _replace(code, "{", "(")
     code = _replace(code,"}", ")")
+    code = _replace(code, "<", "{")
+    code = _replace(code, ">", "}")
+    code = _replace(code, "→", ">")
     code = _replace(code, ";", "")
     return code
 
@@ -36,7 +39,7 @@ def rist(arg: str, fp: bool = True) -> str:
     return code
 
 def execute(code: str):
-    for send, result in Sender(CodeExecutor(code)):
+    for send, result in Sender(CodeExecutor(code, arg_dict={"{": "("})):
         if result is None:
             continue
 
