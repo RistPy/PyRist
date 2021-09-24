@@ -18,6 +18,7 @@ def _replaceall(code: str) -> str:
     code = _replace(code, "<", "{")
     code = _replace(code, ">", "}")
     code = _replace(code, "→", ">")
+    code = _replace(code, "define", "def")
     code = _replace(code, ";", "")
     return code
 
