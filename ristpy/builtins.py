@@ -12,5 +12,10 @@ def get_builtins():
     "Num": float,
     "Number": float,
     "Int": int,
-    "Integer": int
+    "Integer": int,
+    "true": True,
+    "false": False,
+    "Boolean": bool,
+    "boolean": bool,
+    "Bool": bool
   }
