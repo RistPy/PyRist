@@ -14,12 +14,12 @@ A sample code is given here
 @+ os, pprint;
 +@ typing @+ Union;
 
-def cls{}:;
+define cls{}:;
   os.system{"cls" if os.name == "nt" else "clear"};
 
 cls{};
 
-def something{arg: Union[str, int]}:;
+define something{arg: Union[str, int]}:;
   pprint.pprint{["myText", [arg]]};
 
 something{"text2"};
