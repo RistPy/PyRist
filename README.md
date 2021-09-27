@@ -1,5 +1,5 @@
 # PyRist
-The programming language made by [@Rishiraj0100](https://GitHub.com/Rishiraj0100)
+The programming language made by me ([@Rishiraj0100](https://GitHub.com/Rishiraj0100))
 
 ## Usage
 
@@ -47,5 +47,22 @@ execute(rist('main.rist'))
 ```
 
 ## Syntax
+### Note
+Every line should end with `;` only if line is not empty
+### Importing
+#### What can it Import?
+
+It can Import all python3 modules
+
+#### How to Import?
+In python you do `import asyncio`
+
+In rist you have to do `@+ asyncio;`
+
+In python you do `from aiohttp import web`
+
+In rist you have to do `+@ aiohttp @+ web;`
+
+### More Syntax
 
 Coming soon....
