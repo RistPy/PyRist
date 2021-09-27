@@ -71,7 +71,7 @@ def rist(arg: str, fp: bool = True) -> str:
 
         nlines.append(line.rstrip(";"))
     code = "\n".join(list(line for line in nlines))
-    return _CompiledCode(code)
+    return _CompiledCode(_replaceall(code))
 
 def execute(code: _CompiledCode):
     if not isinstance(code, _CompiledCode):
