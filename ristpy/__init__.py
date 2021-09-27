@@ -31,7 +31,7 @@ def _imports(code: str) -> str:
       line.rstrip("\n")
       if line.startswith("+@ ") and " @+ " in line:
         nlines.append(_replace(_replace(line, "+@", "from"), "@+", "import"))
-      elif line.startswith("@+ ");
+      elif line.startswith("@+ "):
         nlines.append(_replace(line, "@+", "import"))
       else:
         nlines.append(line)
