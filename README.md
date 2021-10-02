@@ -63,6 +63,25 @@ In python you do `from aiohttp import web`
 
 In rist you have to do `+@ aiohttp @+ web;`
 
+### Functions
+How do i make a function?
+#### Making a function
+```rist
+# sync func;
+define MyFunc{}:;
+  pass;
+# async func;
+async define AsMyFunc{}:;
+  pass;
+```
+How do i call it?
+#### Calling a function
+```rist
+# sync function;
+MyFunc{};
+# async func;
+await AsMyFunc{};
+```
 ### More Syntax
 
 Coming soon....
