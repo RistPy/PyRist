@@ -120,6 +120,15 @@ For example
   2;
 };
 ```
+### Function Typing
+How do I use `def myfunc() -> None:` to rist if `>`
+is used in dict?
+
+Simple answer is here ↓
+```rist
+define MyFunc{} → None:;
+  pass;
+```
 ### More Syntax
 
 Coming soon....
