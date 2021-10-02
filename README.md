@@ -82,6 +82,44 @@ MyFunc{};
 # async func;
 await AsMyFunc{};
 ```
+### Dict
+How can I make dict as `{}` is used as `()`
+#### Working With Dict
+To make dict to things are here
+`()` and `<>`
+For example
+```rist
+("hi": "hello");
+("hello": ("wor": "ld"));
+<"hi": "hi">;
+# mixed;
+<;
+  1: <;
+    2: (;
+      3: 4;
+    ),;
+    5: 6;
+  >,;
+  7: 8;
+>;
+```
+### Tuples and lists
+#### Making a List
+```rist
+[1,2];
+[;
+  1,;
+  2;
+];
+```
+#### Making a Tuple
+```rist
+{1,2};
+{;
+  1,;
+  2;
+};
+```
 ### More Syntax
 
 Coming soon....
