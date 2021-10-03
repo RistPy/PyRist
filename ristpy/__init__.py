@@ -15,7 +15,11 @@ class _CompiledCode:
   def __repr__(self) -> str:
     return "<CompiledCode length={0} from=rist to=python>".format(len(self.code))
 
-  def __str__(self):
+  def __str__(self) -> str:
+    return self.__code
+
+  @property
+  def code(self) -> str:
     return self.__code
 
 def _replace(code: str, key: str, value: str = "") -> str:
@@ -24,7 +28,7 @@ def _replace(code: str, key: str, value: str = "") -> str:
 
     return code
 
-def _imports(code: str) -> str:
+def _interprete_imports(code: str) -> str:
   lines = code.splitlines()
   nlines = []
   for index, line in enumerate(lines):
@@ -41,7 +45,7 @@ def _imports(code: str) -> str:
 def _replaceall(code: str) -> str:
     d1 = secrets.token_urlsafe(50)
     d2 = secrets.token_urlsafe(50)
-    code = _imports(code)
+    code = _interprete_imports(code)
     code = _replace(_replace(code, "(", d1), ")", d2)
     code = _replace(_replace(code,"}", ")"), "{", "(")
     code = _replace(_replace(code, ">", "}"), "<", "{")
