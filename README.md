@@ -1,5 +1,5 @@
 # PyRist
-The programming language made by me ([@Rishiraj0100](https://GitHub.com/Rishiraj0100))
+A programming language made by me ([@Rishiraj0100](https://GitHub.com/Rishiraj0100))
 
 ## Usage
 
