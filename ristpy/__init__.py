@@ -63,6 +63,7 @@ def __compileall(code: str) -> str:
   code = __replace(__replace(code, "}", ")"), "{", "(")
   code = __replace(__replace(code, ">", "}"), "<", "{")
   code = __replace(code, "} → ", "} -> ")
+  code = __replace(code, ") → ", ") -> ")
   code = __replace(__replace(code, d1, "{"), d2, "}")
   code = __replace(code, "define", "def")
   return code
