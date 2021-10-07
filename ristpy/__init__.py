@@ -74,14 +74,14 @@ def rist(arg: str, fp: bool = True) -> str:
   nlines = []
   for index, line in enumerate(lines):
     line = line.rstrip("\n")
-    if line == "":
+    if not line:
       nlines.append(line)
       continue
     if not line.endswith(";"):
       raise SyntaxError(f'invalid syntax\nline {index+1}\nevery line should end with ";"')
     nlines.append(line.rstrip(";"))
-    code = "\n".join(list(line for line in nlines))
-    return __CompiledCode(__compileall(code))
+  code = "\n".join(list(line for line in nlines))
+  return __CompiledCode(__compileall(code))
 
 def execute(code: __CompiledCode) -> None:
   if not isinstance(code, __CompiledCode):
