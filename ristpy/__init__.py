@@ -26,25 +26,20 @@ class __CompiledCode:
 def __replace(code: str, key: str, value: str = "") -> str:
     while key in code:
         code = code.replace(key, value)
-
     return code
 
 def __interprete_imports(line: str) -> str:
   if line.startswith("+@ ") and " @+ " in line:
     return __replace(__replace(line, "+@", "from"), "@+", "import")
-
   if line.startswith("@+ "):
     return __replace(line, "@+", "import")
-
   return line
 
 def __interprete_comments(line: str) -> str:
   if '//' not in line:
     return line
-
   if re.search('//.*', line):
     return __replace(line, '//', '#')
-
   return line
 
 def __interpreteall(code: str) -> str:
@@ -55,7 +50,6 @@ def __interpreteall(code: str) -> str:
     line = __interprete_imports(line)
     line = __interprete_comments(line)
     nlines.append(line)
-
   return "\n".join(list(line for line in nlines))
 
 def __compileall(code: str) -> str:
@@ -69,7 +63,6 @@ def __compileall(code: str) -> str:
     code = __replace(code, "} → ", "} -> ")
     code = __replace(__replace(code, d1, "{"), d2, "}")
     code = __replace(code, "define", "def")
-    
     return code
 
 def rist(arg: str, fp: bool = True) -> str:
@@ -78,7 +71,6 @@ def rist(arg: str, fp: bool = True) -> str:
             code = f.read()
     else:
         code = arg
-
     lines = code.splitlines()
     nlines = []
     for index, line in enumerate(lines):
@@ -86,13 +78,11 @@ def rist(arg: str, fp: bool = True) -> str:
         if line == "":
             nlines.append(line)
             continue
-
         if not line.endswith(";"):
             raise SyntaxError(f'invalid syntax\nline {index+1}\nevery line should end with ";"')
-
         nlines.append(line.rstrip(";"))
     code = "\n".join(list(line for line in nlines))
-    return __CompiledCode(_compileall(code))
+    return __CompiledCode(__compileall(code))
 
 def execute(code: __CompiledCode) -> None:
     if not isinstance(code, __CompiledCode):
@@ -101,5 +91,4 @@ def execute(code: __CompiledCode) -> None:
     for send, result in Sender(CodeExecutor(code, arg_dict=get_builtins())):
         if result is None:
             continue
-
         send(result)
