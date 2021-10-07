@@ -23,7 +23,6 @@ def _runner_func({{0}}):
         _executor.scope.globals.update(locals())
 """.format(import_expression.constants.IMPORTER)
 
-
 def wrap_code(code: str, args: str = '') -> ast.Module:
     user_code = import_expression.parse(code, mode='exec')
     mod = import_expression.parse(CODE.format(args), mode='exec')
@@ -57,7 +56,7 @@ def wrap_code(code: str, args: str = '') -> ast.Module:
 class CodeExecutor:
     __slots__ = ('args', 'arg_names', 'code', 'loop', 'scope', 'source', 'fname')
 
-    def __init__(self, code: str, fname: str = "<rist-executer>", scope: Scope = None, arg_dict: dict = None, loop: asyncio.BaseEventLoop = None):
+    def __init__(self, code: str, fname: str = "<rist-executor>", scope: Scope = None, arg_dict: dict = None, loop: asyncio.BaseEventLoop = None):
         self.args = [self]
         self.arg_names = ['_executor']
 
