@@ -44,14 +44,10 @@ def get_parent_scope_from_var(name, global_ok=False, skip_frames=0) -> typing.Op
         del stack
   return None
 
-
 def get_parent_var(name, global_ok=False, default=None, skip_frames=0):
-    scope = get_parent_scope_from_var(name, global_ok=global_ok, skip_frames=skip_frames + 1)
-
-    if not scope:
-        return default
-
-    if name in scope.locals:
-        return scope.locals.get(name, default)
-
-    return scope.globals.get(name, default)
+  scope = get_parent_scope_from_var(name, global_ok=global_ok, skip_frames=skip_frames + 1)
+  if not scope:
+    return default
+  if name in scope.locals:
+    return scope.locals.get(name, default)
+  return scope.globals.get(name, default)
