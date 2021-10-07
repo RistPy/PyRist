@@ -1,3 +1,4 @@
+import re
 import secrets
 
 from .tools import *
@@ -8,7 +9,7 @@ from .builtins import *
 
 __all__ = ("rist", "execute")
 
-class _CompiledCode:
+class __CompiledCode:
   def __init__(self, code: str) -> None:
     self.__code = code
 
@@ -22,37 +23,53 @@ class _CompiledCode:
   def code(self) -> str:
     return self.__code
 
-def _replace(code: str, key: str, value: str = "") -> str:
+def __replace(code: str, key: str, value: str = "") -> str:
     while key in code:
         code = code.replace(key, value)
 
     return code
 
-def _interprete_imports(code: str) -> str:
+def __interprete_imports(line: str) -> str:
+  if line.startswith("+@ ") and " @+ " in line:
+    return __replace(__replace(line, "+@", "from"), "@+", "import")
+
+  if line.startswith("@+ "):
+    return __replace(line, "@+", "import")
+
+  return line
+
+def __interprete_comments(line: str) -> str:
+  if '//' not in line:
+    return line
+
+  if re.search('//.*', line):
+    return __replace(line, '//', '#')
+
+  return line
+
+def __interpreteall(code: str) -> str:
   lines = code.splitlines()
   nlines = []
-  for index, line in enumerate(lines):
-      line.rstrip("\n")
-      if line.startswith("+@ ") and " @+ " in line:
-        nlines.append(_replace(_replace(line, "+@", "from"), "@+", "import"))
-      elif line.startswith("@+ "):
-        nlines.append(_replace(line, "@+", "import"))
-      else:
-        nlines.append(line)
+  for line in lines:
+    line.rstrip("\n")
+    line = __interprete_imports(line)
+    line = __interprete_comments(line)
+    nlines.append(line)
 
   return "\n".join(list(line for line in nlines))
 
-def _replaceall(code: str) -> str:
+def __compileall(code: str) -> str:
     d1 = secrets.token_urlsafe(50)
     d2 = secrets.token_urlsafe(50)
-    code = _interprete_imports(code)
-    code = _replace(_replace(code, "(", d1), ")", d2)
-    code = _replace(_replace(code,"}", ")"), "{", "(")
-    code = _replace(_replace(code, ">", "}"), "<", "{")
-    code = _replace(code, "→", ">")
-    code = _replace(_replace(code, d1, "{"), d2, "}")
-    code = _replace(code, "define", "def")
-    code = _replace(code, ";", "")
+    code = __interpreteall(code)
+    code = __replace(__replace(code, "(", d1), ")", d2)
+    code = __replace(__replace(code, "}", ")"), "{", "(")
+    code = __replace(code, "} =-> ", "} → ")
+    code = __replace(__replace(code, ">", "}"), "<", "{")
+    code = __replace(code, "} → ", "} -> ")
+    code = __replace(__replace(code, d1, "{"), d2, "}")
+    code = __replace(code, "define", "def")
+    
     return code
 
 def rist(arg: str, fp: bool = True) -> str:
@@ -75,10 +92,10 @@ def rist(arg: str, fp: bool = True) -> str:
 
         nlines.append(line.rstrip(";"))
     code = "\n".join(list(line for line in nlines))
-    return _CompiledCode(_replaceall(code))
+    return __CompiledCode(_compileall(code))
 
-def execute(code: _CompiledCode):
-    if not isinstance(code, _CompiledCode):
+def execute(code: __CompiledCode) -> None:
+    if not isinstance(code, __CompiledCode):
         raise TypeError("The code must be compiled from ristpy module not any other")
     code = str(code)
     for send, result in Sender(CodeExecutor(code, arg_dict=get_builtins())):
