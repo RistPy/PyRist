@@ -9,7 +9,7 @@ def compile_to(parser, to_read, to_write):
         raise TypeError("You must provide file which will be written with extension '.py'")
     try:
         with open(to_write, 'w', encoding='utf-8') as fp:
-            fp.write(str(rist(to_read)))
+            fp.write(rist(to_read).code)
     except OSError as exc:
         parser.error(f'could not create file ({exc})')
     else:
