@@ -1,4 +1,3 @@
-import re
 import secrets
 
 from .tools import *
@@ -36,12 +35,9 @@ def __interprete_imports(line: str) -> str:
   return line
 
 def __interprete_comments(line: str) -> str:
-  if '//' not in line:
-    return line
-  if re.search('//.*', line):
-    h = secrets.token_urlsafe(50)
-    line = __replace(line, '#', h)
-    line = __replace(__replace(line, '//', '#'), h, "//")
+  h = secrets.token_urlsafe(50)
+  line = __replace(line, '#', h)
+  line = __replace(__replace(line, '//', '#'), h, "//")
   return line
 
 def __interpreteall(code: str) -> str:
