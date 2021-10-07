@@ -124,9 +124,12 @@ For example
 How do I use `def myfunc() -> None:` to rist if `>`
 is used in dict?
 
-Simple answer is here ↓
+Simple answer is to use `→` or `=->` in place of `->`
 ```rist
 define MyFunc{} → None:;
+  pass;
+
+define AnotherFunc{} =-> None:;
   pass;
 ```
 ### More Syntax
