@@ -39,7 +39,9 @@ def __interprete_comments(line: str) -> str:
   if '//' not in line:
     return line
   if re.search('//.*', line):
-    return __replace(line, '//', '#')
+    h = secrets.token_urlsafe(50)
+    line = __replace(line, '#', h)
+    line = __replace(__replace(line, '//', '#'), h, "//")
   return line
 
 def __interpreteall(code: str) -> str:
@@ -53,42 +55,42 @@ def __interpreteall(code: str) -> str:
   return "\n".join(list(line for line in nlines))
 
 def __compileall(code: str) -> str:
-    d1 = secrets.token_urlsafe(50)
-    d2 = secrets.token_urlsafe(50)
-    code = __interpreteall(code)
-    code = __replace(__replace(code, "(", d1), ")", d2)
-    code = __replace(__replace(code, "}", ")"), "{", "(")
-    code = __replace(code, "} =-> ", "} → ")
-    code = __replace(__replace(code, ">", "}"), "<", "{")
-    code = __replace(code, "} → ", "} -> ")
-    code = __replace(__replace(code, d1, "{"), d2, "}")
-    code = __replace(code, "define", "def")
-    return code
+  d1 = secrets.token_urlsafe(50)
+  d2 = secrets.token_urlsafe(50)
+  code = __interpreteall(code)
+  code = __replace(__replace(code, "(", d1), ")", d2)
+  code = __replace(__replace(code, "}", ")"), "{", "(")
+  code = __replace(code, "} =-> ", "} → ")
+  code = __replace(__replace(code, ">", "}"), "<", "{")
+  code = __replace(code, "} → ", "} -> ")
+  code = __replace(__replace(code, d1, "{"), d2, "}")
+  code = __replace(code, "define", "def")
+  return code
 
 def rist(arg: str, fp: bool = True) -> str:
-    if fp:
-        with open(arg, 'r') as f:
-            code = f.read()
-    else:
-        code = arg
-    lines = code.splitlines()
-    nlines = []
-    for index, line in enumerate(lines):
-        line = line.rstrip("\n")
-        if line == "":
-            nlines.append(line)
-            continue
-        if not line.endswith(";"):
-            raise SyntaxError(f'invalid syntax\nline {index+1}\nevery line should end with ";"')
-        nlines.append(line.rstrip(";"))
+  if fp:
+    with open(arg, 'r') as f:
+      code = f.read()
+  else:
+    code = arg
+  lines = code.splitlines()
+  nlines = []
+  for index, line in enumerate(lines):
+    line = line.rstrip("\n")
+    if line == "":
+      nlines.append(line)
+      continue
+    if not line.endswith(";"):
+      raise SyntaxError(f'invalid syntax\nline {index+1}\nevery line should end with ";"')
+    nlines.append(line.rstrip(";"))
     code = "\n".join(list(line for line in nlines))
     return __CompiledCode(__compileall(code))
 
 def execute(code: __CompiledCode) -> None:
-    if not isinstance(code, __CompiledCode):
-        raise TypeError("The code must be compiled from ristpy module not any other")
-    code = str(code)
-    for send, result in Sender(CodeExecutor(code, arg_dict=get_builtins())):
-        if result is None:
-            continue
-        send(result)
+  if not isinstance(code, __CompiledCode):
+    raise TypeError("The code must be compiled from ristpy module not any other")
+  code = str(code)
+  for send, result in Sender(CodeExecutor(code, arg_dict=get_builtins())):
+    if result is None:
+      continue
+    send(result)
