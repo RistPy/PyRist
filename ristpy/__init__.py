@@ -9,7 +9,7 @@ from .builtins import *
 __all__ = ("rist", "execute")
 
 class __CompiledCode:
-  def __init__(self, code: str, fname: str = '<rist-executor>`) -> None:
+  def __init__(self, code: str, fname: str = '<rist-executor>') -> None:
     self.__code = code
     self.file = fname
 
