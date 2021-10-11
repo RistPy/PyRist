@@ -45,9 +45,7 @@ class Token:
     self.coloumn = coloumn
 
   def __repr__(self) -> str:
-    return "<Token name='{0.name}' value='{0.value}' line={1} coloumn={2.coloumn}>".format(
-      self, 
-      self.line,
+    return "<Token name='{0.name}' value='{0.value}' line={0.line} coloumn={0.coloumn}>".format(
       self
     )
 
@@ -62,8 +60,8 @@ class Stream:
   def tokens(self) -> List[Token]:
     return self.__tokens
 
-  def __repr__(self) -> List[Token]:
-    return self.tokens
+  def __repr__(self) -> str:
+    return '<Stream tokens=[{0.tokens}]>'.format(self)
 
   def main(self) -> List[Token]:
     toks = []
