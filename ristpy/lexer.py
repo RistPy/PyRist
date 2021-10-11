@@ -41,7 +41,7 @@ class Token:
     coloumn: int
   ) -> None:
     self.name = name
-    self.value = value
+    self.value = str(value)
     self.line = line
     self.coloumn = coloumn
 
