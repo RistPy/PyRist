@@ -1,8 +1,9 @@
 import re
+import copy
 
 from operator import attrgetter
 from collections import OrderedDict
-from typing import Any, Union, TypeVar, Optional, Iterable
+from typing import Any, Union, TypeVar, Optional, Iterable, List
 
 
 
@@ -54,8 +55,28 @@ class Token:
   def __str__(self) -> str:
     return self.value
 
-class Stream(list):
-  pass
+class Stream:
+  def __init__(self, tokens: List[Token]) -> None:
+    self.__tokens = tokens
+
+  @property
+  def tokens(self) -> List[Token]:
+    return copy.deepcopy(self.__tokens)
+
+  def __repr__(self) -> List[Token]:
+    return self.tokens
+
+  def main(self) -> List[Token]:
+    toks = []
+    for tok in self.token:
+      if tok.name == "LCBRACK" and tok.value == "{":
+        ntoks.append(Token("LPAREN", "(", tok.line, tok.coloumn)
+      elif tok.name == "RCBRACK" and tok.value == "}":
+        ntoks.append(Token("RPAREN", ")", tok.line, tok.coloumn)
+      else:
+        ntoks.append(tok)
+
+    return ntoks
 
 class Lexer:
     rules = [
