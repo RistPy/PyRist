@@ -64,7 +64,7 @@ class Stream:
     return '<Stream tokens=[{0.tokens}]>'.format(self)
 
   def main(self) -> List[Token]:
-    toks = []
+    ntoks = []
     for tok in self.tokens:
       if tok.name == "LCBRACK" and tok.value == "{":
         ntoks.append(Token("LPAREN", "(", tok.line, tok.coloumn))
