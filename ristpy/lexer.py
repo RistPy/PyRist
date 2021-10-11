@@ -1,11 +1,35 @@
 import re
 
-from typing import Union
+from operator import attrgetter
 from collections import OrderedDict
+from typing import Any, Union, TypeVar, Optional, Iterable
 
 
+
+T = TypeVar('T')
 LexerError = SyntaxError
 iteritems = lambda d: iter(d.items())
+
+def search(iterable: Iterable[T], **attrs: Any) -> Optional[T]:
+  # global -> local
+  _all = all
+  attrget = attrgetter
+
+  # Special case the single element call
+  if len(attrs) == 1:
+    k, v = attrs.popitem()
+    pred = attrget(k.replace('__', '.'))
+    for elem in iterable:
+      if pred(elem) == v:
+        return elem
+    return None
+
+  converted = [(attrget(attr.replace('__', '.')), value) for attr, value in attrs.items()]
+
+  for elem in iterable:
+    if _all(pred(elem) == value for pred, value in converted):
+      return elem
+  return None
 
 class Token:
   def __init__(
