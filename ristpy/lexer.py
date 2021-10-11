@@ -63,6 +63,8 @@ class Lexer:
         'WHITESPACE',
         'COMMENT',
     ]
+    decoders = []
+    keywords = []
 
     def __init__(self):
         self.source_lines = []
