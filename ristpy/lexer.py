@@ -1,5 +1,4 @@
 import re
-import copy
 
 from operator import attrgetter
 from collections import OrderedDict
@@ -61,7 +60,7 @@ class Stream:
 
   @property
   def tokens(self) -> List[Token]:
-    return copy.deepcopy(self.__tokens)
+    return self.__tokens
 
   def __repr__(self) -> List[Token]:
     return self.tokens
