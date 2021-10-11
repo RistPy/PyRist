@@ -23,6 +23,9 @@ class Token:
       self
     )
 
+class Stream(list):
+  pass
+
 class Lexer:
     rules = [
         ('COMMENT', r'//.*'),
@@ -47,7 +50,9 @@ class Lexer:
         ('RCBRACK', '}'),
         ('COLON', ':'),
         ('COMMA', ','),
-        ('DOT', '.')
+        ('DOT', '.'),
+        ('FROM', r'\+@'),
+        ('IMPORT', r'@\+')
     ]
 
     ignore_tokens = [
@@ -140,5 +145,5 @@ class Lexer:
         if last_indent_level > 0:
             tokens.extend([Token('DEDENT', None, line_num, 0)] * last_indent_level)
 
-        return tokens
+        return Stream(tokens)
 
