@@ -68,11 +68,11 @@ class Stream:
 
   def main(self) -> List[Token]:
     toks = []
-    for tok in self.token:
+    for tok in self.tokens:
       if tok.name == "LCBRACK" and tok.value == "{":
-        ntoks.append(Token("LPAREN", "(", tok.line, tok.coloumn)
+        ntoks.append(Token("LPAREN", "(", tok.line, tok.coloumn))
       elif tok.name == "RCBRACK" and tok.value == "}":
-        ntoks.append(Token("RPAREN", ")", tok.line, tok.coloumn)
+        ntoks.append(Token("RPAREN", ")", tok.line, tok.coloumn))
       else:
         ntoks.append(tok)
 
