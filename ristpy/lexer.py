@@ -53,7 +53,7 @@ class Token:
     )
 
   def __str__(self) -> str:
-    return self.value
+    return str(self.value)
 
 class Stream:
   def __init__(self, tokens: List[Token]) -> None:
