@@ -21,11 +21,14 @@ class Token:
     self.coloumn = coloumn
 
   def __repr__(self) -> str:
-    return '<Token name={0.name} value={0.value} line={1} coloumn={2.coloumn}>'.format(
+    return "<Token name='{0.name}' value='{0.value}' line={1} coloumn={2.coloumn}>".format(
       self, 
       self.line,
       self
     )
+
+  def __str__(self) -> str:
+    return self.value
 
 class Stream(list):
   pass
