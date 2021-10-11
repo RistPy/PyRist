@@ -1,9 +1,11 @@
 import re
 
 from typing import Union
+from collections import OrderedDict
 
 
 LexerError = SyntaxError
+iteritems = lambda d: iter(d.items())
 
 class Token:
   def __init__(
