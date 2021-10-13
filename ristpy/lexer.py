@@ -113,8 +113,6 @@ class Lexer:
     ignore_tokens = [
         'COMMENT',
     ]
-    decoders = []
-    keywords = []
 
     def __init__(self):
         self.source_lines = []
@@ -142,11 +140,12 @@ class Lexer:
                 pos = matches.end(name)
                 if name not in self.ignore_tokens:
                     value = matches.group(name)
-                    if name in self.decoders:
-                        value = self.decoders[name](value)
-                    elif name == 'NAME' and value in self.keywords:
-                        name = self.keywords[value]
-                        value = None
+                    if name == "TABSPACE":
+                        value = "	"
+                    elif name == "SPACE":
+                        value = " "
+                    elif name == "NEWLINE":
+                        value = "\n"
                     yield Token(name, value, line_num, matches.start() + 1)
             else:
                 raise LexerError('Unexpected character {}'.format(line[pos]), line_num, pos + 1)
