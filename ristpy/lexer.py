@@ -71,7 +71,7 @@ class Stream:
       elif tok.name == "RCBRACK" and tok.value == "}":
         ntoks.append(Token("RPAREN", ")", tok.line, tok.coloumn))
       elif tok.name == "COMMENT":
-        ntoks.append(Token("COMMENT", ("#"+tok.value[1:]), tok.line, tok.coloumn))
+        ntoks.append(Token("COMMENT", ("#"+tok.value[2:]), tok.line, tok.coloumn))
       elif tok.name == "FUNCDEF" and tok.value == "define":
         ntoks.append(Token("FUNCDEF", "def", tok.line, tok.coloumn))
       else:
