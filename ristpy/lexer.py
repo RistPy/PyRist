@@ -90,7 +90,6 @@ class Lexer:
         ('NAME', r'[a-zA-Z_]\w*|[a-zA-Z0-9_]\w*'),
         ('TABSPACE', '\t'),
         ('SPACE', ' '),
-        ('NEWLINE', r'\n'),
         ('OPERATOR', r'[\+\*\-\/%]'),       # arithmetic operators
         ('OPERATOR', r'<=|>=|==|!=|<|>'),   # comparison operators
         ('OPERATOR', r'\|\||&&'),           # boolean operators
@@ -108,10 +107,6 @@ class Lexer:
         ('DOT', '.'),
         ('FROM', r'\+@'),
         ('IMPORT', r'@\+')
-    ]
-
-    ignore_tokens = [
-        'COMMENT',
     ]
 
     def __init__(self):
@@ -138,17 +133,12 @@ class Lexer:
             if matches is not None:
                 name = matches.lastgroup
                 pos = matches.end(name)
-                if name not in self.ignore_tokens:
-                    value = matches.group(name)
-                    if name == "TABSPACE":
-                        value = "	"
-                    elif name == "SPACE":
-                        value = " "
-                    elif name == "NEWLINE":
-                        value = "\n"
-                    yield Token(name, value, line_num, matches.start() + 1)
-            else:
-                raise LexerError('Unexpected character {}'.format(line[pos]), line_num, pos + 1)
+                value = matches.group(name)
+                if name == "TABSPACE":
+                    value = "	"
+                elif name == "SPACE":
+                    value = " "
+                yield Token(name, value, line_num, matches.start() + 1)
 
     def _count_leading_characters(self, line, char):
         count = 0
