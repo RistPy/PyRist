@@ -1,35 +1,9 @@
 import re
+import copy
 
-from operator import attrgetter
 from collections import OrderedDict
-from typing import Any, Union, TypeVar, Optional, Iterable, List
+from typing import Union, List, Generator
 
-
-
-T = TypeVar('T')
-LexerError = SyntaxError
-iteritems = lambda d: iter(d.items())
-
-def search(iterable: Iterable[T], **attrs: Any) -> Optional[T]:
-  # global -> local
-  _all = all
-  attrget = attrgetter
-
-  # Special case the single element call
-  if len(attrs) == 1:
-    k, v = attrs.popitem()
-    pred = attrget(k.replace('__', '.'))
-    for elem in iterable:
-      if pred(elem) == v:
-        return elem
-    return None
-
-  converted = [(attrget(attr.replace('__', '.')), value) for attr, value in attrs.items()]
-
-  for elem in iterable:
-    if _all(pred(elem) == value for pred, value in converted):
-      return elem
-  return None
 
 class Token:
   def __init__(
@@ -58,10 +32,13 @@ class Stream:
 
   @property
   def tokens(self) -> List[Token]:
-    return self.__tokens
+    return copy.deepcopy(self.__tokens)
 
   def __repr__(self) -> str:
     return '<Stream tokens={0.tokens}>'.format(self)
+
+  def __str__(self) -> str:
+    return "".join(list(str(token) for token in self.tokens))
 
   def main(self) -> List[Token]:
     ntoks = []
@@ -109,24 +86,24 @@ class Lexer:
         ('IMPORT', r'@\+')
     ]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.source_lines = []
         self._regex = self._compile_rules(self.rules)
 
-    def _convert_rules(self, rules):
+    def _convert_rules(self, rules) -> Generator[str]:
         grouped_rules = OrderedDict()
         for name, pattern in rules:
             grouped_rules.setdefault(name, [])
             grouped_rules[name].append(pattern)
 
-        for name, patterns in iteritems(grouped_rules):
+        for name, patterns in iter(grouped_rules.items()):
             joined_patterns = '|'.join(['({})'.format(p) for p in patterns])
             yield '(?P<{}>{})'.format(name, joined_patterns)
 
     def _compile_rules(self, rules):
         return re.compile('|'.join(self._convert_rules(rules)))
 
-    def _tokenize_line(self, line, line_num):
+    def _tokenize_line(self, line, line_num) -> Generator[Token]:
         pos = 0
         while pos < len(line):
             matches = self._regex.match(line, pos)
@@ -140,29 +117,15 @@ class Lexer:
                     value = " "
                 yield Token(name, value, line_num, matches.start() + 1)
 
-    def _count_leading_characters(self, line, char):
-        count = 0
-        for c in line:
-            if c != char:
-                break
-            count += 1
-        return count
-
-    def _detect_indent(self, line):
-        if line[0] in (' ', '\t'):
-            return line[0] * self._count_leading_characters(line, line[0])
-
-    def tokenize(self, s):
+    def tokenize(self, s) -> Stream
         tokens = []
         line_num = 0
         for line_num, line in enumerate(s.splitlines(), 1):
             line = line.rstrip()
 
             if not line:
-                self.source_lines.append('')
+                tokens.append(Token('NEWLINE', "\n", line_num, 1)
                 continue
-
-            self.source_lines.append(line)
 
             line_tokens = list(self._tokenize_line(line, line_num))
             if line_tokens:
