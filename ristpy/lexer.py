@@ -61,7 +61,7 @@ class Stream:
     return self.__tokens
 
   def __repr__(self) -> str:
-    return '<Stream tokens=[{0.tokens}]>'.format(self)
+    return '<Stream tokens={0.tokens}>'.format(self)
 
   def main(self) -> List[Token]:
     ntoks = []
@@ -70,6 +70,10 @@ class Stream:
         ntoks.append(Token("LPAREN", "(", tok.line, tok.coloumn))
       elif tok.name == "RCBRACK" and tok.value == "}":
         ntoks.append(Token("RPAREN", ")", tok.line, tok.coloumn))
+      elif tok.name == "COMMENT" and tok.value.startswith('//'):
+        ntoks.append(Token("COMMENT", ("#"+tok.value[1:]), tok.line, tok.coloumn))
+      elif tok.name == "FUNCDEF" and tok.value == "define":
+        ntoks.append(Token("FUNCDEF", "def", tok.line, tok.coloumn))
       else:
         ntoks.append(tok)
 
@@ -82,9 +86,11 @@ class Lexer:
         ('STRING', r"'(\\'|[^'])*'"),
         ('NUMBER', r'\d+\.\d+'),
         ('NUMBER', r'\d+'),
+        ('FUNCDEF', 'define'),
         ('NAME', r'[a-zA-Z_]\w*|[a-zA-Z0-9_]\w*'),
-        ('WHITESPACE', '[ \t]+'),
-        ('NEWLINE', r'\n+'),
+        ('TABSPACE', '\t'),
+        ('SPACE', ' '),
+        ('NEWLINE', r'\n'),
         ('OPERATOR', r'[\+\*\-\/%]'),       # arithmetic operators
         ('OPERATOR', r'<=|>=|==|!=|<|>'),   # comparison operators
         ('OPERATOR', r'\|\||&&'),           # boolean operators
@@ -105,7 +111,6 @@ class Lexer:
     ]
 
     ignore_tokens = [
-        'WHITESPACE',
         'COMMENT',
     ]
     decoders = []
