@@ -163,9 +163,7 @@ class Lexer:
             return line[0] * self._count_leading_characters(line, line[0])
 
     def tokenize(self, s):
-        indent_symbol = None
         tokens = []
-        last_indent_level = 0
         line_num = 0
         for line_num, line in enumerate(s.splitlines(), 1):
             line = line.rstrip()
@@ -174,31 +172,12 @@ class Lexer:
                 self.source_lines.append('')
                 continue
 
-            if indent_symbol is None:
-                indent_symbol = self._detect_indent(line)
-
-            if indent_symbol is not None:
-                indent_level = line.count(indent_symbol)
-                line = line[indent_level*len(indent_symbol):]
-            else:
-                indent_level = 0
-
             self.source_lines.append(line)
 
             line_tokens = list(self._tokenize_line(line, line_num))
             if line_tokens:
-                if indent_level != last_indent_level:
-                    if indent_level > last_indent_level:
-                        tokens.extend([Token('INDENT', None, line_num, 0)] * (indent_level - last_indent_level))
-                    elif indent_level < last_indent_level:
-                        tokens.extend([Token('DEDENT', None, line_num, 0)] * (last_indent_level - indent_level))
-                    last_indent_level = indent_level
-
                 tokens.extend(line_tokens)
-                tokens.append(Token('NEWLINE', None, line_num, len(line) + 1))
-
-        if last_indent_level > 0:
-            tokens.extend([Token('DEDENT', None, line_num, 0)] * last_indent_level)
+                tokens.append(Token('NEWLINE', "\n", line_num, len(line) + 1))
 
         return Stream(tokens)
 
