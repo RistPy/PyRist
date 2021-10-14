@@ -17,7 +17,7 @@ from .builtins import *
 
 __all__ = ("rist", "execute")
 
-class __Scope:
+class _Scope:
   __slots__ = ('globals', 'locals')
 
   def __init__(self, globals_: dict = None, locals_: dict = None):
@@ -82,7 +82,7 @@ def _runner_func({{0}}):
         _executor.scope.globals.update(locals())
 """.format(import_expression.constants.IMPORTER)
 
-def __wrap_code(code: str, args: str = '') -> ast.Module:
+def _wrap_code(code: str, args: str = '') -> ast.Module:
     user_code = import_expression.parse(code, mode='exec')
     mod = import_expression.parse(__CODE.format(args), mode='exec')
 
@@ -127,7 +127,7 @@ class __CompiledCode:
   def code(self) -> str:
     return self.__code
 
-class __Sender:
+class Sender:
   __slots__ = ('iterator', 'send_value')
   def __init__(self, iterator):
     self.iterator = iterator
@@ -148,10 +148,10 @@ class __Sender:
   def set_send_value(self, value):
     self.send_value = value
 
-class __CodeExecutor:
+class _CodeExecutor:
     __slots__ = ('args', 'arg_names', 'code', 'loop', 'scope', 'source', 'fname')
 
-    def __init__(self, code: str, fname: str = "<unknown>", scope: __Scope = None, arg_dict: dict = None, loop: asyncio.BaseEventLoop = None):
+    def __init__(self, code: str, fname: str = "<unknown>", scope: _Scope = None, arg_dict: dict = None, loop: asyncio.BaseEventLoop = None):
         self.args = [self]
         self.arg_names = ['_executor']
 
@@ -162,7 +162,7 @@ class __CodeExecutor:
 
         self.source = code
         self.code = __wrap_code(code, args=', '.join(self.arg_names))
-        self.scope = scope or __Scope()
+        self.scope = scope or _Scope()
         self.fname = fname
         self.loop = loop or asyncio.get_event_loop()
 
@@ -335,7 +335,7 @@ def rist(arg: str, fp: bool = True) -> __CompiledCode:
 def execute(code: __CompiledCode) -> None:
   if not isinstance(code, __CompiledCode):
     raise TypeError("The code must be compiled from ristpy module not any other")
-  for send, result in __Sender(__CodeExecutor(str(code), arg_dict=get_builtins(), fname=code.file)):
+  for send, result in _Sender(_CodeExecutor(str(code), arg_dict=get_builtins(), fname=code.file)):
     if result is None:
       continue
     send(result)
