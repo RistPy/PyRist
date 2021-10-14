@@ -309,7 +309,7 @@ class __Interpreter:
         ntoks.append(_Token(tok.name, "import", tok.line, tok.coloumn))
       else:
         ntoks.append(tok)
-
+    print("".join(list(str(t) for t in ntoks)))
     return "".join(list(str(t) for t in ntoks))
 
 
