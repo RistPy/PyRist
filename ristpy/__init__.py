@@ -285,7 +285,7 @@ class __Interpreter:
       line_tokens = list(self.__interprete_line(line, line_num))
       if line_tokens:
         tokens.extend(line_tokens)
-        tokens.append(Token('NEWLINE', "\n", line_num, len(line) + 1))
+        tokens.append(_Token('NEWLINE', "\n", line_num, len(line) + 1))
 
     ntoks = []
     for tok in tokens:
