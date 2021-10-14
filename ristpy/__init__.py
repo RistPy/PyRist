@@ -309,7 +309,7 @@ class __Interpreter:
         ntoks.append(_Token(tok.name, "import", tok.line, tok.coloumn))
       else:
         ntoks.append(tok)
-    print("".join(list(str(t) for t in ntoks)))
+
     return "".join(list(str(t) for t in ntoks))
 
 
@@ -332,12 +332,11 @@ def rist(arg: str, fp: bool = True) -> __CompiledCode:
       raise SyntaxError(f'invalid syntax\nline {index+1}\nevery line should end with ";"')
     nlines.append(line.rstrip(";"))
   code = "\n".join(list(line for line in nlines))
-  return __CompiledCode(__Interpreter().interprete, fname)
+  return __CompiledCode(__Interpreter().interprete(code), fname)
 
 def execute(code: __CompiledCode) -> None:
   if not isinstance(code, __CompiledCode):
     raise TypeError("The code must be compiled from ristpy module not any other")
-  print(code.code)
   for send, result in Sender(_CodeExecutor(str(code), arg_dict=get_builtins(), fname=code.file)):
     if result is None:
       continue
