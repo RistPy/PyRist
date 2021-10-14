@@ -25,6 +25,7 @@ setup(
     description="A module for compiling my lang",
     license="MIT",
     python_requires=">=3.8",
+    entry_points={'console_scripts': ['rist=ristpy.__main__:main']},
     install_requires=["import_expression"],
     packages=find_packages()
 )
