@@ -42,15 +42,20 @@ class Stream:
 
   def main(self) -> List[Token]:
     ntoks = []
+    T=Token
     for tok in self.tokens:
       if tok.name == "LCBRACK" and tok.value == "{":
         ntoks.append(Token("LPAREN", "(", tok.line, tok.coloumn))
       elif tok.name == "RCBRACK" and tok.value == "}":
         ntoks.append(Token("RPAREN", ")", tok.line, tok.coloumn))
-      elif tok.name == "COMMENT":
-        ntoks.append(Token("COMMENT", ("#"+tok.value[2:]), tok.line, tok.coloumn))
+      elif tok.name == "COMMENT" and tok.value.startswith('//'):
+        ntoks.append(Token("COMMENT", ("#" + tok.value[2:]), tok.line, tok.coloumn))
       elif tok.name == "FUNCDEF" and tok.value == "define":
         ntoks.append(Token("FUNCDEF", "def", tok.line, tok.coloumn))
+      elif (tok.name == "LPAREN" and tok.value == "(") or (tok.name == "LARROW" and tok.value == "<"):
+        ntoks.append(T("LCBRACK", "{", tok.line, tok.coloumn))
+      elif (tok.name == "RPAREN" and tok.value == ")") or (tok.name == "RARROW" and tok.value == ">"):
+        ntoks.append(T("RCBRACK", "}", tok.line, tok.colomn))
       else:
         ntoks.append(tok)
 
