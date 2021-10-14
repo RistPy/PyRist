@@ -175,7 +175,7 @@ class _CodeExecutor:
     def __traverse(self, func):
         try:
             if inspect.isgeneratorfunction(func):
-                for send, result in __Sender(func(*self.args)):
+                for send, result in Sender(func(*self.args)):
                     send((yield result))
             else:
                 yield func(*self.args)
