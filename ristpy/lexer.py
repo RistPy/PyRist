@@ -63,6 +63,7 @@ class Lexer:
         ('STRING', r"'(\\'|[^'])*'"),
         ('NUMBER', r'\d+\.\d+'),
         ('NUMBER', r'\d+'),
+        ('ARROW', r'\=\-\=\>'),
         ('FUNCDEF', 'define'),
         ('NAME', r'[a-zA-Z_]\w*|[a-zA-Z0-9_]\w*'),
         ('TABSPACE', '\t'),
@@ -83,7 +84,9 @@ class Lexer:
         ('COMMA', ','),
         ('DOT', '.'),
         ('FROM', r'\+@'),
-        ('IMPORT', r'@\+')
+        ('IMPORT', r'@\+'),
+        ('LARROW', r'\<'),
+        ('RARROW', r'\>')
     ]
 
     def __init__(self) -> None:
