@@ -1,16 +1,116 @@
 import re
+import ast
+import typing
+import asyncio
+import inspect
 import secrets
+import linecache
+
+import import_expression
 
 from collections import OrderedDict
 from typing import Union, List, Generator, Tuple
 
-from .tools import *
-from .scope import *
 from .walkers import *
-from .executor import *
 from .builtins import *
 
+
 __all__ = ("rist", "execute")
+
+class __Scope:
+  __slots__ = ('globals', 'locals')
+
+  def __init__(self, globals_: dict = None, locals_: dict = None):
+    self.globals: dict = globals_ or {}
+    self.locals: dict = locals_ or {}
+
+  def clear_intersection(self, other_dict):
+    for key, value in other_dict.items():
+      if key in self.globals and self.globals[key] is value:
+        del self.globals[key]
+      if key in self.locals and self.locals[key] is value:
+        del self.locals[key]
+    return self
+
+  def update(self, other):
+    self.globals.update(other.globals)
+    self.locals.update(other.locals)
+    return self
+
+  def update_globals(self, other: dict):
+    self.globals.update(other)
+    return self
+
+  def update_locals(self, other: dict):
+    self.locals.update(other)
+    return self
+
+def get_parent_scope_from_var(name, global_ok=False, skip_frames=0) -> typing.Optional[__Scope]:
+  stack = inspect.stack()
+  try:
+    for frame_info in stack[skip_frames + 1:]:
+      frame = None
+      try:
+        frame = frame_info.frame
+        if name in frame.f_locals or (global_ok and name in frame.f_globals):
+          return __Scope(globals_=frame.f_globals, locals_=frame.f_locals)
+      finally:
+        del frame
+  finally:
+        del stack
+  return None
+
+def get_parent_var(name, global_ok=False, default=None, skip_frames=0):
+  scope = get_parent_scope_from_var(name, global_ok=global_ok, skip_frames=skip_frames + 1)
+  if not scope:
+    return default
+  if name in scope.locals:
+    return scope.locals.get(name, default)
+  return scope.globals.get(name, default)
+
+__CODE = """
+def _runner_func({{0}}):
+    import asyncio
+    from importlib import import_module as {0}
+    import aiohttp
+    import discord
+    from discord.ext import commands
+
+    try:
+        pass
+    finally:
+        _executor.scope.globals.update(locals())
+""".format(import_expression.constants.IMPORTER)
+
+def __wrap_code(code: str, args: str = '') -> ast.Module:
+    user_code = import_expression.parse(code, mode='exec')
+    mod = import_expression.parse(__CODE.format(args), mode='exec')
+
+    definition = mod.body[-1]
+    assert isinstance(definition, ast.FunctionDef)
+
+    try_block = definition.body[-1]
+    assert isinstance(try_block, ast.Try)
+
+    try_block.body.extend(user_code.body)
+
+    ast.fix_missing_locations(mod)
+
+    KeywordTransformer().generic_visit(try_block)
+
+    last_expr = try_block.body[-1]
+
+    if not isinstance(last_expr, ast.Expr):
+        return mod
+
+    if not isinstance(last_expr.value, ast.Yield):
+        yield_stmt = ast.Yield(last_expr.value)
+        ast.copy_location(yield_stmt, last_expr)
+        yield_expr = ast.Expr(yield_stmt)
+        ast.copy_location(yield_expr, last_expr)
+        try_block.body[-1] = yield_expr
+
+    return mod
 
 class __CompiledCode:
   def __init__(self, code: str, fname: str = '<unknown>') -> None:
@@ -26,6 +126,67 @@ class __CompiledCode:
   @property
   def code(self) -> str:
     return self.__code
+
+class __Sender:
+  __slots__ = ('iterator', 'send_value')
+  def __init__(self, iterator):
+    self.iterator = iterator
+    self.send_value = None
+
+  def __iter__(self):
+    return self.__internal(self.iterator.__iter__())
+
+  def __internal(self, base):
+    try:
+      while True:
+        value = base.send(self.send_value)
+        self.send_value = None
+        yield self.set_send_value, value
+    except StopIteration:
+      pass
+
+  def set_send_value(self, value):
+    self.send_value = value
+
+class __CodeExecutor:
+    __slots__ = ('args', 'arg_names', 'code', 'loop', 'scope', 'source', 'fname')
+
+    def __init__(self, code: str, fname: str = "<unknown>", scope: __Scope = None, arg_dict: dict = None, loop: asyncio.BaseEventLoop = None):
+        self.args = [self]
+        self.arg_names = ['_executor']
+
+        if arg_dict:
+            for key, value in arg_dict.items():
+                self.arg_names.append(key)
+                self.args.append(value)
+
+        self.source = code
+        self.code = __wrap_code(code, args=', '.join(self.arg_names))
+        self.scope = scope or __Scope()
+        self.fname = fname
+        self.loop = loop or asyncio.get_event_loop()
+
+    def __iter__(self):
+        exec(compile(self.code, self.fname, 'exec'), self.scope.globals, self.scope.locals)
+        func_def = self.scope.locals.get('_runner_func') or self.scope.globals['_runner_func']
+
+        return self.__traverse(func_def)
+
+    def __traverse(self, func):
+        try:
+            if inspect.isgeneratorfunction(func):
+                for send, result in __Sender(func(*self.args)):
+                    send((yield result))
+            else:
+                yield func(*self.args)
+        except Exception:
+            linecache.cache[self.fname] = (
+                len(self.source),
+                None,
+                [line + '\n' for line in self.source.splitlines()],
+                self.fname
+            )
+            raise
 
 class __Token:
   def __init__(
@@ -174,7 +335,7 @@ def rist(arg: str, fp: bool = True) -> __CompiledCode:
 def execute(code: __CompiledCode) -> None:
   if not isinstance(code, __CompiledCode):
     raise TypeError("The code must be compiled from ristpy module not any other")
-  for send, result in Sender(CodeExecutor(str(code), arg_dict=get_builtins(), fname=code.file)):
+  for send, result in __Sender(__CodeExecutor(str(code), arg_dict=get_builtins(), fname=code.file)):
     if result is None:
       continue
     send(result)
