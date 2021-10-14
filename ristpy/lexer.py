@@ -5,7 +5,7 @@ from collections import OrderedDict
 from typing import Union, List, Generator
 
 
-class Token:
+class __Token:
   def __init__(
     self,
     name: str,
@@ -26,12 +26,12 @@ class Token:
   def __str__(self) -> str:
     return str(self.value)
 
-class Stream:
-  def __init__(self, tokens: List[Token]) -> None:
+class __Stream:
+  def __init__(self, tokens: List[__Token]) -> None:
     self.__tokens = tokens
 
   @property
-  def tokens(self) -> List[Token]:
+  def tokens(self) -> List[__Token]:
     return copy.deepcopy(self.__tokens)
 
   def __repr__(self) -> str:
@@ -40,7 +40,7 @@ class Stream:
   def __str__(self) -> str:
     return "".join(list(str(token) for token in self.tokens))
 
-  def main(self) -> List[Token]:
+  def main(self) -> List[__Token]:
     ntoks = []
     T=Token
     for tok in self.tokens:
@@ -56,19 +56,25 @@ class Stream:
         ntoks.append(T("LCBRACK", "{", tok.line, tok.coloumn))
       elif (tok.name == "RPAREN" and tok.value == ")") or (tok.name == "RARROW" and tok.value == ">"):
         ntoks.append(T("RCBRACK", "}", tok.line, tok.colomn))
+      elif tok.name == "ARROW" and tok.value == "} =-=> ":
+        ntoks.append(T(tok.name, ") -> ", tok.line, tok.coloumn))
+      elif tok.name == "FROM" and tok.value == "+@":
+        ntoks.append(T(tok.name, "from", tok.line, tok.coloumn))
+      elif tok.name == "IMPORT" and tok.value == "@+"
+        ntoks.append(T(tok.name, "import", tok.line, tok.coloumn))
       else:
         ntoks.append(tok)
 
     return ntoks
 
-class Lexer:
+class __Interpreter:
     rules = [
         ('COMMENT', r'//.*'),
         ('STRING', r'"(\\"|[^"])*"'),
         ('STRING', r"'(\\'|[^'])*'"),
         ('NUMBER', r'\d+\.\d+'),
         ('NUMBER', r'\d+'),
-        ('ARROW', r'\=\-\=\>'),
+        ('ARROW', r'\} \=\-\=\> '),
         ('FUNCDEF', 'define'),
         ('NAME', r'[a-zA-Z_]\w*|[a-zA-Z0-9_]\w*'),
         ('TABSPACE', '\t'),
@@ -95,10 +101,9 @@ class Lexer:
     ]
 
     def __init__(self) -> None:
-        self.source_lines = []
-        self._regex = self._compile_rules(self.rules)
+        self.__regex = self.__compile_rules(self.rules)
 
-    def _convert_rules(self, rules) -> Generator[str]:
+    def __convert_rules(self, rules) -> Generator[str]:
         grouped_rules = OrderedDict()
         for name, pattern in rules:
             grouped_rules.setdefault(name, [])
@@ -108,10 +113,10 @@ class Lexer:
             joined_patterns = '|'.join(['({})'.format(p) for p in patterns])
             yield '(?P<{}>{})'.format(name, joined_patterns)
 
-    def _compile_rules(self, rules):
-        return re.compile('|'.join(self._convert_rules(rules)))
+    def __compile_rules(self, rules):
+        return re.compile('|'.join(self.__convert_rules(rules)))
 
-    def _tokenize_line(self, line, line_num) -> Generator[Token]:
+    def __interprete_line(self, line, line_num) -> Generator[__Token]:
         pos = 0
         while pos < len(line):
             matches = self._regex.match(line, pos)
@@ -123,9 +128,9 @@ class Lexer:
                     value = "	"
                 elif name == "SPACE":
                     value = " "
-                yield Token(name, value, line_num, matches.start() + 1)
+                yield __Token(name, value, line_num, matches.start() + 1)
 
-    def tokenize(self, s) -> Stream
+    def interprete(self, s) -> __Stream:
         tokens = []
         line_num = 0
         for line_num, line in enumerate(s.splitlines(), 1):
@@ -140,5 +145,5 @@ class Lexer:
                 tokens.extend(line_tokens)
                 tokens.append(Token('NEWLINE', "\n", line_num, len(line) + 1))
 
-        return Stream(tokens)
+        return str(__Stream(tokens).main())
 
