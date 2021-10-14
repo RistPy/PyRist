@@ -45,7 +45,7 @@ class _Scope:
     self.locals.update(other)
     return self
 
-def get_parent_scope_from_var(name, global_ok=False, skip_frames=0) -> typing.Optional[__Scope]:
+def get_parent_scope_from_var(name, global_ok=False, skip_frames=0) -> typing.Optional[_Scope]:
   stack = inspect.stack()
   try:
     for frame_info in stack[skip_frames + 1:]:
@@ -53,7 +53,7 @@ def get_parent_scope_from_var(name, global_ok=False, skip_frames=0) -> typing.Op
       try:
         frame = frame_info.frame
         if name in frame.f_locals or (global_ok and name in frame.f_globals):
-          return __Scope(globals_=frame.f_globals, locals_=frame.f_locals)
+          return _Scope(globals_=frame.f_globals, locals_=frame.f_locals)
       finally:
         del frame
   finally:
