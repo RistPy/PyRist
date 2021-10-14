@@ -212,8 +212,6 @@ class _Token:
 class __Interpreter:
   __rules = [
         ('COMMENT', r'//.*'),
-        ('DOCSTRING', r"'''(\\'|[^'])*'''"),
-        ('DOCSTRING', r'"""(\\"|[^"])*"""'),
         ('STRING', r'"(\\"|[^\n?"])*"'),
         ('STRING', r"'(\\'|[^\n?'])*'"),
         ('FROM', r'\+@'),
