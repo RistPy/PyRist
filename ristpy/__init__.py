@@ -303,7 +303,7 @@ class __Interpreter:
         ntoks.append(__Token(tok.name, ") -> ", tok.line, tok.coloumn))
       elif tok.name == "FROM" and tok.value == "+@":
         ntoks.append(__Token(tok.name, "from", tok.line, tok.coloumn))
-      elif tok.name == "IMPORT" and tok.value == "@+"
+      elif tok.name == "IMPORT" and tok.value == "@+":
         ntoks.append(__Token(tok.name, "import", tok.line, tok.coloumn))
       else:
         ntoks.append(tok)
