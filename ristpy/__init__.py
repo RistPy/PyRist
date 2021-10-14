@@ -258,7 +258,7 @@ class __Interpreter:
   def __compile_rules(self, rules):
     return re.compile('|'.join(self.__convert_rules(rules)))
 
-  def __interprete_line(self, line, line_num) -> Generator[__Token]:
+  def __interprete_line(self, line, line_num) -> Generator[__Token, None, None]:
     pos = 0
     while pos < len(line):
       matches = self.__regex.match(line, pos)
