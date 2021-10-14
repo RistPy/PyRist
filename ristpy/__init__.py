@@ -211,7 +211,7 @@ class _Token:
 
 class __Interpreter:
   __rules = [
-        ('COMMENT', r'//.*')
+        ('COMMENT', r'//.*'),
         ('DOCSTRING', r"'''(\\'|[^'])*'''"),
         ('DOCSTRING', r'"""(\\"|[^"])*"""'),
         ('STRING', r'"(\\"|[^\n?"])*"'),
@@ -300,7 +300,7 @@ class __Interpreter:
       elif (tok.name == "LPAREN" and tok.value == "(") or (tok.name == "LARROW" and tok.value == "<"):
         ntoks.append(_Token("LCBRACK", "{", tok.line, tok.coloumn))
       elif (tok.name == "RPAREN" and tok.value == ")") or (tok.name == "RARROW" and tok.value == ">"):
-        ntoks.append(_Token("RCBRACK", "}", tok.line, tok.colomn))
+        ntoks.append(_Token("RCBRACK", "}", tok.line, tok.coloumn))
       elif tok.name == "ARROW" and tok.value == "} =-=> ":
         ntoks.append(_Token(tok.name, ") -> ", tok.line, tok.coloumn))
       elif tok.name == "FROM" and tok.value == "+@":
