@@ -278,9 +278,9 @@ class __Interpreter:
     for line_num, line in enumerate(s.splitlines(), 1):
       line = line.rstrip()
       if not line:
-        tokens.append(Token('NEWLINE', "\n", line_num, 1)
+        tokens.append(Token('NEWLINE', "\n", line_num, 1))
         continue
-      line_tokens = list(self._tokenize_line(line, line_num))
+      line_tokens = list(self.__interprete_line(line, line_num))
       if line_tokens:
         tokens.extend(line_tokens)
         tokens.append(Token('NEWLINE', "\n", line_num, len(line) + 1))
