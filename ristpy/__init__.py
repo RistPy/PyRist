@@ -245,7 +245,7 @@ class __Interpreter:
   def __init__(self) -> None:
     self.__regex = self.__compile_rules(self.__rules)
 
-  def __convert_rules(self, rules: List[Tuple[str, str]]) -> Generator[str]:
+  def __convert_rules(self, rules: List[Tuple[str, str]]) -> Generator[str, None, None]:
         grouped_rules = OrderedDict()
         for name, pattern in rules:
             grouped_rules.setdefault(name, [])
