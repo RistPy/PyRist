@@ -161,7 +161,7 @@ class _CodeExecutor:
                 self.args.append(value)
 
         self.source = code
-        self.code = __wrap_code(code, args=', '.join(self.arg_names))
+        self.code = _wrap_code(code, args=', '.join(self.arg_names))
         self.scope = scope or _Scope()
         self.fname = fname
         self.loop = loop or asyncio.get_event_loop()
