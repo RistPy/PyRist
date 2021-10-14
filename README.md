@@ -27,10 +27,13 @@ something{"text2"};
 
 Then in your shell
 ```sh
-python3 -m ristpy main.rist
+rist main.rist
 ```
-
-If you want to compile it to python then in your python file
+Or if you want to compile into python file then run in your shell
+```sh
+rist main.rist --compile-to rist_compiled_main.py
+```
+Or in your python file
 ```py
 from ristpy import rist, execute
 
@@ -52,7 +55,7 @@ Every line should end with `;` only if line is not empty
 ### Importing
 #### What can it Import?
 
-It can Import all python3 modules
+It can Import all python modules
 
 #### How to Import?
 In python you do `import asyncio`
@@ -70,19 +73,19 @@ How do i make a function?
 # sync func;
 define MyFunc{}:;
   pass;
-# async func;
+// async func;
 async define AsMyFunc{}:;
   pass;
 ```
 How do i call it?
 #### Calling a function
 ```rist
-# sync function;
+// sync function;
 MyFunc{};
 # async func;
 await AsMyFunc{};
 ```
-### Dict
+### Dict 
 How can I make dict as `{}` is used as `()`
 #### Working With Dict
 To make dict to things are here
@@ -92,7 +95,7 @@ For example
 ("hi": "hello");
 ("hello": ("wor": "ld"));
 <"hi": "hi">;
-# mixed;
+// mixed;
 <;
   1: <;
     2: (;
@@ -104,7 +107,7 @@ For example
 >;
 ```
 ### Tuples and lists
-#### Making a List
+#### Making a List 
 ```rist
 [1,2];
 [;
@@ -112,7 +115,7 @@ For example
   2;
 ];
 ```
-#### Making a Tuple
+#### Making a Tuple 
 ```rist
 {1,2};
 {;
@@ -120,18 +123,24 @@ For example
   2;
 };
 ```
-### Function Typing
-How do I use `def myfunc() -> None:` to rist if `>`
+### Function Return TypeHints
+How do I use `def myfunc() -> None:` in rist if `>`
 is used in dict?
 
-Simple answer is to use `→` or `=->` in place of `->`
+Simple answer is to use `=-=>` in place of `->`
 ```rist
-define MyFunc{} → None:;
-  pass;
-
-define AnotherFunc{} =-> None:;
+define SomeFunc{} =-=> None:;
   pass;
 ```
-### More Syntax
+### Comments 
+To use comment in this language, use `\\`
+or `#`
+
+For example:-
+```rist
+// Some comment;
+# some comment;
+```
+## More Syntax
 
 Coming soon....
