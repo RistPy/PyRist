@@ -211,11 +211,15 @@ class _Token:
 
 class __Interpreter:
   __rules = [
-        ('COMMENT', r'//.*'),
-        ('STRING', r'"(\\"|[^\n?"])*"'),
-        ('STRING', r"'(\\'|[^\n?'])*'"),
+        ('COMMENT', r'//.*')
         ('DOCSTRING', r"'''(\\'|[^'])*'''"),
         ('DOCSTRING', r'"""(\\"|[^"])*"""'),
+        ('STRING', r'"(\\"|[^\n?"])*"'),
+        ('STRING', r"'(\\'|[^\n?'])*'"),
+        ('FROM', r'\+@'),
+        ('IMPORT', r'@\+'),
+        ('LARROW', r'\<'),
+        ('RARROW', r'\>'),
         ('NUMBER', r'\d+\.\d+'),
         ('NUMBER', r'\d+'),
         ('ARROW', r'\} \=\-\=\> '),
@@ -238,10 +242,6 @@ class __Interpreter:
         ('COLON', ':'),
         ('COMMA', ','),
         ('DOT', '.'),
-        ('FROM', r'\+@'),
-        ('IMPORT', r'@\+'),
-        ('LARROW', r'\<'),
-        ('RARROW', r'\>')
   ]
 
   def __init__(self) -> None:
