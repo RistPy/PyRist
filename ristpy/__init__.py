@@ -335,7 +335,7 @@ def rist(arg: str, fp: bool = True) -> __CompiledCode:
 def execute(code: __CompiledCode) -> None:
   if not isinstance(code, __CompiledCode):
     raise TypeError("The code must be compiled from ristpy module not any other")
-  for send, result in _Sender(_CodeExecutor(str(code), arg_dict=get_builtins(), fname=code.file)):
+  for send, result in Sender(_CodeExecutor(str(code), arg_dict=get_builtins(), fname=code.file)):
     if result is None:
       continue
     send(result)
