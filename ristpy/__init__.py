@@ -188,7 +188,7 @@ class _CodeExecutor:
             )
             raise
 
-class __Token:
+class _Token:
   def __init__(
     self,
     name: str,
@@ -258,7 +258,7 @@ class __Interpreter:
   def __compile_rules(self, rules):
     return re.compile('|'.join(self.__convert_rules(rules)))
 
-  def __interprete_line(self, line, line_num) -> Generator[__Token, None, None]:
+  def __interprete_line(self, line, line_num) -> Generator[_Token, None, None]:
     pos = 0
     while pos < len(line):
       matches = self.__regex.match(line, pos)
@@ -270,7 +270,7 @@ class __Interpreter:
            value = "	"
          elif name == "SPACE":
            value = " "
-         yield __Token(name, value, line_num, matches.start() + 1)
+         yield _Token(name, value, line_num, matches.start() + 1)
 
   def interprete(self, s) -> str:
     tokens = []
@@ -288,23 +288,23 @@ class __Interpreter:
     ntoks = []
     for tok in tokens:
       if tok.name == "LCBRACK" and tok.value == "{":
-        ntoks.append(__Token("LPAREN", "(", tok.line, tok.coloumn))
+        ntoks.append(_Token("LPAREN", "(", tok.line, tok.coloumn))
       elif tok.name == "RCBRACK" and tok.value == "}":
-        ntoks.append(__Token("RPAREN", ")", tok.line, tok.coloumn))
+        ntoks.append(_Token("RPAREN", ")", tok.line, tok.coloumn))
       elif tok.name == "COMMENT" and tok.value.startswith('//'):
-        ntoks.append(__Token("COMMENT", ("#" + tok.value[2:]), tok.line, tok.coloumn))
+        ntoks.append(_Token("COMMENT", ("#" + tok.value[2:]), tok.line, tok.coloumn))
       elif tok.name == "FUNCDEF" and tok.value == "define":
-        ntoks.append(__Token("FUNCDEF", "def", tok.line, tok.coloumn))
+        ntoks.append(_Token("FUNCDEF", "def", tok.line, tok.coloumn))
       elif (tok.name == "LPAREN" and tok.value == "(") or (tok.name == "LARROW" and tok.value == "<"):
-        ntoks.append(__Token("LCBRACK", "{", tok.line, tok.coloumn))
+        ntoks.append(_Token("LCBRACK", "{", tok.line, tok.coloumn))
       elif (tok.name == "RPAREN" and tok.value == ")") or (tok.name == "RARROW" and tok.value == ">"):
-        ntoks.append(__Token("RCBRACK", "}", tok.line, tok.colomn))
+        ntoks.append(_Token("RCBRACK", "}", tok.line, tok.colomn))
       elif tok.name == "ARROW" and tok.value == "} =-=> ":
-        ntoks.append(__Token(tok.name, ") -> ", tok.line, tok.coloumn))
+        ntoks.append(_Token(tok.name, ") -> ", tok.line, tok.coloumn))
       elif tok.name == "FROM" and tok.value == "+@":
-        ntoks.append(__Token(tok.name, "from", tok.line, tok.coloumn))
+        ntoks.append(_Token(tok.name, "from", tok.line, tok.coloumn))
       elif tok.name == "IMPORT" and tok.value == "@+":
-        ntoks.append(__Token(tok.name, "import", tok.line, tok.coloumn))
+        ntoks.append(_Token(tok.name, "import", tok.line, tok.coloumn))
       else:
         ntoks.append(tok)
 
