@@ -209,7 +209,7 @@ class __Interpreter:
         ('STRING', r'"(\\"|[^\n?"])*"'),
         ('STRING', r"'(\\'|[^\n?'])*'"),
         ('FROM', r'\+@ '),
-        ('IMPORT', r' ?@\+ '),
+        ('IMPORT', r'@\+ '),
         ('LARROW', r'\<'),
         ('RARROW', r'\>'),
         ('NUMBER', r'\d+\.\d+'),
