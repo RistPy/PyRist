@@ -68,6 +68,7 @@ def get_parent_var(name, global_ok=False, default=None, skip_frames=0):
 
 __CODE = """
 def _runner_func({{0}}):
+    import asyncio, aiohttp
     from importlib import import_module as {0}
 
     try:
