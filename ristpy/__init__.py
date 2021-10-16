@@ -6,8 +6,6 @@ import inspect
 import secrets
 import linecache
 
-import import_expression
-
 from collections import OrderedDict
 from typing import Union, List, Generator, Tuple
 
@@ -83,8 +81,8 @@ def _runner_func({{0}}):
 """.format(import_expression.constants.IMPORTER)
 
 def _wrap_code(code: str, args: str = '') -> ast.Module:
-    user_code = import_expression.parse(code, mode='exec')
-    mod = import_expression.parse(__CODE.format(args), mode='exec')
+    user_code = ast.parse(code, mode='exec')
+    mod = ast.parse(__CODE.format(args), mode='exec')
 
     definition = mod.body[-1]
     assert isinstance(definition, ast.FunctionDef)
@@ -236,10 +234,10 @@ class __Interpreter:
         ('LBRACK', r'\['),
         ('RBRACK', r'\]'),
         ('LCBRACK', '{'),
+        ('DOT', '::'),
         ('RCBRACK', '}'),
         ('COLON', ':'),
         ('COMMA', ','),
-        ('DOT', '.'),
   ]
 
   def __init__(self) -> None:
