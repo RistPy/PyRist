@@ -231,9 +231,9 @@ class __Interpreter:
         ('RBRACK', r'\]'),
         ('LCBRACK', '{'),
         ('RCBRACK', '}'),
-        ('DOT', '::'),
-        ('COLON', ':'),
-        ('ELLIPSIS', '...'),
+        ('DOT', '\:\:'),
+        ('COLON', '\:'),
+        ('ELLIPSIS', '\.\.\.'),
         ('COMMA', ','),
   ]
 
