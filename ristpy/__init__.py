@@ -234,9 +234,10 @@ class __Interpreter:
         ('LBRACK', r'\['),
         ('RBRACK', r'\]'),
         ('LCBRACK', '{'),
-        ('DOT', '::'),
         ('RCBRACK', '}'),
+        ('DOT', '::'),
         ('COLON', ':'),
+        ('ELLIPSIS', '...'),
         ('COMMA', ','),
   ]
 
@@ -303,6 +304,8 @@ class __Interpreter:
         ntoks.append(_Token(tok.name, "from", tok.line, tok.coloumn))
       elif tok.name == "IMPORT" and tok.value == "@+":
         ntoks.append(_Token(tok.name, "import", tok.line, tok.coloumn))
+      elif tok.name == "DOT" and tok.value == "::":
+        ntoks.append(_Token(tok.name, ".", tok.line, tok.coloumn))
       else:
         ntoks.append(tok)
 
