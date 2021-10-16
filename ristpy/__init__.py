@@ -223,7 +223,6 @@ class __Interpreter:
         ('OPERATOR', r'<=|>=|==|!=|<|>'),   # comparison operators
         ('OPERATOR', r'\|\||&&'),           # boolean operators
         ('OPERATOR', r'\.\.\.|\.\.'),       # range operators
-        ('OPERATOR', '!'),                  # unary operator
         ('ASSIGN', '='),
         ('LPAREN', r'\('),
         ('RPAREN', r'\)'),
