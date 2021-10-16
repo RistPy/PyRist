@@ -15,12 +15,12 @@ A sample code is given here
 +@ typing @+ Union;
 
 define cls{}:;
-  os.system{"cls" if os.name == "nt" else "clear"};
+  os.system{"cls" if os::name == "nt" else "clear"};
 
 cls{};
 
 define something{arg: Union[str, int]}:;
-  pprint.pprint{["myText", [arg]]};
+  pprint::pprint{["myText", [arg]]};
 
 something{"text2"};
 ```
@@ -70,7 +70,7 @@ In rist you have to do `+@ aiohttp @+ web;`
 How do i make a function?
 #### Making a function
 ```rist
-# sync func;
+// sync func;
 define MyFunc{}:;
   pass;
 // async func;
@@ -82,7 +82,7 @@ How do i call it?
 ```rist
 // sync function;
 MyFunc{};
-# async func;
+// async func;
 await AsMyFunc{};
 ```
 ### Dict 
@@ -134,12 +134,22 @@ define SomeFunc{} =-=> None:;
 ```
 ### Comments 
 To use comment in this language, use `\\`
-or `#`
 
 For example:-
 ```rist
 // Some comment;
-# some comment;
+```
+### Attributes
+In this language `.` is used as `::` while Ellipsis is still `...`
+
+For example:-
+```rist
+@+ os;
+// dot
+os::system{"clear"};
+
+// Ellipsis
+SomeFunc{ellipsis=...};
 ```
 ## More Syntax
 
