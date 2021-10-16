@@ -15,7 +15,7 @@ A sample code is given here
 +@ typing @+ Union;
 
 define cls{}:;
-  os.system{"cls" if os::name == "nt" else "clear"};
+  os::system{"cls" if os::name == "nt" else "clear"};
 
 cls{};
 
