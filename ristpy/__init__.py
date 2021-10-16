@@ -6,8 +6,6 @@ import inspect
 import secrets
 import linecache
 
-import import_expression as _iex
-
 from collections import OrderedDict
 from typing import Union, List, Generator, Tuple
 
@@ -78,9 +76,9 @@ def _runner_func({{0}}):
         _executor.scope.globals.update(locals())
 """.format("_IMPORT_MODULE")
 
-def _wrap_code(code: str, args: str = '') -> ast.Module:
-    user_code = ast.parse(code, mode='exec')
-    mod = ast.parse(__CODE.format(args), mode='exec')
+def _wrap_code(code: str, args: str = '', f=None) -> ast.Module:
+    user_code = ast.parse(code, f, mode='exec')
+    mod = ast.parse(__CODE.format(args), f, mode='exec')
 
     definition = mod.body[-1]
     assert isinstance(definition, ast.FunctionDef)
@@ -150,6 +148,7 @@ class _CodeExecutor:
     def __init__(self, code: str, fname: str = "<unknown>", scope: _Scope = None, arg_dict: dict = None, loop: asyncio.BaseEventLoop = None):
         self.args = [self]
         self.arg_names = ['_executor']
+        self.fname = fname or "<unknown>"
 
         if arg_dict:
             for key, value in arg_dict.items():
@@ -157,9 +156,8 @@ class _CodeExecutor:
                 self.args.append(value)
 
         self.source = code
-        self.code = _wrap_code(code, args=', '.join(self.arg_names))
+        self.code = _wrap_code(code, args=', '.join(self.arg_names), f=self.fname)
         self.scope = scope or _Scope()
-        self.fname = fname
         self.loop = loop or asyncio.get_event_loop()
 
     def __iter__(self):
