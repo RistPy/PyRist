@@ -210,6 +210,7 @@ class __Interpreter:
         ('STRING', r"'(\\'|[^\n?'])*'"),
         ('FROM', r'\+@ '),
         ('IMPORT', r'@\+ '),
+        ('AT', '@'),
         ('LARROW', r'\<'),
         ('RARROW', r'\>'),
         ('NUMBER', r'\d+\.\d+'),
