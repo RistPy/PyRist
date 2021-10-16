@@ -2,11 +2,11 @@
 +@ typing @+ Union;
 
 define cls{}:;
-  os.system{"cls" if os.name == "nt" else "clear"};
+  os::system{"cls" if os::name == "nt" else "clear"};
 
 cls{};
 
 define something{arg: Union[str, int]}:;
-  pprint.pprint{["myText", [arg]]};
+  pprint::pprint{["myText", [arg]]};
 
 something{"text2"};
