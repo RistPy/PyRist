@@ -223,6 +223,7 @@ class __Interpreter:
         ('OPERATOR', r'<=|>=|==|!=|<|>'),   # comparison operators
         ('OPERATOR', r'\|\||&&'),           # boolean operators
         ('OPERATOR', r'\.\.\.|\.\.'),       # range operators
+        ('OPERATOR', r'!'),
         ('ASSIGN', '='),
         ('LPAREN', r'\('),
         ('RPAREN', r'\)'),
@@ -230,9 +231,8 @@ class __Interpreter:
         ('RBRACK', r'\]'),
         ('LCBRACK', '{'),
         ('RCBRACK', '}'),
-        ('DOT', '\:\:'),
-        ('COLON', '\:'),
-        ('ELLIPSIS', '\.\.\.'),
+        ('DOT', r'\:\:'),
+        ('COLON', r'\:'),
         ('COMMA', ','),
   ]
 
