@@ -79,8 +79,8 @@ def _runner_func({{0}}):
 """.format("_IMPORT_MODULE")
 
 def _wrap_code(code: str, args: str = '') -> ast.Module:
-    user_code = _iex.parse(code, mode='exec')
-    mod = _iex.parse(__CODE.format(args), mode='exec')
+    user_code = ast.parse(code, mode='exec')
+    mod = ast.parse(__CODE.format(args), mode='exec')
 
     definition = mod.body[-1]
     assert isinstance(definition, ast.FunctionDef)
@@ -299,10 +299,10 @@ class __Interpreter:
         ntoks.append(_Token("RCBRACK", "}", tok.line, tok.coloumn))
       elif tok.name == "ARROW" and tok.value == "} =-=> ":
         ntoks.append(_Token(tok.name, ") -> ", tok.line, tok.coloumn))
-      elif tok.name == "FROM" and tok.value == "+@":
-        ntoks.append(_Token(tok.name, "from", tok.line, tok.coloumn))
-      elif tok.name == "IMPORT" and tok.value == "@+":
-        ntoks.append(_Token(tok.name, "import", tok.line, tok.coloumn))
+      elif tok.name == "FROM" and tok.value == "+@ ":
+        ntoks.append(_Token(tok.name, "from ", tok.line, tok.coloumn))
+      elif tok.name == "IMPORT" and tok.value == "@+ ":
+        ntoks.append(_Token(tok.name, "import ", tok.line, tok.coloumn))
       elif tok.name == "DOT" and tok.value == "::":
         ntoks.append(_Token(tok.name, ".", tok.line, tok.coloumn))
       else:
