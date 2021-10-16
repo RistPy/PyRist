@@ -67,18 +67,12 @@ def get_parent_var(name, global_ok=False, default=None, skip_frames=0):
   return scope.globals.get(name, default)
 
 __CODE = """
-def _runner_func({{0}}):
-    import asyncio
-    from importlib import import_module as {0}
-    import aiohttp
-    import discord
-    from discord.ext import commands
-
+def _runner_func({}):
     try:
         pass
     finally:
         _executor.scope.globals.update(locals())
-""".format(import_expression.constants.IMPORTER)
+"""
 
 def _wrap_code(code: str, args: str = '') -> ast.Module:
     user_code = ast.parse(code, mode='exec')
@@ -271,7 +265,9 @@ class __Interpreter:
            value = " "
          yield _Token(name, value, line_num, matches.start() + 1)
 
-  def interprete(self, s) -> str:
+  @classmethod
+  def interprete(cls, s) -> str:
+    self = cls()
     tokens = []
     line_num = 0
     for line_num, line in enumerate(s.splitlines(), 1):
@@ -331,7 +327,7 @@ def rist(arg: str, fp: bool = True) -> __CompiledCode:
       raise SyntaxError(f'invalid syntax\nline {index+1}\nevery line should end with ";"')
     nlines.append(line.rstrip(";"))
   code = "\n".join(list(line for line in nlines))
-  return __CompiledCode(__Interpreter().interprete(code), fname)
+  return __CompiledCode(__Interpreter.interprete(code), fname)
 
 def execute(code: __CompiledCode) -> None:
   if not isinstance(code, __CompiledCode):
