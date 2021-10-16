@@ -67,14 +67,14 @@ def get_parent_var(name, global_ok=False, default=None, skip_frames=0):
   return scope.globals.get(name, default)
 
 __CODE = """
-def _runner_func({}):
-    from importlib import import_module
+def _runner_func({{0}}):
+    from importlib import import_module as {0}
 
     try:
         pass
     finally:
         _executor.scope.globals.update(locals())
-"""
+""".format("!")
 
 def _wrap_code(code: str, args: str = '') -> ast.Module:
     user_code = ast.parse(code, mode='exec')
