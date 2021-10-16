@@ -6,6 +6,8 @@ import inspect
 import secrets
 import linecache
 
+import import_expression as _iex
+
 from collections import OrderedDict
 from typing import Union, List, Generator, Tuple
 
@@ -75,11 +77,11 @@ def _runner_func({{0}}):
         pass
     finally:
         _executor.scope.globals.update(locals())
-""".format("_IMPORT_MODULE")
+""".format(_iex.constants.IMPORTER)
 
 def _wrap_code(code: str, args: str = '', f=None) -> ast.Module:
-    user_code = ast.parse(code, f, mode='exec')
-    mod = ast.parse(__CODE.format(args), f, mode='exec')
+    user_code = _iex.parse(code, f, mode='exec')
+    mod = _iex.parse(__CODE.format(args), f, mode='exec')
 
     definition = mod.body[-1]
     assert isinstance(definition, ast.FunctionDef)
