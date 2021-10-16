@@ -74,7 +74,7 @@ def _runner_func({{0}}):
         pass
     finally:
         _executor.scope.globals.update(locals())
-""".format("!")
+""".format("_IMPORT_MODULE")
 
 def _wrap_code(code: str, args: str = '') -> ast.Module:
     user_code = ast.parse(code, mode='exec')
