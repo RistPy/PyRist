@@ -1,5 +1,6 @@
 import re
 import ast
+import sys
 import typing
 import asyncio
 import inspect
@@ -237,6 +238,7 @@ class __Interpreter:
         ('RCBRACK', '}'),
         ('DOT', r'\:\:'),
         ('COLON', r'\:'),
+        ('SEMICOLON', r'\;'),
         ('COMMA', ','),
   ]
 
@@ -269,6 +271,7 @@ class __Interpreter:
          elif name == "SPACE":
            value = " "
          yield _Token(name, value, line_num, matches.start() + 1)
+       else:
 
   @classmethod
   def interprete(cls, s) -> str:
@@ -325,11 +328,16 @@ def rist(arg: str, fp: bool = True) -> __CompiledCode:
   nlines = []
   for index, line in enumerate(lines):
     line = line.rstrip("\n")
+    while line.startswith(" "):
+      line = line.lstrip(" ")
+    while line.startswith("	"):
+      line = line.lstrip("	")
     if not line:
       nlines.append(line)
       continue
     if not line.endswith(";"):
-      raise SyntaxError(f'invalid syntax\nline {index+1}\nevery line should end with ";"')
+      print(f"SyntaxError: At line {index+1}, Line shoud must end with ';' not '{line[-1]}'")
+      sys.exit(1)
     nlines.append(line.rstrip(";"))
   code = "\n".join(list(line for line in nlines))
   return __CompiledCode(__Interpreter.interprete(code), fname)
