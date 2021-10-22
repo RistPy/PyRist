@@ -263,18 +263,19 @@ class __Interpreter:
     while pos < len(line):
       matches = self.__regex.match(line, pos)
       if matches is not None:
-         name = matches.lastgroup
-         pos = matches.end(name)
-         value = matches.group(name)
-         if name == "TABSPACE":
-           value = "	"
-         elif name == "SPACE":
-           value = " "
-         yield _Token(name, value, line_num, matches.start() + 1)
-       else:
+        name = matches.lastgroup
+        pos = matches.end(name)
+        value = matches.group(name)
+        if name == "TABSPACE":
+          value = "	"
+        elif name == "SPACE":
+          value = " "
+        yield _Token(name, value, line_num, matches.start() + 1)
+      else:
+        raise SyntaxError(f"{line}\n{' '*(pos-1)}^\nUnexpected Character '{line[pos-1]}' in Identifier")
 
   @classmethod
-  def interprete(cls, s) -> str:
+  def interprete(cls, s,) -> str:
     self = cls()
     tokens = []
     line_num = 0
