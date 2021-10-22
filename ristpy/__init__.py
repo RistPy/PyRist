@@ -337,8 +337,7 @@ def rist(arg: str, fp: bool = True) -> __CompiledCode:
       nlines.append(line)
       continue
     if not line.endswith(";"):
-      print(f"SyntaxError: At line {index+1}, Line shoud must end with ';' not '{line[-1]}'")
-      sys.exit(1)
+      raise SyntaxError(f"At line {index+1}, Line shoud must end with ';' not '{line[-1]}'")
     nlines.append(line.rstrip(";"))
   code = "\n".join(list(line for line in nlines))
   return __CompiledCode(__Interpreter.interprete(code), fname)
