@@ -16,12 +16,17 @@ from .walkers import *
 from .builtins import *
 
 
-__all__ = ("rist", "execute")
+__all__ = (
+  "rist", "execute",
+  "EXECUTE", "E",
+  "COMPILE", "C",
+  "WRITE", "W"
+)
 
 class RistFlags(enum.IntFlag):
     EXECUTE = E = 1
     COMPILE = C = 2
-    WRITE = W = 3
+    WRITE = W = 4
     
     def __repr__(self):
         if self._name_ is not None:
@@ -48,6 +53,9 @@ class RistFlags(enum.IntFlag):
     __str__ = object.__str__
 
 globals().update(RistFlags.__members__)
+
+class _ParsedFlag(object):
+  __slots__ = ("COMPILE", "WRITE", "EXECUTE")
 
 class _Scope:
   __slots__ = ('globals', 'locals')
