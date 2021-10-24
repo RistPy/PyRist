@@ -66,8 +66,10 @@ def _parse_flags(flags: RistFlags) -> _ParsedFlags:
     attrs[to_add] = True if (eval(to_add) in old_flags) else False
 
   flags = _ParsedFlags()
-  # for attr in attr
-  return "Soon™"
+  for attr in attrs.keys():
+    setattr(flags, attr, attrs[attr])
+
+  return flags
 
 # Scope/Environment
 class _Scope:
