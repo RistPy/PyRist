@@ -21,6 +21,7 @@ __all__ = ("rist", "execute")
 class RistFlags(enum.IntFlag):
     EXECUTE = E = 1
     COMPILE = C = 2
+    WRITE = W = 3
     
     def __repr__(self):
         if self._name_ is not None:
