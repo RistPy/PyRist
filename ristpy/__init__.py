@@ -58,7 +58,15 @@ globals().update(RistFlags.__members__)
 class _ParsedFlags(object):
   __slots__ = ("COMPILE", "WRITE", "EXECUTE")
 
-def _parse_flags(flags) -> _ParsedFlags:
+def _parse_flags(flags: RistFlags) -> _ParsedFlags:
+  old_flags = [flag for flag in RistFlags if flag in flags]
+  attrs = {}
+  to_adds = ["WRITE", "COMPILE", "EXECUTE"]
+  for to_add in to_adds:
+    attrs[to_add] = True if (eval(to_add) in old_flags) else False
+
+  flags = _ParsedFlags()
+  # for attr in attr
   return "Soon™"
 
 # Scope/Environment
