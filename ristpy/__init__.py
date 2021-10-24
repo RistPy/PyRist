@@ -1,6 +1,6 @@
 import re
 import ast
-import sys
+import enum
 import typing
 import asyncio
 import inspect
@@ -17,6 +17,36 @@ from .builtins import *
 
 
 __all__ = ("rist", "execute")
+
+class RistFlags(enum.IntFlag):
+    EXECUTE = E = 1
+    COMPILE = C = 2
+    
+    def __repr__(self):
+        if self._name_ is not None:
+            return f'ristpy.{self._name_}'
+        value = self._value_
+        members = []
+        negative = value < 0
+        if negative:
+            value = ~value
+        for m in self.__class__:
+            if value & m._value_:
+                value &= ~m._value_
+                members.append(f'ristpy.{m._name_}')
+        if value:
+            members.append(hex(value))
+        res = '|'.join(members)
+        if negative:
+            if len(members) > 1:
+                res = f'~({res})'
+            else:
+                res = f'~{res}'
+        return res
+
+    __str__ = object.__str__
+
+globals().update(RistFlags.__members__)
 
 class _Scope:
   __slots__ = ('globals', 'locals')
