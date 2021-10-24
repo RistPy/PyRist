@@ -23,6 +23,7 @@ __all__ = (
   "WRITE", "W"
 )
 
+# Flags
 class RistFlags(enum.IntFlag):
     EXECUTE = E = 1
     COMPILE = C = 2
@@ -54,9 +55,13 @@ class RistFlags(enum.IntFlag):
 
 globals().update(RistFlags.__members__)
 
-class _ParsedFlag(object):
+class _ParsedFlags(object):
   __slots__ = ("COMPILE", "WRITE", "EXECUTE")
 
+def _parse_flags(flags) -> _ParsedFlags:
+  return "Soon™"
+
+# Scope/Environment
 class _Scope:
   __slots__ = ('globals', 'locals')
 
