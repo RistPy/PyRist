@@ -1,10 +1,13 @@
 import re
 import ast
+import sys
 import typing
 import asyncio
 import inspect
 import secrets
 import linecache
+
+import import_expression as _iex
 
 from collections import OrderedDict
 from typing import Union, List, Generator, Tuple
@@ -68,17 +71,18 @@ def get_parent_var(name, global_ok=False, default=None, skip_frames=0):
 
 __CODE = """
 def _runner_func({{0}}):
+    import asyncio, aiohttp
     from importlib import import_module as {0}
 
     try:
         pass
     finally:
         _executor.scope.globals.update(locals())
-""".format("_IMPORT_MODULE")
+""".format(_iex.constants.IMPORTER)
 
 def _wrap_code(code: str, args: str = '', f=None) -> ast.Module:
-    user_code = ast.parse(code, f, mode='exec')
-    mod = ast.parse(__CODE.format(args), f, mode='exec')
+    user_code = _iex.parse(code, f, mode='exec')
+    mod = _iex.parse(__CODE.format(args), f, mode='exec')
 
     definition = mod.body[-1]
     assert isinstance(definition, ast.FunctionDef)
@@ -210,6 +214,7 @@ class __Interpreter:
         ('STRING', r"'(\\'|[^\n?'])*'"),
         ('FROM', r'\+@ '),
         ('IMPORT', r'@\+ '),
+        ('AT', '@'),
         ('LARROW', r'\<'),
         ('RARROW', r'\>'),
         ('NUMBER', r'\d+\.\d+'),
@@ -233,6 +238,7 @@ class __Interpreter:
         ('RCBRACK', '}'),
         ('DOT', r'\:\:'),
         ('COLON', r'\:'),
+        ('SEMICOLON', r'\;'),
         ('COMMA', ','),
   ]
 
@@ -257,17 +263,19 @@ class __Interpreter:
     while pos < len(line):
       matches = self.__regex.match(line, pos)
       if matches is not None:
-         name = matches.lastgroup
-         pos = matches.end(name)
-         value = matches.group(name)
-         if name == "TABSPACE":
-           value = "	"
-         elif name == "SPACE":
-           value = " "
-         yield _Token(name, value, line_num, matches.start() + 1)
+        name = matches.lastgroup
+        pos = matches.end(name)
+        value = matches.group(name)
+        if name == "TABSPACE":
+          value = "	"
+        elif name == "SPACE":
+          value = " "
+        yield _Token(name, value, line_num, matches.start() + 1)
+      else:
+        raise SyntaxError(f"{line}\n{' '*(pos-1)}^\nUnexpected Character '{line[pos-1]}' in Identifier")
 
   @classmethod
-  def interprete(cls, s) -> str:
+  def interprete(cls, s,) -> str:
     self = cls()
     tokens = []
     line_num = 0
@@ -321,11 +329,15 @@ def rist(arg: str, fp: bool = True) -> __CompiledCode:
   nlines = []
   for index, line in enumerate(lines):
     line = line.rstrip("\n")
+    while line.startswith(" "):
+      line = line.lstrip(" ")
+    while line.startswith("	"):
+      line = line.lstrip("	")
     if not line:
       nlines.append(line)
       continue
     if not line.endswith(";"):
-      raise SyntaxError(f'invalid syntax\nline {index+1}\nevery line should end with ";"')
+      raise SyntaxError(f"At line {index+1}, Line shoud must end with ';' not '{line[-1]}'")
     nlines.append(line.rstrip(";"))
   code = "\n".join(list(line for line in nlines))
   return __CompiledCode(__Interpreter.interprete(code), fname)
