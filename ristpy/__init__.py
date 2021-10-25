@@ -379,7 +379,8 @@ class __Interpreter:
     return "".join(list(str(t) for t in ntoks))
 
 
-def rist(arg: str, fp: bool = True) -> __CompiledCode:
+def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> __CompiledCode:
+  flags = _parse_flags(flags)
   if fp:
     with open(arg, 'r') as f:
       code = f.read()
@@ -402,7 +403,18 @@ def rist(arg: str, fp: bool = True) -> __CompiledCode:
       raise SyntaxError(f"At line {index+1}, Line shoud must end with ';' not '{line[-1]}'")
     nlines.append(line.rstrip(";"))
   code = "\n".join(list(line for line in nlines))
-  return __CompiledCode(__Interpreter.interprete(code), fname)
+  code = __CompiledCode(__Interpreter.interprete(code), fname)
+  if flags.EXECUTE:
+    return execute(code)
+
+  if flags.WRITE and not "compile_to" in kwargs:
+    raise ValueError('"compile_to" key-word argument not given when "WRITE" flag passed')
+
+  if flags.WRITE:
+    with open(kwargs["compile_to"], "w") as f:
+      f.write(code.code)
+
+  return code
 
 def execute(code: __CompiledCode) -> None:
   if not isinstance(code, __CompiledCode):
