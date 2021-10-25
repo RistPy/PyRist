@@ -416,7 +416,14 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> __Compile
 
   return code
 
-def execute(code: __CompiledCode) -> None:
+def execute(code: Union[str, __CompiledCode], flags: RistFlags = E, **kwargs) -> None:
+  flags = _parse_flags(flags)
+
+  if flags.WRITE and flags.COMPILE:
+    return rist(code, False, E|W, **kwargs)
+  if flags.COMPILE:
+    return rist(code, False, E)
+
   if not isinstance(code, __CompiledCode):
     raise TypeError("The code must be compiled from ristpy module not any other")
   for send, result in Sender(_CodeExecutor(str(code), arg_dict=get_builtins(), fname=code.file)):
