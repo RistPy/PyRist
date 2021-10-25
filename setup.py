@@ -27,7 +27,7 @@ setup(
     python_requires=">=3.8",
     entry_points={'console_scripts': ['rist=ristpy.__main__:main']},
     install_requires=["import_expression"],
-    packages=find_packages()
+    packages=find_packages(),
     classifiers=[
         "Programming Language :: Python",
         "Programming Language :: Python :: 3.8",
