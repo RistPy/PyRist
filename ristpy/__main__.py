@@ -1,6 +1,6 @@
 import argparse
 
-from ristpy import rist, execute
+from ristpy import rist, execute, E, W
 
 def compile_to(parser, to_read, to_write):
     if not to_read.endswith(".rist"):
@@ -8,8 +8,7 @@ def compile_to(parser, to_read, to_write):
     if not to_write.endswith(".py"):
         raise TypeError("You must provide file which will be written with extension '.py'")
     try:
-        with open(to_write, 'w', encoding='utf-8') as fp:
-            fp.write(rist(to_read).code)
+        rist(to_read, flags=W, compile_to=to_write)
     except OSError as exc:
         parser.error(f'could not create file ({exc})')
     else:
@@ -18,8 +17,7 @@ def compile_to(parser, to_read, to_write):
 def compile_and_run(fp: str):
     if not fp.endswith(".rist"):
         raise TypeError("You must provide file with extension '.rist'")
-    code = rist(fp)
-    execute(code)
+    rist(fp,flags=E)
 
 def compile_fp(parser, args):
     if args.file and args.compile_to:
