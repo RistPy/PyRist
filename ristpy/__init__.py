@@ -18,16 +18,16 @@ from .builtins import *
 
 __all__ = (
   "rist", "execute",
-  "EXECUTE", "E",
-  "COMPILE", "C",
-  "WRITE", "W"
+  "EXECUTE",
+  "COMPILE",
+  "WRITE",
 )
 
 # Flags
 class RistFlags(enum.IntFlag):
-    EXECUTE = E = 1
-    COMPILE = C = 2
-    WRITE = W = 4
+    EXECUTE = 1
+    COMPILE = 2
+    WRITE =   4
     
     def __repr__(self):
         if self._name_ is not None:
@@ -60,13 +60,6 @@ class _ParsedFlags(object):
 
 def _parse_flags(flags: RistFlags) -> _ParsedFlags:
   old_flags = [flag for flag in RistFlags if flag in flags]
-
-  while E in old_flags:
-    old_flags[old_flags.index(E)] = EXECUTE
-  while C in old_flags:
-    old_flags[old_flags.index(C)] = COMPILE
-  while W in old_flags:
-    old_flags[old_flags.index(W)] = WRITE
 
   attrs = {}
   to_adds = ["WRITE", "COMPILE", "EXECUTE"]
@@ -379,7 +372,7 @@ class __Interpreter:
     return "".join(list(str(t) for t in ntoks))
 
 
-def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> __CompiledCode:
+def rist(arg: str, fp: bool = True, flags: RistFlags = COMPILE, **kwargs) -> __CompiledCode:
   flags = _parse_flags(flags)
   if fp:
     with open(arg, 'r') as f:
@@ -417,13 +410,13 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> __Compile
 
   return code
 
-def execute(code: Union[str, __CompiledCode], flags: RistFlags = E, **kwargs) -> None:
+def execute(code: Union[str, __CompiledCode], flags: RistFlags = EXECUTE, **kwargs) -> None:
   flags = _parse_flags(flags)
 
   if flags.WRITE and flags.COMPILE:
-    return rist(code, False, E|W, **kwargs)
+    return rist(code, False, EXECUTE|WRITE, **kwargs)
   if flags.COMPILE:
-    return rist(code, False, E)
+    return rist(code, False, EXECUTE)
 
   if not isinstance(code, __CompiledCode):
     raise TypeError("The code must be compiled from ristpy module not any other")
