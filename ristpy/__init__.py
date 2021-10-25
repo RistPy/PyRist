@@ -1,6 +1,6 @@
 import re
 import ast
-import enum
+import sys
 import typing
 import asyncio
 import inspect
@@ -16,62 +16,8 @@ from .walkers import *
 from .builtins import *
 
 
-__all__ = (
-  "rist", "execute",
-  "EXECUTE", "E",
-  "COMPILE", "C",
-  "WRITE", "W"
-)
+__all__ = ("rist", "execute")
 
-# Flags
-class RistFlags(enum.IntFlag):
-    EXECUTE = E = 1
-    COMPILE = C = 2
-    WRITE = W = 4
-    
-    def __repr__(self):
-        if self._name_ is not None:
-            return f'ristpy.{self._name_}'
-        value = self._value_
-        members = []
-        negative = value < 0
-        if negative:
-            value = ~value
-        for m in self.__class__:
-            if value & m._value_:
-                value &= ~m._value_
-                members.append(f'ristpy.{m._name_}')
-        if value:
-            members.append(hex(value))
-        res = '|'.join(members)
-        if negative:
-            if len(members) > 1:
-                res = f'~({res})'
-            else:
-                res = f'~{res}'
-        return res
-
-    __str__ = object.__str__
-
-globals().update(RistFlags.__members__)
-
-class _ParsedFlags(object):
-  __slots__ = ("COMPILE", "WRITE", "EXECUTE")
-
-def _parse_flags(flags: RistFlags) -> _ParsedFlags:
-  old_flags = [flag for flag in RistFlags if flag in flags]
-  attrs = {}
-  to_adds = ["WRITE", "COMPILE", "EXECUTE"]
-  for to_add in to_adds:
-    attrs[to_add] = True if (eval(to_add) in old_flags) else False
-
-  flags = _ParsedFlags()
-  for attr in attrs.keys():
-    setattr(flags, attr, attrs[attr])
-
-  return flags
-
-# Scope/Environment
 class _Scope:
   __slots__ = ('globals', 'locals')
 
@@ -382,12 +328,12 @@ def rist(arg: str, fp: bool = True) -> __CompiledCode:
   lines = code.splitlines()
   nlines = []
   for index, line in enumerate(lines):
-    line = line.rstrip("\n")
-    while line.startswith(" "):
-      line = line.lstrip(" ")
-    while line.startswith("	"):
-      line = line.lstrip("	")
-    if not line:
+    _line = line.rstrip("\n")
+    while _line.startswith(" "):
+      _line = _line.lstrip(" ")
+    while _line.startswith("	"):
+      _line = _line.lstrip("	")
+    if not _line:
       nlines.append(line)
       continue
     if not line.endswith(";"):
