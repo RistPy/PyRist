@@ -18,16 +18,16 @@ from .builtins import *
 
 __all__ = (
   "rist", "execute",
-  "EXECUTE",
-  "COMPILE",
-  "WRITE",
+  "EXECUTE", "E",
+  "COMPILE", "C",
+  "WRITE", "W",
 )
 
 # Flags
 class RistFlags(enum.IntFlag):
-    EXECUTE = 1
-    COMPILE = 2
-    WRITE =   4
+    EXECUTE = E = 1
+    COMPILE = C = 2
+    WRITE   = W = 4
     
     def __repr__(self):
         if self._name_ is not None:
@@ -372,7 +372,7 @@ class __Interpreter:
     return "".join(list(str(t) for t in ntoks))
 
 
-def rist(arg: str, fp: bool = True, flags: RistFlags = COMPILE, **kwargs) -> __CompiledCode:
+def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> __CompiledCode:
   flags = _parse_flags(flags)
   if fp:
     with open(arg, 'r') as f:
@@ -410,11 +410,11 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = COMPILE, **kwargs) -> __C
 
   return code
 
-def execute(code: Union[str, __CompiledCode], flags: RistFlags = EXECUTE, **kwargs) -> None:
+def execute(code: Union[str, __CompiledCode], flags: RistFlags = E, **kwargs) -> None:
   flags = _parse_flags(flags)
 
   if flags.WRITE and flags.COMPILE:
-    return rist(code, False, EXECUTE|WRITE, **kwargs)
+    return rist(code, False, E|W, **kwargs)
   if flags.COMPILE:
     return rist(code, False, EXECUTE)
 
