@@ -20,8 +20,13 @@ def compile_and_run(fp: str):
     rist(fp,flags=E)
 
 def compile_fp(parser, args):
-    if args.file and args.compile_to:
+    if args.file and args.compile_to and args.eval:
         compile_to(parser, args.file, args.compile_to)
+        compile_and_run(args.file)
+    elif args.file and args.compile_to:
+        compile_to(parser, args.file, args.compile_to)
+    elif args.eval:
+        parser.error('Eval argument should only be used when --compile-to is used')
     elif args.file:
         compile_and_run(args.file)
 
@@ -29,7 +34,8 @@ def parse_args():
     parser = argparse.ArgumentParser(prog='rist', description='Rist Lang')
     parser.add_argument('file', type=str, help='compiles rist lang to python and executes it.')
     parser.set_defaults(func=compile_fp)
-    parser.add_argument('--compile-to', help='only compile code and place it to provided file', type=str, metavar="<filepath>")
+    parser.add_argument('--compile-to', '-CT', name='compile_to', help='only compile code and place it to provided file', type=str, metavar="<filepath>")
+    parser.add_argument('--eval', '-e', name='eval', help='Also run the code, used when --compile-to is used', action='store_true')
     return parser, parser.parse_args()
 
 def main():
