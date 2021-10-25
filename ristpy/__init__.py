@@ -404,8 +404,6 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> __Compile
     nlines.append(line.rstrip(";"))
   code = "\n".join(list(line for line in nlines))
   code = __CompiledCode(__Interpreter.interprete(code), fname)
-  if flags.EXECUTE:
-    return execute(code)
 
   if flags.WRITE and not "compile_to" in kwargs:
     raise ValueError('"compile_to" key-word argument not given when "WRITE" flag passed')
@@ -413,6 +411,9 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> __Compile
   if flags.WRITE:
     with open(kwargs["compile_to"], "w") as f:
       f.write(code.code)
+
+  if flags.EXECUTE:
+    return execute(code)
 
   return code
 
