@@ -28,4 +28,12 @@ setup(
     entry_points={'console_scripts': ['rist=ristpy.__main__:main']},
     install_requires=["import_expression"],
     packages=find_packages()
+    classifiers=[
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+    ],
 )
