@@ -281,7 +281,7 @@ class __Interpreter:
         ('SPACE', ' '),
         ('OPERATOR', r'[\+\*\-\/%]'),       # arithmetic operators
         ('OPERATOR', r'<=|>=|==|!=|<|>'),   # comparison operators
-        ('OPERATOR', r'\|\||&&'),           # boolean operators
+        ('OPERATOR', r'\|\||\||&|&&'),           # boolean operators
         ('OPERATOR', r'\.\.\.|\.\.'),       # range operators
         ('OPERATOR', r'!'),
         ('ASSIGN', '='),
@@ -327,7 +327,7 @@ class __Interpreter:
           value = " "
         yield _Token(name, value, line_num, matches.start() + 1)
       else:
-        raise SyntaxError(f"{line}\n{' '*(pos-1)}^\nUnexpected Character '{line[pos-1]}' in Identifier")
+        raise SyntaxError(f"\n{line}\n{' '*(pos-1)}^\nUnexpected Character '{line[pos]}' in Identifier")
 
   @classmethod
   def interprete(cls, s,) -> str:
