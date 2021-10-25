@@ -1,6 +1,6 @@
 import re
 import ast
-import sys
+import enum
 import typing
 import asyncio
 import inspect
@@ -16,8 +16,63 @@ from .walkers import *
 from .builtins import *
 
 
-__all__ = ("rist", "execute")
+__all__ = (
+  "rist", "execute",
+  "EXECUTE", "E",
+  "COMPILE", "C",
+  "WRITE", "W",
+)
 
+# Flags
+class RistFlags(enum.IntFlag):
+    EXECUTE = E = 1
+    COMPILE = C = 2
+    WRITE   = W = 4
+    
+    def __repr__(self):
+        if self._name_ is not None:
+            return f'ristpy.{self._name_}'
+        value = self._value_
+        members = []
+        negative = value < 0
+        if negative:
+            value = ~value
+        for m in self.__class__:
+            if value & m._value_:
+                value &= ~m._value_
+                members.append(f'ristpy.{m._name_}')
+        if value:
+            members.append(hex(value))
+        res = '|'.join(members)
+        if negative:
+            if len(members) > 1:
+                res = f'~({res})'
+            else:
+                res = f'~{res}'
+        return res
+
+    __str__ = object.__str__
+
+globals().update(RistFlags.__members__)
+
+class _ParsedFlags(object):
+  __slots__ = ("COMPILE", "WRITE", "EXECUTE")
+
+def _parse_flags(flags: RistFlags) -> _ParsedFlags:
+  old_flags = [flag for flag in RistFlags if flag in flags]
+
+  attrs = {}
+  to_adds = ["WRITE", "COMPILE", "EXECUTE"]
+  for to_add in to_adds:
+    attrs[to_add] = True if (eval(to_add) in old_flags) else False
+
+  flags = _ParsedFlags()
+  for attr in attrs.keys():
+    setattr(flags, attr, attrs[attr])
+
+  return flags
+
+# Scope/Environment
 class _Scope:
   __slots__ = ('globals', 'locals')
 
@@ -317,7 +372,8 @@ class __Interpreter:
     return "".join(list(str(t) for t in ntoks))
 
 
-def rist(arg: str, fp: bool = True) -> __CompiledCode:
+def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> __CompiledCode:
+  flags = _parse_flags(flags)
   if fp:
     with open(arg, 'r') as f:
       code = f.read()
@@ -340,9 +396,28 @@ def rist(arg: str, fp: bool = True) -> __CompiledCode:
       raise SyntaxError(f"At line {index+1}, Line shoud must end with ';' not '{line[-1]}'")
     nlines.append(line.rstrip(";"))
   code = "\n".join(list(line for line in nlines))
-  return __CompiledCode(__Interpreter.interprete(code), fname)
+  code = __CompiledCode(__Interpreter.interprete(code), fname)
 
-def execute(code: __CompiledCode) -> None:
+  if flags.WRITE and not "compile_to" in kwargs:
+    raise ValueError('"compile_to" key-word argument not given when "WRITE" flag passed')
+
+  if flags.WRITE:
+    with open(kwargs["compile_to"], "w") as f:
+      f.write(code.code)
+
+  if flags.EXECUTE:
+    return execute(code)
+
+  return code
+
+def execute(code: Union[str, __CompiledCode], flags: RistFlags = E, **kwargs) -> None:
+  flags = _parse_flags(flags)
+
+  if flags.WRITE and flags.COMPILE:
+    return rist(code, False, E|W, **kwargs)
+  if flags.COMPILE:
+    return rist(code, False, EXECUTE)
+
   if not isinstance(code, __CompiledCode):
     raise TypeError("The code must be compiled from ristpy module not any other")
   for send, result in Sender(_CodeExecutor(str(code), arg_dict=get_builtins(), fname=code.file)):
