@@ -328,12 +328,12 @@ def rist(arg: str, fp: bool = True) -> __CompiledCode:
   lines = code.splitlines()
   nlines = []
   for index, line in enumerate(lines):
-    line = line.rstrip("\n")
-    while line.startswith(" "):
-      line = line.lstrip(" ")
-    while line.startswith("	"):
-      line = line.lstrip("	")
-    if not line:
+    _line = line.rstrip("\n")
+    while _line.startswith(" "):
+      _line = _line.lstrip(" ")
+    while _line.startswith("	"):
+      _line = _line.lstrip("	")
+    if not _line:
       nlines.append(line)
       continue
     if not line.endswith(";"):
