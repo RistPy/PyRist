@@ -327,7 +327,7 @@ class __Interpreter:
           value = " "
         yield _Token(name, value, line_num, matches.start() + 1)
       else:
-        raise SyntaxError(f"\n{line}\n{' '*(pos-1)}^\nUnexpected Character '{line[pos]}' in Identifier")
+        raise SyntaxError(f"In line {line_num}\n{line}\n{' '*(pos)}^\nUnexpected Character '{line[pos]}' in Identifier")
 
   @classmethod
   def interprete(cls, s,) -> str:
