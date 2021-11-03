@@ -35,18 +35,22 @@ rist main.rist --compile-to rist_compiled_main.py
 ```
 Or in your python file
 ```py
-from ristpy import rist, execute
+from ristpy import rist, E, W
 
 print(rist("main.rist"))
-# if you want some text then
+# if you want some text to compile then
 
 code = """
 print{"hello"};
 """
 print(rist(code, fp=False))
 # if you wanna execute then
-execute(rist(code, fp=False))
-execute(rist('main.rist'))
+rist(code, fp=False, flags=E) # E flag means execute
+rist('main.rist', flags=E)
+# compile code somewhere
+rist("main.rist", flags=W, compile_to="main.py") # W flag means write
+# if execute too then
+rist("main.rist", flags=W|E, compile_to="main.py")
 ```
 
 ## Syntax
