@@ -270,6 +270,7 @@ class __Interpreter:
         ('FROM', r'\+@ '),
         ('IMPORT', r'@\+ '),
         ('AT', '@'),
+        ('NOTCHANGEME', r'__(\<|\>)'),
         ('LARROW', r'\<'),
         ('RARROW', r'\>'),
         ('NUMBER', r'\d+\.\d+'),
