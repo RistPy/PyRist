@@ -270,7 +270,7 @@ class __Interpreter:
         ('FROM', r'\+@ '),
         ('IMPORT', r'@\+ '),
         ('AT', '@'),
-        ('NOTCHANGEME', r'__(\<|\>)'),
+        ('GTORLT', r'__(\<|\>)'),
         ('LARROW', r'\<'),
         ('RARROW', r'\>'),
         ('NUMBER', r'\d+\.\d+'),
@@ -367,6 +367,8 @@ class __Interpreter:
         ntoks.append(_Token(tok.name, "import ", tok.line, tok.coloumn))
       elif tok.name == "DOT" and tok.value == "::":
         ntoks.append(_Token(tok.name, ".", tok.line, tok.coloumn))
+      elif tok.name == "GTORLT" and tok.value.startswith('__'):
+        ntoks.append(_Token(tok.name, tok.value[-1], tok.line, tok.coloumn))
       else:
         ntoks.append(tok)
 
