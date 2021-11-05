@@ -422,9 +422,9 @@ def execute(code: Union[str, __CompiledCode], flags: RistFlags = E, **kwargs) ->
   flags = _parse_flags(flags)
 
   if flags.WRITE and flags.COMPILE:
-    return rist(code, fp=flags.FILE, E|W, **kwargs)
+    return rist(code, fp=flags.FILE, flags=E|W, **kwargs)
   if flags.COMPILE:
-    return rist(code, fp=flags.FILE, EXECUTE)
+    return rist(code, fp=flags.FILE, flags=EXECUTE)
 
   if not isinstance(code, __CompiledCode):
     raise TypeError("The code must be compiled from ristpy module not any other")
