@@ -21,6 +21,7 @@ __all__ = (
   "EXECUTE", "E",
   "COMPILE", "C",
   "WRITE", "W",
+  "FILE", "F",
 )
 
 # Flags
@@ -28,6 +29,7 @@ class RistFlags(enum.IntFlag):
     EXECUTE = E = 1
     COMPILE = C = 2
     WRITE   = W = 4
+    FILE    = F = 8
     
     def __repr__(self):
         if self._name_ is not None:
@@ -56,13 +58,13 @@ class RistFlags(enum.IntFlag):
 globals().update(RistFlags.__members__)
 
 class _ParsedFlags(object):
-  __slots__ = ("COMPILE", "WRITE", "EXECUTE")
+  __slots__ = ("COMPILE", "WRITE", "EXECUTE", "FILE")
 
 def _parse_flags(flags: RistFlags) -> _ParsedFlags:
   old_flags = [flag for flag in RistFlags if flag in flags]
 
   attrs = {}
-  to_adds = ["WRITE", "COMPILE", "EXECUTE"]
+  to_adds = [attr for attr in _ParsedFlags.__slots__]
   for to_add in to_adds:
     attrs[to_add] = True if (eval(to_add) in old_flags) else False
 
@@ -264,6 +266,7 @@ class _Token:
 
 class __Interpreter:
   __rules = [
+        ('DOUBLESLASH', '__//'),
         ('COMMENT', r'//.*'),
         ('STRING', r'"(\\"|[^\n?"])*"'),
         ('STRING', r"'(\\'|[^\n?'])*'"),
@@ -369,6 +372,8 @@ class __Interpreter:
         ntoks.append(_Token(tok.name, ".", tok.line, tok.coloumn))
       elif tok.name == "GTORLT" and tok.value.startswith('__'):
         ntoks.append(_Token(tok.name, tok.value[-1], tok.line, tok.coloumn))
+      elif tok.name == "DOUBLESLASH" and tok.value == "__//":
+        ntoks.append(_Token(tok.name, "//", tok.line, tok.coloumn))
       else:
         ntoks.append(tok)
 
@@ -417,9 +422,9 @@ def execute(code: Union[str, __CompiledCode], flags: RistFlags = E, **kwargs) ->
   flags = _parse_flags(flags)
 
   if flags.WRITE and flags.COMPILE:
-    return rist(code, False, E|W, **kwargs)
+    return rist(code, fp=flags.FILE, E|W, **kwargs)
   if flags.COMPILE:
-    return rist(code, False, EXECUTE)
+    return rist(code, fp=flags.FILE, EXECUTE)
 
   if not isinstance(code, __CompiledCode):
     raise TypeError("The code must be compiled from ristpy module not any other")
