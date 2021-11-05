@@ -279,13 +279,14 @@ class __Interpreter:
         ('NUMBER', r'\d+\.\d+'),
         ('NUMBER', r'\d+'),
         ('ARROW', r'\} \=\-\=\> '),
-        ('FUNCDEF', 'define'),
+        ('AFUNC', r'a fn ==\> define '),
+        ('FUNCDEF', 'define '),
         ('NAME', r'[a-zA-Z_]\w*|[a-zA-Z0-9_]\w*'),
         ('TABSPACE', '\t'),
         ('SPACE', ' '),
         ('OPERATOR', r'[\+\*\-\/%]'),       # arithmetic operators
-        ('OPERATOR', r'<=|>=|==|!=|<|>'),   # comparison operators
-        ('OPERATOR', r'\|\||\||&|&&'),           # boolean operators
+        ('OPERATOR', r'==|!='),             # comparison operators
+        ('OPERATOR', r'\|\||\||&|&&'),      # boolean operators
         ('OPERATOR', r'\.\.\.|\.\.'),       # range operators
         ('OPERATOR', r'!'),
         ('ASSIGN', '='),
@@ -356,8 +357,8 @@ class __Interpreter:
         ntoks.append(_Token("RPAREN", ")", tok.line, tok.coloumn))
       elif tok.name == "COMMENT" and tok.value.startswith('//'):
         ntoks.append(_Token("COMMENT", ("#" + tok.value[2:]), tok.line, tok.coloumn))
-      elif tok.name == "FUNCDEF" and tok.value == "define":
-        ntoks.append(_Token("FUNCDEF", "def", tok.line, tok.coloumn))
+      elif tok.name == "FUNCDEF" and tok.value == "define ":
+        ntoks.append(_Token("FUNCDEF", "def ", tok.line, tok.coloumn))
       elif (tok.name == "LPAREN" and tok.value == "(") or (tok.name == "LARROW" and tok.value == "<"):
         ntoks.append(_Token("LCBRACK", "{", tok.line, tok.coloumn))
       elif (tok.name == "RPAREN" and tok.value == ")") or (tok.name == "RARROW" and tok.value == ">"):
@@ -374,6 +375,8 @@ class __Interpreter:
         ntoks.append(_Token(tok.name, tok.value[-1], tok.line, tok.coloumn))
       elif tok.name == "DOUBLESLASH" and tok.value == "__//":
         ntoks.append(_Token(tok.name, "//", tok.line, tok.coloumn))
+      elif tok.name == "AFUNDEF" and tok.value == 'a fn ==> define ':
+        ntoks.append(_Token(tok.name, 'async def ', tok.line, tok.coloumn))
       else:
         ntoks.append(tok)
 
