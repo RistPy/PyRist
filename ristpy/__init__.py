@@ -375,7 +375,7 @@ class __Interpreter:
         ntoks.append(_Token(tok.name, tok.value[-1], tok.line, tok.coloumn))
       elif tok.name == "DOUBLESLASH" and tok.value == "__//":
         ntoks.append(_Token(tok.name, "//", tok.line, tok.coloumn))
-      elif tok.name == "AFUNDEF" and tok.value == 'a fn ==> define ':
+      elif tok.name == "AFUNC" and tok.value == 'a fn ==> define ':
         ntoks.append(_Token(tok.name, 'async def ', tok.line, tok.coloumn))
       else:
         ntoks.append(tok)
