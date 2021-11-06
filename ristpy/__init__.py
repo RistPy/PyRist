@@ -265,7 +265,7 @@ class _Token:
     return str(self.value)
 
 class __Interpreter:
-  __rules = [
+  __rules: List[Tuple[str, str]] = [
         ('DOUBLESLASH', '__//'),
         ('COMMENT', r'//.*'),
         ('STRING', r'"(\\"|[^\n?"])*"'),
@@ -279,9 +279,9 @@ class __Interpreter:
         ('NUMBER', r'\d+\.\d+'),
         ('NUMBER', r'\d+'),
         ('ARROW', r'\} \=\-\=\> '),
-        ('AFUNC', r'a fn ==\> define '),
-        ('FUNCDEF', 'define '),
-        ('NAME', r'[a-zA-Z_]\w*|[a-zA-Z0-9_]\w*'),
+        ('FUNCDEF', r'define {NAME} \{'),
+        ('AFUNC', r'a fn ==\> {FUNCDEF}'),
+        ('NAME', r'[a-zA-Z_][a-zA-Z0-9_]*'),
         ('TABSPACE', '\t'),
         ('SPACE', ' '),
         ('OPERATOR', r'[\+\*\-\/%]'),       # arithmetic operators
@@ -303,20 +303,25 @@ class __Interpreter:
   ]
 
   def __init__(self) -> None:
-    self.__regex = self.__compile_rules(self.__rules)
+    self.__regex = self.__compile_rules()
 
-  def __convert_rules(self, rules: List[Tuple[str, str]]) -> Generator[str, None, None]:
+  def __convert_rules(self) -> Generator[str, None, None]:
+        rules: List[Tuple[str, str]] = self.__rules
+
         grouped_rules = OrderedDict()
         for name, pattern in rules:
-            grouped_rules.setdefault(name, [])
-            grouped_rules[name].append(pattern)
+          grouped_rules.setdefault(name, [])
+          for pname, ptern in iter(grouped_rules.items()):
+            if "{"+pname+"}" in pattern:
+              pattern = pattern.format(**{pname: ptern})
+          grouped_rules[name].append(pattern)
 
         for name, patterns in iter(grouped_rules.items()):
             joined_patterns = '|'.join(['({})'.format(p) for p in patterns])
             yield '(?P<{}>{})'.format(name, joined_patterns)
 
-  def __compile_rules(self, rules):
-    return re.compile('|'.join(self.__convert_rules(rules)))
+  def __compile_rules(self,):
+    return re.compile('|'.join(self.__convert_rules()))
 
   def __interprete_line(self, line, line_num) -> Generator[_Token, None, None]:
     pos = 0
