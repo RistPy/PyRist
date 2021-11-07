@@ -317,7 +317,7 @@ class __Interpreter:
       ptrn = '|'.join(['({})'.format(p) for p in patterns])
       for pname, ptrns in iter(grouped_rules.items()):
         if "{"+pname+"}" in ptrn:
-          ptrn = ptrn.format(**{pname: '|'.join(['({})'.format(p) for p in ptrns])})
+          ptrn = ptrn.format(**{pname: '|'.join(['({ptrn})'.format(ptrn=p) for p in ptrns])})
       grouped_rules[name] = [ptrn]
 
     for name, patterns in iter(grouped_rules.items()):
