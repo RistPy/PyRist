@@ -279,7 +279,7 @@ class __Interpreter:
         ('NUMBER', r'\d+\.\d+'),
         ('NUMBER', r'\d+'),
         ('ARROW', r'\} \=\-\=\> '),
-        ('FUNCDEF', r'define {NAME} \{'),
+        ('FUNCDEF', r'define {NAME}( )?\{'),
         ('AFUNC', r'a fn ==\> {FUNCDEF}'),
         ('NAME', r'[a-zA-Z_][a-zA-Z0-9_]*'),
         ('TABSPACE', '\t'),
@@ -366,8 +366,8 @@ class __Interpreter:
         ntoks.append(_Token("RPAREN", ")", tok.line, tok.coloumn))
       elif tok.name == "COMMENT" and tok.value.startswith('//'):
         ntoks.append(_Token("COMMENT", ("#" + tok.value[2:]), tok.line, tok.coloumn))
-      elif tok.name == "FUNCDEF" and tok.value == "define ":
-        ntoks.append(_Token("FUNCDEF", "def ", tok.line, tok.coloumn))
+      elif tok.name == "FUNCDEF" and tok.value.startswith("define ") and tok.value.endswith("{"):
+        ntoks.append(_Token("FUNCDEF", "def"+tok.value[6:(len(tok.value)-1)]+"(", tok.line, tok.coloumn))
       elif (tok.name == "LPAREN" and tok.value == "(") or (tok.name == "LARROW" and tok.value == "<"):
         ntoks.append(_Token("LCBRACK", "{", tok.line, tok.coloumn))
       elif (tok.name == "RPAREN" and tok.value == ")") or (tok.name == "RARROW" and tok.value == ">"):
@@ -384,8 +384,8 @@ class __Interpreter:
         ntoks.append(_Token(tok.name, tok.value[-1], tok.line, tok.coloumn))
       elif tok.name == "DOUBLESLASH" and tok.value == "__//":
         ntoks.append(_Token(tok.name, "//", tok.line, tok.coloumn))
-      elif tok.name == "AFUNC" and tok.value == 'a fn ==> define ':
-        ntoks.append(_Token(tok.name, 'async def ', tok.line, tok.coloumn))
+      elif tok.name == "AFUNC" and tok.value.startswith('a fn ==> define ') and tok.value.endswith('{'):
+        ntoks.append(_Token(tok.name, 'async def'+tok.value[15:(len(tok.value)-1)]+'(', tok.line, tok.coloumn))
       else:
         ntoks.append(tok)
 
