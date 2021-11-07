@@ -321,7 +321,7 @@ class __Interpreter:
       grouped_rules[name] = [ptrn]
 
     for name, patterns in iter(grouped_rules.items()):
-      joined_patterns = '|'.join(['({})'.format(p) for p in patterns])
+      joined_patterns = '|'.join(['({ptrn})'.format(ptrn=p) for p in patterns])
       yield '(?P<{}>{})'.format(name, joined_patterns)
 
   def __compile_rules(self,):
