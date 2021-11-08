@@ -271,9 +271,9 @@ class __Interpreter:
         ('STRING', r'"(\\"|[^\n?"])*"'),
         ('STRING', r"'(\\'|[^\n?'])*'"),
         ('FROM', r'\+@ '),
-        ('VARASEQ', r"{VARAS} /= [a-zA-Z0-9_\.]*"),
+        ('VARASEQ', r"{VARAS}( )?\=( )?[a-zA-Z0-9_\.]*"),
         ('VARAS', r"{VAR} as [a-zA-Z0-9_\.]*"),
-        ('VAREQ', r"{VAR} /= [a-zA-Z0-9_\.]*"),
+        ('VAREQ', r"{VAR}( )?\=( )?[a-zA-Z0-9_\.]*"),
         ('VAR', r'var [a-zA-Z0-9_\.]*'),
         ('IMPORT', r'@\+ '),
         ('AT', '@'),
@@ -397,6 +397,11 @@ class __Interpreter:
       elif tok.name == "VAR" and tok.value.startswith('var '):
         ntoks.append(_Token(tok.name, tok.value.lstrip('var ')+': typing.Any', tok.line, tok.coloumn))
         typing_needed = True
+      elif tok.name.startswith("VARAS") and tok.value.startswith('var ') and ' as ' in tok.value:
+        v=tok.value.replace(' as ', ': ').replace('var ','')
+        ntoks.append(_Token(tok.name, v, tok.line, tok.coloumn))
+      elif tok.name == "VAREQ" and tok.value.startswith("var ") and "=" in tok.value:
+        ntoks.append(_Token(tok.name, tok.value.lstrip('var '), tok.line, tok.coloumn))
       else:
         ntoks.append(tok)
 
