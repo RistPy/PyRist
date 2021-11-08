@@ -331,8 +331,9 @@ class __Interpreter:
   def __compile_rules(self,):
     return re.compile('|'.join(self.__convert_rules()))
 
-  def __interprete_line(self, line, line_num) -> Generator[_Token, None, None]:
+  def __interprete_line(self, line, line_num, f) -> Generator[_Token, None, None]:
     pos = 0
+    tokens = []
     while pos < len(line):
       matches = self.__regex.match(line, pos)
       if matches is not None:
@@ -343,12 +344,23 @@ class __Interpreter:
           value = "	"
         elif name == "SPACE":
           value = " "
-        yield _Token(name, value, line_num, matches.start() + 1)
+        tokens.append(_Token(name, value, line_num, matches.start() + 1))
       else:
-        raise SyntaxError(f"In line {line_num}\n{line}\n{' '*(pos)}^\nUnexpected Character '{line[pos]}' in Identifier")
+        err = SyntaxError(f"Unexpected Character '{line[pos]}' in Identifier")
+        kwrds = dict(filename=f, lineno=line_num, offset=pos+1, text=line)
+        for k, v in kwrds.items():
+          setattr(err, k, v)
+
+        raise err
+
+    if line.endswith("//:Rist://NC"):
+      tokens = [_Token("lInE", line[:-12], line_num, 1)]
+
+    for token in tokens:
+      yield token
 
   @classmethod
-  def interprete(cls, s,) -> str:
+  def interprete(cls, s, f) -> str:
     self = cls()
     tokens = []
     line_num = 0
@@ -357,7 +369,7 @@ class __Interpreter:
       if not line:
         tokens.append(_Token('NEWLINE', "\n", line_num, 1))
         continue
-      line_tokens = list(self.__interprete_line(line, line_num))
+      line_tokens = list(self.__interprete_line(line, line_num, f))
       if line_tokens:
         tokens.extend(line_tokens)
         tokens.append(_Token('NEWLINE', "\n", line_num, len(line) + 1))
@@ -445,7 +457,7 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> __Compile
       raise SyntaxError(f"At line {index+1}, Line shoud must end with ';' not '{line[-1]}'")
     nlines.append(line.rstrip(";"))
   code = "\n".join(list(line for line in nlines))
-  code = __CompiledCode(__Interpreter.interprete(code), fname)
+  code = __CompiledCode(__Interpreter.interprete(code, fname), fname)
 
   if flags.WRITE and not "compile_to" in kwargs:
     raise ValueError('"compile_to" key-word argument not given when "WRITE" flag passed')
