@@ -265,13 +265,17 @@ class _Token:
     return str(self.value)
 
 class __Interpreter:
-  __rules = [
+  __rules: List[Tuple[str, str]] = [
         ('DOUBLESLASH', '__//'),
         ('COMMENT', r'//.*'),
         ('STRING', r'"(\\"|[^\n?"])*"'),
         ('STRING', r"'(\\'|[^\n?'])*'"),
         ('FROM', r'\+@ '),
-        ('IMPORT', r'@\+ '),
+        ('VARASEQ', r"{VARAS}([ 	]*)?\=([ 	]*)?[a-zA-Z0-9_\.]*"),
+        ('VARAS', r"{VAR} as [a-zA-Z0-9_\.]*"),
+        ('VAREQ', r"{VAR}([ 	]*)?\=([ 	]*)?[a-zA-Z0-9_\.]*"),
+        ('VAR', r'var [a-zA-Z0-9_\.]*'),
+        ('IMPORT', r'@\+ (typing)?'),
         ('AT', '@'),
         ('GTORLT', r'__(\<|\>)'),
         ('LARROW', r'\<'),
@@ -279,9 +283,9 @@ class __Interpreter:
         ('NUMBER', r'\d+\.\d+'),
         ('NUMBER', r'\d+'),
         ('ARROW', r'\} \=\-\=\> '),
-        ('AFUNC', r'a fn ==\> define '),
-        ('FUNCDEF', 'define '),
-        ('NAME', r'[a-zA-Z_]\w*|[a-zA-Z0-9_]\w*'),
+        ('FUNCDEF', r'define {NAME}( )?\{'),
+        ('AFUNC', r'a fn ==\> {FUNCDEF}'),
+        ('NAME', r'[a-zA-Z_][a-zA-Z0-9_]*'),
         ('TABSPACE', '\t'),
         ('SPACE', ' '),
         ('OPERATOR', r'[\+\*\-\/%]'),       # arithmetic operators
@@ -303,20 +307,29 @@ class __Interpreter:
   ]
 
   def __init__(self) -> None:
-    self.__regex = self.__compile_rules(self.__rules)
+    self.__regex = self.__compile_rules()
 
-  def __convert_rules(self, rules: List[Tuple[str, str]]) -> Generator[str, None, None]:
-        grouped_rules = OrderedDict()
-        for name, pattern in rules:
-            grouped_rules.setdefault(name, [])
-            grouped_rules[name].append(pattern)
+  def __convert_rules(self) -> Generator[str, None, None]:
+    rules: List[Tuple[str, str]] = self.__rules
 
-        for name, patterns in iter(grouped_rules.items()):
-            joined_patterns = '|'.join(['({})'.format(p) for p in patterns])
-            yield '(?P<{}>{})'.format(name, joined_patterns)
+    grouped_rules = OrderedDict()
+    for name, pattern in rules:
+      grouped_rules.setdefault(name, [])
+      grouped_rules[name].append(pattern)
 
-  def __compile_rules(self, rules):
-    return re.compile('|'.join(self.__convert_rules(rules)))
+    for name, patterns in iter(grouped_rules.items()):
+      ptrn = '|'.join(['({})'.format(p) for p in patterns])
+      for pname, ptrns in iter(grouped_rules.items()):
+        while "{"+pname+"}" in ptrn:
+          ptrn = ptrn.replace("{"+pname+"}", '|'.join(['({ptrn})'.format(ptrn=p) for p in ptrns]))
+      grouped_rules[name] = [ptrn]
+
+    for name, patterns in iter(grouped_rules.items()):
+      joined_patterns = '|'.join(['({ptrn})'.format(ptrn=p) for p in patterns])
+      yield '(?P<{}>{})'.format(name, joined_patterns)
+
+  def __compile_rules(self,):
+    return re.compile('|'.join(self.__convert_rules()))
 
   def __interprete_line(self, line, line_num) -> Generator[_Token, None, None]:
     pos = 0
@@ -350,6 +363,8 @@ class __Interpreter:
         tokens.append(_Token('NEWLINE', "\n", line_num, len(line) + 1))
 
     ntoks = []
+    typing_imported = False
+    typing_needed = False
     for tok in tokens:
       if tok.name == "LCBRACK" and tok.value == "{":
         ntoks.append(_Token("LPAREN", "(", tok.line, tok.coloumn))
@@ -357,8 +372,8 @@ class __Interpreter:
         ntoks.append(_Token("RPAREN", ")", tok.line, tok.coloumn))
       elif tok.name == "COMMENT" and tok.value.startswith('//'):
         ntoks.append(_Token("COMMENT", ("#" + tok.value[2:]), tok.line, tok.coloumn))
-      elif tok.name == "FUNCDEF" and tok.value == "define ":
-        ntoks.append(_Token("FUNCDEF", "def ", tok.line, tok.coloumn))
+      elif tok.name == "FUNCDEF" and tok.value.startswith("define ") and tok.value.endswith("{"):
+        ntoks.append(_Token("FUNCDEF", "def"+tok.value[6:(len(tok.value)-1)]+"(", tok.line, tok.coloumn))
       elif (tok.name == "LPAREN" and tok.value == "(") or (tok.name == "LARROW" and tok.value == "<"):
         ntoks.append(_Token("LCBRACK", "{", tok.line, tok.coloumn))
       elif (tok.name == "RPAREN" and tok.value == ")") or (tok.name == "RARROW" and tok.value == ">"):
@@ -368,19 +383,33 @@ class __Interpreter:
       elif tok.name == "FROM" and tok.value == "+@ ":
         ntoks.append(_Token(tok.name, "from ", tok.line, tok.coloumn))
       elif tok.name == "IMPORT" and tok.value == "@+ ":
-        ntoks.append(_Token(tok.name, "import ", tok.line, tok.coloumn))
+        ntoks.append(_Token(tok.name, "import"+tok.value[2:], tok.line, tok.coloumn))
+        if 'typing' in tok.value:
+          typing_imported = True
       elif tok.name == "DOT" and tok.value == "::":
         ntoks.append(_Token(tok.name, ".", tok.line, tok.coloumn))
       elif tok.name == "GTORLT" and tok.value.startswith('__'):
         ntoks.append(_Token(tok.name, tok.value[-1], tok.line, tok.coloumn))
       elif tok.name == "DOUBLESLASH" and tok.value == "__//":
         ntoks.append(_Token(tok.name, "//", tok.line, tok.coloumn))
-      elif tok.name == "AFUNC" and tok.value == 'a fn ==> define ':
-        ntoks.append(_Token(tok.name, 'async def ', tok.line, tok.coloumn))
+      elif tok.name == "AFUNC" and tok.value.startswith('a fn ==> define ') and tok.value.endswith('{'):
+        ntoks.append(_Token(tok.name, 'async def'+tok.value[15:(len(tok.value)-1)]+'(', tok.line, tok.coloumn))
+      elif tok.name == "VAR" and tok.value.startswith('var '):
+        ntoks.append(_Token(tok.name, tok.value.lstrip('var ')+': typing.Any', tok.line, tok.coloumn))
+        typing_needed = True
+      elif tok.name.startswith("VARAS") and tok.value.startswith('var ') and ' as ' in tok.value:
+        v=tok.value.replace(' as ', ': ').replace('var ','')
+        ntoks.append(_Token(tok.name, v, tok.line, tok.coloumn))
+      elif tok.name == "VAREQ" and tok.value.startswith("var ") and "=" in tok.value:
+        ntoks.append(_Token(tok.name, tok.value.lstrip('var '), tok.line, tok.coloumn))
       else:
         ntoks.append(tok)
 
-    return "".join(list(str(t) for t in ntoks))
+    code = "".join(list(str(t) for t in ntoks))
+    if typing_needed and not typing_imported:
+      code = "import typing\n" + code
+
+    return code
 
 
 def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> __CompiledCode:
