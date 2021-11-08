@@ -2,11 +2,19 @@
 +@ typing @+ Union;
 
 define cls{}:;
-  os::system{"cls" if os::name == "nt" else "clear"};
+  var clear_cmd as str;
+  if os::name == "nt":;
+    clear_cmd = "cls";
+  else:;
+    clear_cmd = "clear";
+  os::system{clear_cmd};
 
 cls{};
 
-define something{arg: Union[str, int]}:;
-  pprint::pprint{["myText", [arg]]};
+define something{var arg as Union[str, int]}:;
+  var args as dict = <"arg": [arg]>;
+  pprint::pprint{args};
+  return args;
 
-something{"text2"};
+var smth as dict = something{"text2"};
+print{smth};
