@@ -382,7 +382,7 @@ class __Interpreter:
         ntoks.append(_Token(tok.name, ") -> ", tok.line, tok.coloumn))
       elif tok.name == "FROM" and tok.value == "+@ ":
         ntoks.append(_Token(tok.name, "from ", tok.line, tok.coloumn))
-      elif tok.name == "IMPORT" and tok.value == "@+ ":
+      elif tok.name == "IMPORT" and tok.value.startswith("@+ "):
         ntoks.append(_Token(tok.name, "import"+tok.value[2:], tok.line, tok.coloumn))
         if 'typing' in tok.value:
           typing_imported = True
