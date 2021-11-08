@@ -271,6 +271,10 @@ class __Interpreter:
         ('STRING', r'"(\\"|[^\n?"])*"'),
         ('STRING', r"'(\\'|[^\n?'])*'"),
         ('FROM', r'\+@ '),
+        ('VARASEQ', r"{VARAS} /= [a-zA-Z0-9_\.]*"),
+        ('VARAS', r"{VAR} as [a-zA-Z0-9_\.]*"),
+        ('VAREQ', r"{VAR} /= [a-zA-Z0-9_\.]*"),
+        ('VAR', r'var [a-zA-Z0-9_\.]*'),
         ('IMPORT', r'@\+ '),
         ('AT', '@'),
         ('GTORLT', r'__(\<|\>)'),
@@ -359,6 +363,8 @@ class __Interpreter:
         tokens.append(_Token('NEWLINE', "\n", line_num, len(line) + 1))
 
     ntoks = []
+    typing_imported = False
+    typing_needed = False
     for tok in tokens:
       if tok.name == "LCBRACK" and tok.value == "{":
         ntoks.append(_Token("LPAREN", "(", tok.line, tok.coloumn))
@@ -378,6 +384,8 @@ class __Interpreter:
         ntoks.append(_Token(tok.name, "from ", tok.line, tok.coloumn))
       elif tok.name == "IMPORT" and tok.value == "@+ ":
         ntoks.append(_Token(tok.name, "import ", tok.line, tok.coloumn))
+        if 'typing' in tok.value:
+          typing_imported = True
       elif tok.name == "DOT" and tok.value == "::":
         ntoks.append(_Token(tok.name, ".", tok.line, tok.coloumn))
       elif tok.name == "GTORLT" and tok.value.startswith('__'):
@@ -386,10 +394,17 @@ class __Interpreter:
         ntoks.append(_Token(tok.name, "//", tok.line, tok.coloumn))
       elif tok.name == "AFUNC" and tok.value.startswith('a fn ==> define ') and tok.value.endswith('{'):
         ntoks.append(_Token(tok.name, 'async def'+tok.value[15:(len(tok.value)-1)]+'(', tok.line, tok.coloumn))
+      elif tok.name == "VAR" and tok.value.startswith('var '):
+        ntoks.append(_Token(tok.name, tok.value.lstrip('var ')+': typing.Any', tok.line, tok.coloumn))
+        typing_needed = True
       else:
         ntoks.append(tok)
 
-    return "".join(list(str(t) for t in ntoks))
+    code = "".join(list(str(t) for t in ntoks))
+    if typing_needed and not typing_imported:
+      code = "import typing\n" + code
+
+    return code
 
 
 def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> __CompiledCode:
