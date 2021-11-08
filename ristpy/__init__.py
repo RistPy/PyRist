@@ -316,7 +316,7 @@ class __Interpreter:
     for name, patterns in iter(grouped_rules.items()):
       ptrn = '|'.join(['({})'.format(p) for p in patterns])
       for pname, ptrns in iter(grouped_rules.items()):
-        if "{"+pname+"}" in ptrn:
+        while "{"+pname+"}" in ptrn:
           ptrn = ptrn.replace("{"+pname+"}", '|'.join(['({ptrn})'.format(ptrn=p) for p in ptrns]))
       grouped_rules[name] = [ptrn]
 
