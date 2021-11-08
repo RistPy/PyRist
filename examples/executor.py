@@ -1,3 +1,5 @@
 import ristpy
 
-ristpy.execute(ristpy.rist('test.rist'))
+ristpy.rist('test.rist', flags=ristpy.EXECUTE)
+# or
+ristpy.execute('test.rist', flags=ristpy.COMPILE|ristpy.FILE)
