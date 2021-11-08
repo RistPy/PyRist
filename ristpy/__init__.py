@@ -334,27 +334,29 @@ class __Interpreter:
   def __interprete_line(self, line, line_num, f) -> Generator[_Token, None, None]:
     pos = 0
     tokens = []
-    while pos < len(line):
-      matches = self.__regex.match(line, pos)
-      if matches is not None:
-        name = matches.lastgroup
-        pos = matches.end(name)
-        value = matches.group(name)
-        if name == "TABSPACE":
-          value = "	"
-        elif name == "SPACE":
-          value = " "
-        tokens.append(_Token(name, value, line_num, matches.start() + 1))
-      else:
-        err = SyntaxError(f"Unexpected Character '{line[pos]}' in Identifier")
-        kwrds = dict(filename=f, lineno=line_num, offset=pos+1, text=line)
-        for k, v in kwrds.items():
-          setattr(err, k, v)
-
-        raise err
 
     if line.endswith("//:Rist://NC"):
-      tokens = [_Token("lInE", line[:-12], line_num, 1)]
+      tokens.append(_Token("lInE", line[:-12], line_num, 1))
+    else:
+      while pos < len(line):
+        matches = self.__regex.match(line, pos)
+        if matches is not None:
+          name = matches.lastgroup
+          pos = matches.end(name)
+          value = matches.group(name)
+          if name == "TABSPACE":
+            value = "	"
+          elif name == "SPACE":
+            value = " "
+
+          tokens.append(_Token(name, value, line_num, matches.start() + 1))
+        else:
+          err = SyntaxError(f"Unexpected Character '{line[pos]}' in Identifier")
+          kwrds = dict(filename=f, lineno=line_num, offset=pos+1, text=line)
+          for k, v in kwrds.items():
+            setattr(err, k, v)
+
+          raise err
 
     for token in tokens:
       yield token
