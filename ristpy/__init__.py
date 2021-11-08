@@ -443,7 +443,7 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> __Compile
     fname = arg
   else:
     code = arg
-    fname = '<unknown>'
+    fname = '<unknown.rist>'
   lines = code.splitlines()
   nlines = []
   for index, line in enumerate(lines):
