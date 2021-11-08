@@ -1,7 +1,3 @@
-from ristpy import rist
+from ristpy import rist, WRITE
 
-compiled = str(rist("main.rist"))
-
-with open("compiled.py", "w") as f:
-  f.write(compiled)
-  f.close()
+rist("main.rist", flags=WRITE, compile_to="compiled.py"))
