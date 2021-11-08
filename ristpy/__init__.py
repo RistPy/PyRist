@@ -456,7 +456,12 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> __Compile
       nlines.append(line)
       continue
     if not line.endswith(";"):
-      raise SyntaxError(f"At line {index+1}, Line shoud must end with ';' not '{line[-1]}'")
+      err = SyntaxError(f'Line shoud must end with ';' not '{line[-1]}'")
+      kwrds = dict(filename=arg, lineno=index+1, offset=len(line), text=line)
+      for k, v in kwrds.items():
+        setattr(err, k, v)
+      raise err
+
     nlines.append(line.rstrip(";"))
   code = "\n".join(list(line for line in nlines))
   code = __CompiledCode(__Interpreter.interprete(code, fname), fname)
