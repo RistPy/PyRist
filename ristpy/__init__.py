@@ -275,7 +275,7 @@ class __Interpreter:
         ('VARAS', r"{VAR} as [a-zA-Z0-9_\.]*"),
         ('VAREQ', r"{VAR}([ 	]*)?\=([ 	]*)?[a-zA-Z0-9_\.]*"),
         ('VAR', r'var [a-zA-Z0-9_\.]*'),
-        ('IMPORT', r'@\+ '),
+        ('IMPORT', r'@\+ (typing)?'),
         ('AT', '@'),
         ('GTORLT', r'__(\<|\>)'),
         ('LARROW', r'\<'),
@@ -383,7 +383,7 @@ class __Interpreter:
       elif tok.name == "FROM" and tok.value == "+@ ":
         ntoks.append(_Token(tok.name, "from ", tok.line, tok.coloumn))
       elif tok.name == "IMPORT" and tok.value == "@+ ":
-        ntoks.append(_Token(tok.name, "import ", tok.line, tok.coloumn))
+        ntoks.append(_Token(tok.name, "import"+tok.value[2:], tok.line, tok.coloumn))
         if 'typing' in tok.value:
           typing_imported = True
       elif tok.name == "DOT" and tok.value == "::":
