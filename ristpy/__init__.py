@@ -412,7 +412,7 @@ class __Interpreter:
         while "::" in tok.value:
           tok.value = tok.value.replace("::", ".")
 
-        ntoks.append(_Token(tok.name, tok.value.lstrip('var ')+': typing.Any', tok.line, tok.coloumn))
+        ntoks.append(_Token(tok.name, tok.value.replace('var ',"")+': typing.Any', tok.line, tok.coloumn))
         typing_needed = True
       elif tok.name.startswith("VARAS") and tok.value.startswith('var ') and ' as ' in tok.value:
         while "::" in tok.value:
@@ -424,7 +424,7 @@ class __Interpreter:
         while "::" in tok.value:
           tok.value = tok.value.replace("::", ".")
 
-        ntoks.append(_Token(tok.name, tok.value.lstrip('var '), tok.line, tok.coloumn))
+        ntoks.append(_Token(tok.name, tok.value.replace('var ',""), tok.line, tok.coloumn))
       else:
         ntoks.append(tok)
 
