@@ -149,10 +149,10 @@ In this language `.` is used as `::` while Ellipsis is still `...`
 For example:-
 ```rist
 @+ os;
-// dot
+// dot;
 os::system{"clear"};
 
-// Ellipsis
+// Ellipsis;
 SomeFunc{ellipsis=...};
 ```
 ## More Syntax
