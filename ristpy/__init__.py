@@ -268,8 +268,8 @@ class __Interpreter:
   __rules: List[Tuple[str, str]] = [
         ('DOUBLESLASH', '__//'),
         ('COMMENT', r'//.*'),
-        ('STRING', r'"(\\"|[^\n?"])*"'),
-        ('STRING', r"'(\\'|[^\n?'])*'"),
+        ('STRING', r'((".*?")(?<!(\\)))'),
+        ('STRING', r"(('.*?')(?<!(\\)))"),
         ('FROM', r'\+@ '),
         ('VARASEQ', r"{VARAS}([ 	]*)?\=([ 	]*)?[a-zA-Z0-9_(::)]*"),
         ('VARAS', r"{VAR} as [a-zA-Z0-9_(::)]*"),
