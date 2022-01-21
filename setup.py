@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = "1.0a"
+version = "1"
 
 if version.endswith(('a', 'b', 'rc')):
     # append version identifier based on commit count
@@ -20,7 +20,7 @@ if version.endswith(('a', 'b', 'rc')):
         pass
 
 setup(
-    name="PyRist",
+    name="RistLang",
     version=version,
     description="A module for compiling my lang",
     license="MIT",
