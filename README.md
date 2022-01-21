@@ -14,12 +14,12 @@ A sample code is given here
 @+ os, pprint;
 +@ typing @+ Union;
 
-define cls{}:;
+define cls as function{}:;
   os::system{"cls" if os::name == "nt" else "clear"};
 
 cls{};
 
-define something{arg: Union[str, int]}:;
+define something as function{PARAMS* var arg as Union[str, int]}:;
   pprint::pprint{["myText", [arg]]};
 
 something{"text2"};
@@ -75,10 +75,10 @@ How do i make a function?
 #### Making a function
 ```rist
 // sync func;
-define MyFunc{}:;
+define MyFunc as function{}:;
   pass;
 // async func;
-async define AsMyFunc{}:;
+define AsMyFunc as async function{}:;
   pass;
 ```
 How do i call it?
@@ -133,7 +133,7 @@ is used in dict?
 
 Simple answer is to use `=-=>` in place of `->`
 ```rist
-define SomeFunc{} =-=> None:;
+define SomeFunc as function{} =-=> None:;
   pass;
 ```
 ### Comments 
