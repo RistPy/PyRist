@@ -155,6 +155,3 @@ os::system{"clear"};
 // Ellipsis;
 SomeFunc{ellipsis=...};
 ```
-## More Syntax
-
-Coming soon....
