@@ -206,10 +206,10 @@ class Sender:
 class _CodeExecutor:
     __slots__ = ('args', 'arg_names', 'code', 'loop', 'scope', 'source', 'fname')
 
-    def __init__(self, code: str, fname: str = "<unknown>", scope: _Scope = None, arg_dict: dict = None, loop: asyncio.BaseEventLoop = None):
+    def __init__(self, code: str, fname: str = "<unknown.rist>", scope: _Scope = None, arg_dict: dict = None, loop: asyncio.BaseEventLoop = None):
         self.args = [self]
         self.arg_names = ['_executor']
-        self.fname = fname or "<unknown>"
+        self.fname = fname or "<unknown.rist>"
 
         if arg_dict:
             for key, value in arg_dict.items():
@@ -271,9 +271,9 @@ class __Interpreter:
         ('STRING', r'((".*?")(?<!(\\)))'),
         ('STRING', r"(('.*?')(?<!(\\)))"),
         ('FROM', r'\+@ '),
-        ('VARASEQ', r"{VARAS}([ 	]*)?\=([ 	]*)?[a-zA-Z0-9_(::)]*"),
+        ('VARASEQ', r"{VARAS}( )?\=( )?[a-zA-Z0-9_(::)]*"),
         ('VARAS', r"{VAR} as [a-zA-Z0-9_(::)]*"),
-        ('VAREQ', r"{VAR}([ 	]*)?\=([ 	]*)?[a-zA-Z0-9_(::)]*"),
+        ('VAREQ', r"{VAR}( )?\=( )?[a-zA-Z0-9_(::)]*"),
         ('VAR', r'var [a-zA-Z0-9_(::)]*'),
         ('IMPORT', r'@\+ (typing)?'),
         ('AT', '@'),
@@ -283,8 +283,7 @@ class __Interpreter:
         ('NUMBER', r'\d+\.\d+'),
         ('NUMBER', r'\d+'),
         ('ARROW', r'\} \=\-\=\> '),
-        ('FUNCDEF', r'define {NAME}( )?\{'),
-        ('AFUNC', r'a fn ==\> {FUNCDEF}'),
+        ('FUNCDEF', r'define {NAME} as (a )?(f|fn|fun|func|function)\{(PARAMS\* )?'),
         ('NAME', r'[a-zA-Z_][a-zA-Z0-9_]*'),
         ('TABSPACE', '\t'),
         ('SPACE', ' '),
@@ -304,6 +303,7 @@ class __Interpreter:
         ('COLON', r'\:'),
         ('SEMICOLON', r'\;'),
         ('COMMA', ','),
+        ("PYTHINGS",r"(\\)"),
   ]
 
   def __init__(self) -> None:
@@ -386,8 +386,12 @@ class __Interpreter:
         ntoks.append(_Token("RPAREN", ")", tok.line, tok.coloumn))
       elif tok.name == "COMMENT" and tok.value.startswith('//'):
         ntoks.append(_Token("COMMENT", ("#" + tok.value[2:]), tok.line, tok.coloumn))
-      elif tok.name == "FUNCDEF" and tok.value.startswith("define ") and tok.value.endswith("{"):
-        ntoks.append(_Token("FUNCDEF", "def"+tok.value[6:(len(tok.value)-1)]+"(", tok.line, tok.coloumn))
+      elif tok.name == "FUNCDEF" and tok.value.startswith("define "):
+        val = "def " + tok.value.replace("define ","").replace(" as "," ").replace("PARAMS* ","")[:-2].rstrip("functio")
+        if val.endswith(" async "): val = "async " + val.replace(" async ","")
+        elif val.endswith(" a "): val = "async " + val.replace(" a ","")
+        if val.endswith(" "): val = val[:-2]
+        ntoks.append(_Token("FUNCDEF", val+"(", tok.line, tok.coloumn))
       elif (tok.name == "LPAREN" and tok.value == "(") or (tok.name == "LARROW" and tok.value == "<"):
         ntoks.append(_Token("LCBRACK", "{", tok.line, tok.coloumn))
       elif (tok.name == "RPAREN" and tok.value == ")") or (tok.name == "RARROW" and tok.value == ">"):
@@ -406,8 +410,6 @@ class __Interpreter:
         ntoks.append(_Token(tok.name, tok.value[-1], tok.line, tok.coloumn))
       elif tok.name == "DOUBLESLASH" and tok.value == "__//":
         ntoks.append(_Token(tok.name, "//", tok.line, tok.coloumn))
-      elif tok.name == "AFUNC" and tok.value.startswith('a fn ==> define ') and tok.value.endswith('{'):
-        ntoks.append(_Token(tok.name, 'async def'+tok.value[15:(len(tok.value)-1)]+'(', tok.line, tok.coloumn))
       elif tok.name == "VAR" and tok.value.startswith('var '):
         while "::" in tok.value:
           tok.value = tok.value.replace("::", ".")
