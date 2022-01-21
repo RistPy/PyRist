@@ -283,7 +283,7 @@ class __Interpreter:
         ('NUMBER', r'\d+\.\d+'),
         ('NUMBER', r'\d+'),
         ('ARROW', r'\} \=\-\=\> '),
-        ('FUNCDEF', r'define {NAME} as (async )?(f|fn|fun|func|function)\{(PARAMS\* )?'),
+        ('FUNCDEF', r'define {NAME} as (a )?(f|fn|fun|func|function)\{(PARAMS\* )?'),
         ('NAME', r'[a-zA-Z_][a-zA-Z0-9_]*'),
         ('TABSPACE', '\t'),
         ('SPACE', ' '),
@@ -390,7 +390,7 @@ class __Interpreter:
         val = "def " + tok.value.replace("define ","").replace(" as "," ").replace("PARAMS* ","")[:-2].rstrip("functio")
         if val.endswith(" async "): val = "async " + val.replace(" async ","")
         elif val.endswith(" a "): val = "async " + val.replace(" a ","")
-        if val.endswith(" "): val = val[:-1]
+        if val.endswith(" "): val = val[:-2]
         ntoks.append(_Token("FUNCDEF", val+"(", tok.line, tok.coloumn))
       elif (tok.name == "LPAREN" and tok.value == "(") or (tok.name == "LARROW" and tok.value == "<"):
         ntoks.append(_Token("LCBRACK", "{", tok.line, tok.coloumn))
