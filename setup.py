@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = "1"
+version = "1.0b"
 
 if version.endswith(('a', 'b', 'rc')):
     # append version identifier based on commit count
