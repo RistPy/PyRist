@@ -303,7 +303,7 @@ class __Interpreter:
         ('COLON', r'\:'),
         ('SEMICOLON', r'\;'),
         ('COMMA', ','),
-        ("PYTHINGS",r"(\\)"),
+        ("PYTHINGS",r"(\\|\~|\^)"),
   ]
 
   def __init__(self) -> None:
@@ -390,7 +390,7 @@ class __Interpreter:
         val = "def " + tok.value.replace("define ","").replace(" as "," ").replace("PARAMS* ","")[:-2].rstrip("functio")
         if val.endswith(" async "): val = "async " + val.replace(" async ","")
         elif val.endswith(" a "): val = "async " + val.replace(" a ","")
-        if val.endswith(" "): val = val[:-2]
+        if val.endswith(" "): val = val[:-1]
         ntoks.append(_Token("FUNCDEF", val+"(", tok.line, tok.coloumn))
       elif (tok.name == "LPAREN" and tok.value == "(") or (tok.name == "LARROW" and tok.value == "<"):
         ntoks.append(_Token("LCBRACK", "{", tok.line, tok.coloumn))
