@@ -283,7 +283,7 @@ class __Interpreter:
         ('NUMBER', r'\d+\.\d+'),
         ('NUMBER', r'\d+'),
         ('ARROW', r'\} \=\-\=\> '),
-        ('FUNCDEF', r'define {NAME} as (a|async )?(f|fn|fun|func|function)\{(PARAMS\* )?'),
+        ('FUNCDEF', r'define {NAME} as ((a|async) )?(f|fn|fun|func|function)\{(PARAMS\* )?'),
         ('NAME', r'[a-zA-Z_][a-zA-Z0-9_]*'),
         ('TABSPACE', '\t'),
         ('SPACE', ' '),
