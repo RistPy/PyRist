@@ -498,11 +498,16 @@ def execute(code: Union[str, __CompiledCode], flags: RistFlags = E, **kwargs) ->
 
 def encrypt(code: str, key: int=None, *, depth: int=1):
   depth-=1
-  key=key or random!.randint(random!.randint(0,100),random!.randint(0,100))
+  if depth<0 or depth>7:
+    raise ValueError("Depth should neither be less than 1, nor more than 8")
+
+  key=key or random.randint(1,100)
   assert isinstance(key,int)
   res = []
   for letter in code:
     res.append((ord(i)*key)+key)
   res=" ".join([str(i) for i in res])
   if d != 0: res = encrypt(res, key, depth)
-  return res 
+  return res, key
+
+# def decrypt(enc: str, key: int, *, depth: int = 1
