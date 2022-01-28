@@ -167,10 +167,11 @@ def _wrap_code(code: str, args: str = '', f=None) -> ast.Module:
 
     return mod
 
-class __CompiledCode:
-  def __init__(self, code: str, fname: str = '<unknown>') -> None:
+class __CompiledCode(str):
+  def setup(self, code: str, fname: str = '<unknown>') -> None:
     self.__code = code
     self.file = fname
+    return self
 
   def __repr__(self) -> str:
     return str(self)
@@ -494,3 +495,14 @@ def execute(code: Union[str, __CompiledCode], flags: RistFlags = E, **kwargs) ->
     if result is None:
       continue
     send(result)
+
+def encrypt(code: str, key: int=None, *, depth: int=1):
+  depth-=1
+  key=key or random!.randint(random!.randint(0,100),random!.randint(0,100))
+  assert isinstance(key,int)
+  res = []
+  for letter in code:
+    res.append((ord(i)*key)+key)
+  res=" ".join([str(i) for i in res])
+  if d != 0: res = encrypt(res, key, depth)
+  return res 
