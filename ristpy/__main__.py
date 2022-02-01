@@ -48,7 +48,7 @@ def parse_args():
     parser.set_defaults(func=compile_fp)
     parser.add_argument('--compile-to', '-CT', help='only compile code and place it to provided file', type=str, metavar="<filepath>")
     parser.add_argument('--eval', '-E', help='Also run the code, used when --compile-to is used', action='store_true')
-    subp = parser.add_subparsers(dest="subcommands",title="subcommands").add_parser(name="encrypt", help="Encrypt any thing")
+    subp = parser.add_subparsers(dest="subcommands",title="subcommands").add_parser("encrypt", help="Encrypt any thing")
     subp.set_defaults(fun=enc)
     subp.add_argument("arg", help="The argument/file to encrypt", metavar="<argument>")
     subp.add_argument("--key","-K", help="The key to encrypt (must be integer, default: random generated)", type=int)
