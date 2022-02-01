@@ -62,7 +62,7 @@ def parse_args():
     subp.add_argument("--filepath","-FP",help="Provide when the argument is a filepath",action='store_true')
     subp.add_argument("--output","-O",help="The output file where the encrypted thing will be written, will print if not given",type=str, default=None)
 
-    return _parser_, parser.parse_args()
+    return _parser_, _parser_.parse_args()
 
 def main():
     parser, args = parse_args()
