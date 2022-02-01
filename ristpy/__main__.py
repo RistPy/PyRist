@@ -44,6 +44,7 @@ def enc(parser, args):
 
 def parse_args():
     _parser_ = argparse.ArgumentParser(prog='rist', description='Rist Lang')
+    _parser_.set_defaults(func=(lambda p,a: None))
     _parser = _parser_.add_subparsers(dest="subcommands",title="subcommands")
 
     parser = _parser.add_parser("lang",help="Rist language command")
