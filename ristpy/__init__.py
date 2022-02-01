@@ -511,7 +511,7 @@ def encrypt(code: str, key: int=None, *, depth: int=1):
   res=" ".join([str(i) for i in res])
   if d != 0: res = encrypt(res, key, depth)
   if not is_key: res = [res, key]
-  retur res
+  return res
 
 def decrypt(enc: str, key: int, *, depth: int = 1)
   c=[]
