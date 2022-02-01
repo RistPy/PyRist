@@ -527,7 +527,7 @@ def decrypt(enc: str, key: int, *, depth: int = 1):
 
   res=[]
   for i in c:
-    if isinstance(i,int): res.append(chr(int((i-key)/keu)))
+    if isinstance(i,int): res.append(chr(int((i-key)/key)))
 
   res = "".join([str(i) for i in res])
   if d!=0: res = decrypt(res,key,d)
