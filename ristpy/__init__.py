@@ -510,7 +510,7 @@ def encrypt(code: str, key: int=None, *, depth: int=1):
     res.append((ord(letter)*key)+key)
 
   res=" ".join([str(i) for i in res])
-  if d != 0: res = encrypt(res, key, depth)
+  if depth != 0: res = encrypt(res, key, depth)
   if not is_key: res = [res, key]
   return res
 
