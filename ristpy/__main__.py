@@ -43,19 +43,26 @@ def enc(parser, args):
   if key: print("\n\n Your encryption key is:",str(key),"\nPlz don't forget it, it is used to decrypt encrypted thing")
 
 def parse_args():
-    parser = argparse.ArgumentParser(prog='rist', description='Rist Lang')
+    _parser_ = argparse.ArgumentParser(prog='rist', description='Rist Lang')
+    _parser = _parser_.add_subparsers(dest="subcommands",title="subcommands")
+
+    parser = _parser.add_parser("lang",help="Rist language command")
+
+    parser.set_defaults(func=compile_fp)
     parser.add_argument('file', type=str, help='compiles rist lang to python and executes it.')
     parser.add_argument('--compile-to', '-CT', help='only compile code and place it to provided file', type=str, metavar="<filepath>")
     parser.add_argument('--eval', '-E', help='Also run the code, used when --compile-to is used', action='store_true')
-    subp = parser.add_subparsers(dest="subcommands",title="subcommands").add_parser("encrypt", help="Encrypt any thing")
+
+    subp = _parser.add_parser("encrypt", help="Encrypt any thing")
+
     subp.set_defaults(fun=enc)
     subp.add_argument("arg", help="The argument/file to encrypt", metavar="<argument>")
     subp.add_argument("--key","-K", help="The key to encrypt (must be integer, default: random generated)", type=int)
     subp.add_argument("--depth","-D",help="The depth/layer for encryption (must be integer, default: 1)", type=int, default=1)
     subp.add_argument("--filepath","-FP",help="Provide when the argument is a filepath",action='store_true')
     subp.add_argument("--output","-O",help="The output file where the encrypted thing will be written, will print if not given",type=str, default=None)
-    parser.set_defaults(func=compile_fp)
-    return parser, parser.parse_args()
+
+    return _parser_, parser.parse_args()
 
 def main():
     parser, args = parse_args()
