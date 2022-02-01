@@ -45,7 +45,6 @@ def enc(parser, args):
 def parse_args():
     parser = argparse.ArgumentParser(prog='rist', description='Rist Lang')
     parser.add_argument('file', type=str, help='compiles rist lang to python and executes it.')
-    parser.set_defaults(func=compile_fp)
     parser.add_argument('--compile-to', '-CT', help='only compile code and place it to provided file', type=str, metavar="<filepath>")
     parser.add_argument('--eval', '-E', help='Also run the code, used when --compile-to is used', action='store_true')
     subp = parser.add_subparsers(dest="subcommands",title="subcommands").add_parser("encrypt", help="Encrypt any thing")
@@ -55,6 +54,7 @@ def parse_args():
     subp.add_argument("--depth","-D",help="The depth/layer for encryption (must be integer, default: 1)", type=int, default=1)
     subp.add_argument("--filepath","-FP",help="Provide when the argument is a filepath",action='store_true')
     subp.add_argument("--output","-O",help="The output file where the encrypted thing will be written, will print if not given",type=str, default=None)
+    parser.set_defaults(func=compile_fp)
     return parser, parser.parse_args()
 
 def main():
