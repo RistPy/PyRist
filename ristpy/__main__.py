@@ -1,6 +1,6 @@
 import argparse
 
-from ristpy import rist, execute, E, W
+from ristpy import rist, execute, E, W, encrypt
 
 def compile_to(parser, to_read, to_write):
     if not to_read.endswith(".rist"):
@@ -36,7 +36,7 @@ def enc(parser, args):
     if args.filepath: arg = open(args.arg).read()
     if args.depth: depth=args.depth
     if args.key: key = False
-    code = ristpy.encrypt(arg,args.key,depth=depth)
+    code = encrypt(arg,args.key,depth=depth)
     if key: code,key=code
     if args.output:
       with open(args.output,"w") as f: f.write(code)
