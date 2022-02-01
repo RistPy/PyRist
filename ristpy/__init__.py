@@ -501,13 +501,33 @@ def encrypt(code: str, key: int=None, *, depth: int=1):
   if depth<0 or depth>7:
     raise ValueError("Depth should neither be less than 1, nor more than 8")
 
+  is_key = bool(key)
   key=key or random.randint(1,100)
   assert isinstance(key,int)
   res = []
   for letter in code:
-    res.append((ord(i)*key)+key)
+    res.append((ord(letter)*key)+key)
+
   res=" ".join([str(i) for i in res])
   if d != 0: res = encrypt(res, key, depth)
-  return res, key
+  if not is_key: res = [res, key]
+  retur res
 
-# def decrypt(enc: str, key: int, *, depth: int = 1
+def decrypt(enc: str, key: int, *, depth: int = 1)
+  c=[]
+  for i in enc.split(" "):
+    try:
+      c.append(int(i))
+    except: c.append(i)
+
+  d=depth-1
+  if d<0 or d>7:
+    raise ValueError("Depth should neither be less than 1, nor more than 8")
+
+  res=[]
+  for i in c:
+    if isinstance(i,int): res.append(chr(int((i-key)/keu)))
+
+  res = "".join([str(i) for i in res])
+  if d!=0: res = decrypt(res,key,d)
+  return res
