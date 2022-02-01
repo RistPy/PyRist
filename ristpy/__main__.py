@@ -43,7 +43,7 @@ def enc(parser, args):
     else: print("Encryption success\n\n",code)
     if key: print("\n\n Your encryption key is:",str(key),"\nPlz don't forget it, it is used to decrypt encrypted thing")
   except Exception as e:
-    parser.error(e.__class__.__name__+: "+str(e))
+    parser.error(e.__class__.__name__+": "+str(e))
 
 def parse_args():
     _parser_ = argparse.ArgumentParser(prog='rist', description='Rist Lang')
