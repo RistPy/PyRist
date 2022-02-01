@@ -513,7 +513,7 @@ def encrypt(code: str, key: int=None, *, depth: int=1):
   if not is_key: res = [res, key]
   return res
 
-def decrypt(enc: str, key: int, *, depth: int = 1)
+def decrypt(enc: str, key: int, *, depth: int = 1):
   c=[]
   for i in enc.split(" "):
     try:
