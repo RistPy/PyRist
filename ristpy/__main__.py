@@ -32,13 +32,13 @@ def compile_fp(parser, args):
 
 def enc(parser, args):
   arg,depth,key = args.arg,1,True
-  if args.fp: arg = open(args.arg).read()
+  if args.filepath: arg = open(args.arg).read()
   if args.depth: depth=args.depth
   if args.key: key = False
   code = ristpy.encrypt(arg,args.key,depth=depth)
   if key: code,key=code
-  if args.out:
-    with open(args.out,"w") as f: f.write(code)
+  if args.output:
+    with open(args.output,"w") as f: f.write(code)
   else: print("Encryption success\n\n",code)
   if key: print("\n\n Your encryption key is:",str(key),"\nPlz don't forget it, it is used to decrypt encrypted thing")
 
@@ -50,11 +50,11 @@ def parse_args():
     parser.add_argument('--eval', '-E', help='Also run the code, used when --compile-to is used', action='store_true')
     subp = parser.add_subparsers(dest="subcommands",title="subcommands").add_parser(name="encrypt", help="Encrypt any thing")
     subp.set_defaults(fun=enc)
-    subp.add_argument("arg", help="The argument/file to encrypt",dest="arg")
-    subp.add_argument("--key","-K", help="The key to encrypt (must be integer, default: random generated)", dest="key", type=int, metavar="<argument>")
-    subp.add_argument("--depth","-D",help="The depth/layer for encryption (must be integer, default: 1)", dest="depth", type=int)
-    subp.add_argument("--filepath","-FP",help="Provide when the argument is a filepath",dest="fp",action='store_true')
-    subp.add_argument("--output","-O",help="The output file wjere the encrypted thing will be written, will print if not given",type=str,dest="out")
+    subp.add_argument("arg", help="The argument/file to encrypt", metavar="<argument>")
+    subp.add_argument("--key","-K", help="The key to encrypt (must be integer, default: random generated)", type=int)
+    subp.add_argument("--depth","-D",help="The depth/layer for encryption (must be integer, default: 1)", type=int, default=1)
+    subp.add_argument("--filepath","-FP",help="Provide when the argument is a filepath",action='store_true')
+    subp.add_argument("--output","-O",help="The output file where the encrypted thing will be written, will print if not given",type=str, default=None)
     return parser, parser.parse_args()
 
 def main():
