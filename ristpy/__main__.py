@@ -31,16 +31,19 @@ def compile_fp(parser, args):
         compile_and_run(parser,args.file)
 
 def enc(parser, args):
-  arg,depth,key = args.arg,1,True
-  if args.filepath: arg = open(args.arg).read()
-  if args.depth: depth=args.depth
-  if args.key: key = False
-  code = ristpy.encrypt(arg,args.key,depth=depth)
-  if key: code,key=code
-  if args.output:
-    with open(args.output,"w") as f: f.write(code)
-  else: print("Encryption success\n\n",code)
-  if key: print("\n\n Your encryption key is:",str(key),"\nPlz don't forget it, it is used to decrypt encrypted thing")
+  try:
+    arg,depth,key = args.arg,1,True
+    if args.filepath: arg = open(args.arg).read()
+    if args.depth: depth=args.depth
+    if args.key: key = False
+    code = ristpy.encrypt(arg,args.key,depth=depth)
+    if key: code,key=code
+    if args.output:
+      with open(args.output,"w") as f: f.write(code)
+    else: print("Encryption success\n\n",code)
+    if key: print("\n\n Your encryption key is:",str(key),"\nPlz don't forget it, it is used to decrypt encrypted thing")
+  except Exception as e:
+    parser.error(e.__class__.__name__+: "+str(e))
 
 def parse_args():
     _parser_ = argparse.ArgumentParser(prog='rist', description='Rist Lang')
@@ -56,7 +59,7 @@ def parse_args():
 
     subp = _parser.add_parser("encrypt", help="Encrypt any thing")
 
-    subp.set_defaults(fun=enc)
+    subp.set_defaults(func=enc)
     subp.add_argument("arg", help="The argument/file to encrypt", metavar="<argument>")
     subp.add_argument("--key","-K", help="The key to encrypt (must be integer, default: random generated)", type=int)
     subp.add_argument("--depth","-D",help="The depth/layer for encryption (must be integer, default: 1)", type=int, default=1)
