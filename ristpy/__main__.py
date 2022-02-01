@@ -48,13 +48,13 @@ def parse_args():
     parser.set_defaults(func=compile_fp)
     parser.add_argument('--compile-to', '-CT', help='only compile code and place it to provided file', type=str, metavar="<filepath>")
     parser.add_argument('--eval', '-E', help='Also run the code, used when --compile-to is used', action='store_true')
-    subp = parser.add_subparser("encrypt", description="Encrypt thing")
+    subp = parser.add_subparsers(dest="subcommands",title="subcommands").add_parser(dest="encrypt", help="Encrypt any thing")
+    subp.set_defaults(fun=enc)
     subp.add_argument("arg", help="The argument/file to encrypt",dest="arg")
     subp.add_argument("--key","-K", help="The key to encrypt (must be integer, default: random generated)", dest="key", type=int, metavar="<argument>")
     subp.add_argument("--depth","-D",help="The depth/layer for encryption (must be integer, default: 1)", dest="depth", type=int)
     subp.add_argument("--filepath","-FP",help="Provide when the argument is a filepath",dest="fp",action='store_true')
     subp.add_argument("--output","-O",help="The output file wjere the encrypted thing will be written, will print if not given",type=str,dest="out")
-    subp.set_defaults(fun=enc)
     return parser, parser.parse_args()
 
 def main():
