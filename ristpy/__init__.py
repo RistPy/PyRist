@@ -282,8 +282,9 @@ class __Interpreter:
         ('RARROW', r'\>'),
         ('NUMBER', r'\d+\.\d+'),
         ('NUMBER', r'\d+'),
-        ('ARROW', r'\} \=\-\=\> '),
-        ('FUNCDEF', r'define {NAME} as ((a|async) )?(f|fn|fun|func|function)\{(PARAMS\* )?'),
+        ('ARROW', r'\}\-\>'),
+        ('SHORTS', r'\$(i|p)'),
+        ('FUNCDEF', r'(\$)?{NAME}\$\{'),
         ('NAME', r'[a-zA-Z_][a-zA-Z0-9_]*'),
         ('TABSPACE', '\t'),
         ('SPACE', ' '),
@@ -386,17 +387,18 @@ class __Interpreter:
         ntoks.append(_Token("RPAREN", ")", tok.line, tok.coloumn))
       elif tok.name == "COMMENT" and tok.value.startswith('//'):
         ntoks.append(_Token("COMMENT", ("#" + tok.value[2:]), tok.line, tok.coloumn))
-      elif tok.name == "FUNCDEF" and tok.value.startswith("define "):
-        val = "def " + tok.value.replace("define ","").replace(" as "," ").replace("PARAMS* ","")[:-2].rstrip("functio")
-        if val.endswith(" async "): val = "async " + val.replace(" async ","")
-        elif val.endswith(" a "): val = "async " + val.replace(" a ","")
-        if val.endswith(" "): val = val[:-1]
-        ntoks.append(_Token("FUNCDEF", val+"(", tok.line, tok.coloumn))
+      elif tok.name == "FUNCDEF":
+        if tok.value.startswith("$"):val="async def "+tok.value[1:]
+        else:val="def "+tok.value
+        val=val.replace("${","(")
+        ntoks.append(_Token("FUNCDEF", val, tok.line, tok.coloumn))
       elif (tok.name == "LPAREN" and tok.value == "(") or (tok.name == "LARROW" and tok.value == "<"):
         ntoks.append(_Token("LCBRACK", "{", tok.line, tok.coloumn))
       elif (tok.name == "RPAREN" and tok.value == ")") or (tok.name == "RARROW" and tok.value == ">"):
         ntoks.append(_Token("RCBRACK", "}", tok.line, tok.coloumn))
-      elif tok.name == "ARROW" and tok.value == "} =-=> ":
+      elif tok.name=="SHORTS":
+        ntoks.append(_Token("RCBRACK", {'i':'input','p':print}[tok.value[-1]],tok.line,tok.coloumn))
+      elif tok.name == "ARROW":
         ntoks.append(_Token(tok.name, ") -> ", tok.line, tok.coloumn))
       elif tok.name == "FROM" and tok.value == "+@ ":
         ntoks.append(_Token(tok.name, "from ", tok.line, tok.coloumn))
