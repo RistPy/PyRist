@@ -418,7 +418,6 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> __Compile
   else:
     code = arg
     fname = '<unknown.rist>'
-  code = "\n".join(list(line for line in lines))
   code = __CompiledCode.setup(__Interpreter.interprete(code, fname),fname)
 
   if flags.WRITE and not "compile_to" in kwargs:
