@@ -273,8 +273,10 @@ class __Interpreter:
         ('COMMENT', r'#.*'),
         ('STRING', r'((".*?")(?<!(\\)))'),
         ('STRING', r"(('.*?')(?<!(\\)))"),
-        ('FROM', r'^(\\s)?\+@ ({ATTRIBUTED_NAME}|{NAME}) @\+ {ATTRIBUTED_NAME}'),
+        ('FROM', r'^(\\s)?\+@ ({ATTRIBUTED_NAME}|{NAME}) {ERR_IMPORT}'),
         ('IMPORT', r'^(\\s)?@\+ {ATTRIBUTED_NAME}'),
+        ('ERR_IMPORT', r'\+@ ({ATTRIBUTED_NAME}|{NAME}) {ERR_IMPORT}'),
+        ('ERR_IMPORT', r'@\+ {ATTRIBUTED_NAME}'),
         ('PREDEF', r'\$(i|p|d|l|t|n|m|s|u)'),
         ('AT', '@{ATTRIBUTED_NAME}'),
         ('ARROW', r'\}( )?\-\>( )?{ATTRIBUTED_NAME}?'),
@@ -347,6 +349,13 @@ class __Interpreter:
             value = "	"
           elif name == "SPACE":
             value = " "
+
+          if name == "ERR_IMPORT":
+            err = SyntaxError(f"Unexpected position of 'IMPORT' syntax, it should not comes after any text")
+            kwrds = dict(filename=f, lineno=line_num, offset=pos+1, text=line)
+            for k, v in kwrds.items():
+              setattr(err, k, v)
+            raise err
 
           tokens.append(_Token(name, value, line_num, matches.start() + 1))
         else:
