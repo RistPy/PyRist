@@ -361,7 +361,7 @@ class __Interpreter:
 
           tokens.append(_Token(name, value, line_num, matches.start() + 1))
         else:
-          err = SyntaxError(f"Unexpected Character '{line[matches.start():pos]}' in Identifier")
+          err = SyntaxError(f"Unexpected Character '{line[pos]}' in Identifier")
           kwrds = dict(filename=f, lineno=line_num, offset=matches.start()+1, text=line)
           for k, v in kwrds.items():
             setattr(err, k, v)
