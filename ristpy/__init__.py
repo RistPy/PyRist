@@ -276,7 +276,7 @@ class __Interpreter:
         ('FROM', r'\+@ ({ATTRIBUTED_NAME}|{NAME}) {IMPORT}'),
         ('IMPORT', r'@\+ {ATTRIBUTED_NAME}'),
         ('AT', '@'),
-        ('ARROW', r'\}\-\>'),
+        ('ARROW', r'\}( )?\-\>( )?{ATTRIBUTED_NAME}?'),
         ('GTORLT', r'__(\<|\>)'),
         ('LARROW', r'\<'),
         ('RARROW', r'\>'),
@@ -393,7 +393,7 @@ class __Interpreter:
       elif tok.name=="PREDEF":
         ntoks.append(_Token("PREDEF", {'i':"int",'p':"print",'d':"dict",'l':"list",'t':"type",'n':"input",'m':"__import__",'s':"str",'u':"tuple"}[tok.value[-1]],tok.line,tok.coloumn))
       elif tok.name == "ARROW":
-        ntoks.append(_Token(tok.name, ") -> ", tok.line, tok.coloumn))
+        ntoks.append(_Token(tok.name, ")"+tok.value[1:], tok.line, tok.coloumn))
       elif tok.name == "FROM":
         ntoks.append(_Token(tok.name, tok.value.replace("+@","from").replace("@+","import"), tok.line, tok.coloumn))
       elif tok.name == "IMPORT" and tok.value.startswith("@+ "):
