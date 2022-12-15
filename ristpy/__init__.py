@@ -283,7 +283,7 @@ class __Interpreter:
         ('NUMBER', r'\d+\.\d+'),
         ('NUMBER', r'\d+'),
         ('ARROW', r'\}\-\>'),
-        ('SHORTS', r'\$(i|p)'),
+        ('PREDEF', r'\$(i|p|d|l|t|n|m|s|u)'),
         ('FUNCDEF', r'(\$)?{NAME}\$\{'),
         ('NAME', r'[a-zA-Z_][a-zA-Z0-9_]*'),
         ('TABSPACE', '\t'),
@@ -396,8 +396,8 @@ class __Interpreter:
         ntoks.append(_Token("LCBRACK", "{", tok.line, tok.coloumn))
       elif (tok.name == "RPAREN" and tok.value == ")") or (tok.name == "RARROW" and tok.value == ">"):
         ntoks.append(_Token("RCBRACK", "}", tok.line, tok.coloumn))
-      elif tok.name=="SHORTS":
-        ntoks.append(_Token("RCBRACK", {'i':'input','p':print}[tok.value[-1]],tok.line,tok.coloumn))
+      elif tok.name=="PREDEF":
+        ntoks.append(_Token("PREDEF", {'i':"int",'p':"print",'d':"dict",'l':"list",'t':"type",'n':"input",'m':"__import__",'s':"str",'u':"tuple"}[tok.value[-1]],tok.line,tok.coloumn))
       elif tok.name == "ARROW":
         ntoks.append(_Token(tok.name, ") -> ", tok.line, tok.coloumn))
       elif tok.name == "FROM" and tok.value == "+@ ":
