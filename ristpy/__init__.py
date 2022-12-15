@@ -1,6 +1,7 @@
 import re
 import ast
 import enum
+import random
 import typing
 import asyncio
 import inspect
@@ -167,10 +168,11 @@ def _wrap_code(code: str, args: str = '', f=None) -> ast.Module:
 
     return mod
 
-class __CompiledCode:
-  def __init__(self, code: str, fname: str = '<unknown>') -> None:
+class __CompiledCode(str):
+  def setup(self, code: str, fname: str = '<unknown>') -> None:
     self.__code = code
     self.file = fname
+    return self
 
   def __repr__(self) -> str:
     return str(self)
@@ -496,3 +498,39 @@ def execute(code: Union[str, __CompiledCode], flags: RistFlags = E, **kwargs) ->
     if result is None:
       continue
     send(result)
+
+def encrypt(code: str, key: int=None, *, depth: int=1):
+  depth-=1
+  if depth<0 or depth>7:
+    raise ValueError("Depth should neither be less than 1, nor more than 8")
+
+  is_key = bool(key)
+  key=key or random.randint(1,100)
+  assert isinstance(key,int)
+  res = []
+  for letter in code:
+    res.append((ord(letter)*key)+key)
+
+  res=" ".join([str(i) for i in res])
+  if depth != 0: res = encrypt(res, key, depth)
+  if not is_key: res = [res, key]
+  return res
+
+def decrypt(enc: str, key: int, *, depth: int = 1):
+  c=[]
+  for i in enc.split(" "):
+    try:
+      c.append(int(i))
+    except: c.append(i)
+
+  d=depth-1
+  if d<0 or d>7:
+    raise ValueError("Depth should neither be less than 1, nor more than 8")
+
+  res=[]
+  for i in c:
+    if isinstance(i,int): res.append(chr(int((i-key)/key)))
+
+  res = "".join([str(i) for i in res])
+  if d!=0: res = decrypt(res,key,d)
+  return res
