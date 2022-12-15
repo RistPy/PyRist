@@ -169,7 +169,9 @@ def _wrap_code(code: str, args: str = '', f=None) -> ast.Module:
     return mod
 
 class __CompiledCode(str):
-  def setup(self, code: str, fname: str = '<unknown>') -> None:
+  @classmethod
+  def setup(cls, code: str, fname: str = '<unknown>') -> None:
+    self=cls(code)
     self.__code = code
     self.file = fname
     return self
@@ -380,8 +382,6 @@ class __Interpreter:
         tokens.append(_Token('NEWLINE', "\n", line_num, len(line) + 1))
 
     ntoks = []
-    typing_imported = False
-    typing_needed = False
     for tok in tokens:
       if tok.name == "LCBRACK" and tok.value == "{":
         ntoks.append(_Token("LPAREN", "(", tok.line, tok.coloumn))
@@ -406,8 +406,6 @@ class __Interpreter:
         ntoks.append(_Token(tok.name, "from ", tok.line, tok.coloumn))
       elif tok.name == "IMPORT" and tok.value.startswith("@+ "):
         ntoks.append(_Token(tok.name, "import"+tok.value[2:], tok.line, tok.coloumn))
-        if 'typing' in tok.value:
-          typing_imported = True
       elif tok.name == "DOT" and tok.value == "::":
         ntoks.append(_Token(tok.name, ".", tok.line, tok.coloumn))
       elif tok.name == "GTORLT" and tok.value.startswith('__'):
@@ -418,8 +416,7 @@ class __Interpreter:
         while "::" in tok.value:
           tok.value = tok.value.replace("::", ".")
 
-        ntoks.append(_Token(tok.name, tok.value.replace('var ',"")+': typing.Any', tok.line, tok.coloumn))
-        typing_needed = True
+        ntoks.append(_Token(tok.name, tok.value.replace('var ',"")+': __import__("typing")__.Any', tok.line, tok.coloumn))
       elif tok.name.startswith("VARAS") and tok.value.startswith('var ') and ' as ' in tok.value:
         while "::" in tok.value:
           tok.value = tok.value.replace("::", ".")
@@ -435,8 +432,7 @@ class __Interpreter:
         ntoks.append(tok)
 
     code = "".join(list(str(t) for t in ntoks))
-    if typing_needed and not typing_imported:
-      code = "import typing\n" + code
+
 
     return code
 
@@ -470,7 +466,7 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> __Compile
 
     nlines.append(line.rstrip(";"))
   code = "\n".join(list(line for line in nlines))
-  code = __CompiledCode(__Interpreter.interprete(code, fname), fname)
+  code = __CompiledCode.setup(__Interpreter.interprete(code, fname),fname)
 
   if flags.WRITE and not "compile_to" in kwargs:
     raise ValueError('"compile_to" key-word argument not given when "WRITE" flag passed')
