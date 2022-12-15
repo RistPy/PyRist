@@ -352,8 +352,8 @@ class __Interpreter:
             value = " "
 
           if name == "ERR_IMPORT":
-            err = SyntaxError(f"Unexpected position of 'IMPORT' syntax, it should not comes after any text")
-            kwrds = dict(filename=f, lineno=line_num, offset=pos+1, text=line)
+            err = SyntaxError(f"Unexpected position of 'IMPORT' syntax, it should not come after any text")
+            kwrds = dict(filename=f, lineno=line_num, offset=matches.start()+1, text=line)
             for k, v in kwrds.items():
               setattr(err, k, v)
             if sys.version_info>(3,9):setattr(err, end_offset, pos+1+len(value))
