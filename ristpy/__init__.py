@@ -274,8 +274,8 @@ class __Interpreter:
         ('COMMENT', r'#.*'),
         ('STRING', r'((".*?")(?<!(\\)))'),
         ('STRING', r"(('.*?')(?<!(\\)))"),
-        ('FROM', r'^(\\s)?\+@ ({ATTRIBUTED_NAME}|{NAME}) @\+ {ATTRIBUTED_NAME}'),
-        ('IMPORT', r'^(\\s)?@\+ {ATTRIBUTED_NAME}'),
+        ('FROM', r'^(\s)*\+@ ({ATTRIBUTED_NAME}|{NAME}) @\+ {ATTRIBUTED_NAME}'),
+        ('IMPORT', r'^(\s)*@\+ {ATTRIBUTED_NAME}'),
         ('ERR_IMPORT', r'\+@ ({ATTRIBUTED_NAME}|{NAME}) @\+ {ATTRIBUTED_NAME}'),
         ('ERR_IMPORT', r'@\+ {ATTRIBUTED_NAME}'),
         ('PREDEF', r'\$(i|p|d|l|t|n|m|s|u)'),
@@ -361,8 +361,8 @@ class __Interpreter:
 
           tokens.append(_Token(name, value, line_num, matches.start() + 1))
         else:
-          err = SyntaxError(f"Unexpected Character '{line[pos]}' in Identifier")
-          kwrds = dict(filename=f, lineno=line_num, offset=pos+1, text=line)
+          err = SyntaxError(f"Unexpected Character '{line[matches.start():pos]}' in Identifier")
+          kwrds = dict(filename=f, lineno=line_num, offset=matches.start()+1, text=line)
           for k, v in kwrds.items():
             setattr(err, k, v)
 
