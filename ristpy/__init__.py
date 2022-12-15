@@ -270,25 +270,20 @@ class _Token:
 
 class __Interpreter:
   __rules: List[Tuple[str, str]] = [
-        ('DOUBLESLASH', '__//'),
-        ('COMMENT', r'//.*'),
+        ('COMMENT', r'#.*'),
         ('STRING', r'((".*?")(?<!(\\)))'),
         ('STRING', r"(('.*?')(?<!(\\)))"),
-        ('FROM', r'\+@ '),
-        ('VARASEQ', r"{VARAS}( )?\=( )?[a-zA-Z0-9_(::)]*"),
-        ('VARAS', r"{VAR} as [a-zA-Z0-9_(::)]*"),
-        ('VAREQ', r"{VAR}( )?\=( )?[a-zA-Z0-9_(::)]*"),
-        ('VAR', r'var [a-zA-Z0-9_(::)]*'),
-        ('IMPORT', r'@\+ (typing)?'),
+        ('FROM', r'\+@ {ATTRIBUTED_NAME} {IMPORT}'),
+        ('IMPORT', r'@\+ {ATTRIBUTED_NAME}'),
         ('AT', '@'),
+        ('ARROW', r'\}\-\>'),
         ('GTORLT', r'__(\<|\>)'),
         ('LARROW', r'\<'),
         ('RARROW', r'\>'),
-        ('NUMBER', r'\d+\.\d+'),
         ('NUMBER', r'\d+'),
-        ('ARROW', r'\}\-\>'),
         ('PREDEF', r'\$(i|p|d|l|t|n|m|s|u)'),
         ('FUNCDEF', r'(\$)?{NAME}\$\{'),
+        ('ATTRIBUTED_NAME', r'({NAME})?([.]*(?=[a-zA-Z_])([a-zA-Z0-9_]*))*'),
         ('NAME', r'[a-zA-Z_][a-zA-Z0-9_]*'),
         ('TABSPACE', '\t'),
         ('SPACE', ' '),
@@ -304,7 +299,6 @@ class __Interpreter:
         ('RBRACK', r'\]'),
         ('LCBRACK', '{'),
         ('RCBRACK', '}'),
-        ('DOT', r'\:\:'),
         ('COLON', r'\:'),
         ('SEMICOLON', r'\;'),
         ('COMMA', ','),
@@ -387,8 +381,6 @@ class __Interpreter:
         ntoks.append(_Token("LPAREN", "(", tok.line, tok.coloumn))
       elif tok.name == "RCBRACK" and tok.value == "}":
         ntoks.append(_Token("RPAREN", ")", tok.line, tok.coloumn))
-      elif tok.name == "COMMENT" and tok.value.startswith('//'):
-        ntoks.append(_Token("COMMENT", ("#" + tok.value[2:]), tok.line, tok.coloumn))
       elif tok.name == "FUNCDEF":
         if tok.value.startswith("$"):val="async def "+tok.value[1:]
         else:val="def "+tok.value
@@ -402,32 +394,12 @@ class __Interpreter:
         ntoks.append(_Token("PREDEF", {'i':"int",'p':"print",'d':"dict",'l':"list",'t':"type",'n':"input",'m':"__import__",'s':"str",'u':"tuple"}[tok.value[-1]],tok.line,tok.coloumn))
       elif tok.name == "ARROW":
         ntoks.append(_Token(tok.name, ") -> ", tok.line, tok.coloumn))
-      elif tok.name == "FROM" and tok.value == "+@ ":
-        ntoks.append(_Token(tok.name, "from ", tok.line, tok.coloumn))
+      elif tok.name == "FROM":
+        ntoks.append(_Token(tok.name, tok.value.replace("+@","from").replace("@+","import"), tok.line, tok.coloumn))
       elif tok.name == "IMPORT" and tok.value.startswith("@+ "):
         ntoks.append(_Token(tok.name, "import"+tok.value[2:], tok.line, tok.coloumn))
-      elif tok.name == "DOT" and tok.value == "::":
-        ntoks.append(_Token(tok.name, ".", tok.line, tok.coloumn))
       elif tok.name == "GTORLT" and tok.value.startswith('__'):
         ntoks.append(_Token(tok.name, tok.value[-1], tok.line, tok.coloumn))
-      elif tok.name == "DOUBLESLASH" and tok.value == "__//":
-        ntoks.append(_Token(tok.name, "//", tok.line, tok.coloumn))
-      elif tok.name == "VAR" and tok.value.startswith('var '):
-        while "::" in tok.value:
-          tok.value = tok.value.replace("::", ".")
-
-        ntoks.append(_Token(tok.name, tok.value.replace('var ',"")+': __import__("typing")__.Any', tok.line, tok.coloumn))
-      elif tok.name.startswith("VARAS") and tok.value.startswith('var ') and ' as ' in tok.value:
-        while "::" in tok.value:
-          tok.value = tok.value.replace("::", ".")
-
-        v=tok.value.replace(' as ', ': ').replace('var ','')
-        ntoks.append(_Token(tok.name, v, tok.line, tok.coloumn))
-      elif tok.name == "VAREQ" and tok.value.startswith("var ") and "=" in tok.value:
-        while "::" in tok.value:
-          tok.value = tok.value.replace("::", ".")
-
-        ntoks.append(_Token(tok.name, tok.value.replace('var ',""), tok.line, tok.coloumn))
       else:
         ntoks.append(tok)
 
@@ -446,26 +418,7 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> __Compile
   else:
     code = arg
     fname = '<unknown.rist>'
-  lines = code.splitlines()
-  nlines = []
-  for index, line in enumerate(lines):
-    _line = line.rstrip("\n")
-    while _line.startswith(" "):
-      _line = _line.lstrip(" ")
-    while _line.startswith("	"):
-      _line = _line.lstrip("	")
-    if not _line:
-      nlines.append(line)
-      continue
-    if not line.endswith(";"):
-      err = SyntaxError(f'Line shoud must end with ";" not "{line[-1]}"')
-      kwrds = dict(filename=arg, lineno=index+1, offset=len(line), text=line)
-      for k, v in kwrds.items():
-        setattr(err, k, v)
-      raise err
-
-    nlines.append(line.rstrip(";"))
-  code = "\n".join(list(line for line in nlines))
+  code = "\n".join(list(line for line in lines))
   code = __CompiledCode.setup(__Interpreter.interprete(code, fname),fname)
 
   if flags.WRITE and not "compile_to" in kwargs:
