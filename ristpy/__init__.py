@@ -472,7 +472,7 @@ def encrypt(code: str, key: int=None, *, depth: int=1):
     res.append((ord(letter)*key)+key)
 
   res=" ".join([str(i) for i in res])
-  if depth != 0: res = encrypt(res, key, depth)
+  if depth != 0: res = encrypt(res, key, depth=depth)
   if not is_key: res = [res, key]
   return res
 
@@ -492,5 +492,5 @@ def decrypt(enc: str, key: int, *, depth: int = 1):
     if isinstance(i,int): res.append(chr(int((i-key)/key)))
 
   res = "".join([str(i) for i in res])
-  if d!=0: res = decrypt(res,key,d)
+  if d!=0: res = decrypt(res,key,depth=d)
   return res
