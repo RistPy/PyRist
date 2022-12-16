@@ -19,15 +19,27 @@ def init(parser, args):
   ign=conf.get("ignore") or []
   if "." not in dirs: dirs.append(".")
   ign.append(mf if "/" in mf else "./"+mf)
-  for dir in dirs:
-    if not dir.endswith("/"): dir+="/"
-    for file in os.listdir(dir):
-      if file.endswith(".rist"):
-        file=dir+file
-        if file not in ign:
-          rist(file, flags=W, compile_to=file[:-4]+"py")
+  pyfiles=[]
+  def rm():
+    for f in pyfiles:
+      try:os.remove(f)
+      except:continue
+  try:
+    for dir in dirs:
+      if not dir.endswith("/"): dir+="/"
+      for file in os.listdir(dir):
+        if file.endswith(".rist"):
+          file=dir+file
+          if file not in ign:
+            pyfiles.append(file[:-4]+"py")
+            rist(file, flags=W, compile_to=file[:-4]+"py")
 
-  rist(mf, flags=E)
+    rist(mf, flags=E)
+  except Exception as e:
+    rm()
+    raise e
+  finally:
+    rm()
 
 def compile_to(parser, to_read, to_write):
   if not to_read.endswith(".rist"):
