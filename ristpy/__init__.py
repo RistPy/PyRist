@@ -284,6 +284,7 @@ class __Interpreter:
         ('AT', '@{ATTRIBUTED_NAME}'),
         ('ARROW', r'\}( )?\-\>( )?{ATTRIBUTED_NAME}?'),
         ('GTORLT', r'__(\<|\>)'),
+        ('AWAIT', r'\?(\s)?'),
         ('LARROW', r'\<'),
         ('RARROW', r'\>'),
         ('NUMBER', r'\d+\.\d+'),
@@ -407,6 +408,8 @@ class __Interpreter:
         ntoks.append(_Token("PREDEF", {'i':"int",'p':"print",'d':"dict",'l':"list",'t':"type",'n':"input",'m':"__import__",'s':"str",'u':"tuple"}[tok.value[-1]],tok.line,tok.coloumn))
       elif tok.name == "ARROW":
         ntoks.append(_Token(tok.name, ")"+tok.value[1:], tok.line, tok.coloumn))
+      elif tok.name == "AWAIT":
+        ntoks.append(_Token(tok.name, "await ", tok.line, tok.coloumn))
       elif tok.name == "FROM":
         ntoks.append(_Token(tok.name, tok.value.replace("+@","from").replace("@+","import"), tok.line, tok.coloumn))
       elif tok.name == "IMPORT" and tok.value.startswith("@+ "):
