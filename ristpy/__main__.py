@@ -1,6 +1,6 @@
 import argparse
 
-from ristpy import rist, execute, E, W, encrypt
+from ristpy import rist, execute, E, W, encrypt, decrypt
 
 def compile_to(parser, to_read, to_write):
     if not to_read.endswith(".rist"):
@@ -45,6 +45,20 @@ def enc(parser, args):
   except Exception as e:
     parser.error(e.__class__.__name__+": "+str(e))
 
+def dec(parser, args):
+  try:
+    arg,depth,key = args.arg,1,args.key
+    if not key: return parser.error("You must provide a 'key' for decryption")
+    if args.filepath: arg = open(args.arg).read()
+    if args.depth: depth=args.depth
+    code = decrypt(arg,args.key,depth=depth)
+    if key: code,key=code
+    if args.output:
+      with open(args.output,"w") as f: f.write(code)
+    else: print("Decryption success\n\n",code)
+  except Exception as e:
+    parser.error(e.__class__.__name__+": "+str(e))
+
 def parse_args():
     _parser_ = argparse.ArgumentParser(prog='rist', description='Rist Lang')
     _parser_.set_defaults(func=(lambda p,a: None))
@@ -57,14 +71,23 @@ def parse_args():
     parser.add_argument('--compile-to', '-CT', help='only compile code and place it to provided file', type=str, metavar="<filepath>")
     parser.add_argument('--eval', '-E', help='Also run the code, used when --compile-to is used', action='store_true')
 
-    subp = _parser.add_parser("encrypt", help="Encrypt any thing")
+    subp_e = _parser.add_parser("encrypt", help="Encrypt any thing")
 
-    subp.set_defaults(func=enc)
-    subp.add_argument("arg", help="The argument/file to encrypt", metavar="<argument>")
-    subp.add_argument("--key","-K", help="The key to encrypt (must be integer, default: random generated)", type=int)
-    subp.add_argument("--depth","-D",help="The depth/layer for encryption (must be integer, default: 1)", type=int, default=1)
-    subp.add_argument("--filepath","-FP",help="Provide when the argument is a filepath",action='store_true')
-    subp.add_argument("--output","-O",help="The output file where the encrypted thing will be written, will print if not given",type=str, default=None)
+    subp_e.set_defaults(func=enc)
+    subp_e.add_argument("arg", help="The argument/file to encrypt", metavar="<argument>")
+    subp_e.add_argument("--key","-K", help="The key to encrypt (must be integer, default: random generated)", type=int)
+    subp_e.add_argument("--depth","-D",help="The depth/layer for encryption (must be integer, default: 1)", type=int, default=1)
+    subp_e.add_argument("--filepath","-FP",help="Provide when the argument is a filepath",action='store_true')
+    subp_e.add_argument("--output","-O",help="The output file where the encrypted thing will be written, will print if not given",type=str, default=None)
+
+    subp_d = _parser.add_parser("decrypt", help="Decrypt any thing")
+
+    subp_d.set_defaults(func=dec)
+    subp_d.add_argument("arg", help="The argument/file to decrypt", metavar="<argument>")
+    subp_d.add_argument("--key","-K", help="The key to decrypt (must be integer,)", type=int, metavar="<key>")
+    subp_d.add_argument("--depth","-D",help="The depth/layer for encryption to decode (must be integer, default: 1)", type=int, default=1)
+    subp_d.add_argument("--filepath","-FP",help="Provide when the argument is a filepath",action='store_true')
+    subp_d.add_argument("--output","-O",help="The output file where the decrypted thing will be written, will print if not given",type=str, default=None)
 
     return _parser_, _parser_.parse_args()
 
