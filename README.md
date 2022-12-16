@@ -11,16 +11,15 @@ python3 -m pip install git+https://github.com/Rishiraj0100/PyRist/
 Create a file named `main.rist`<br />
 A sample code is given here
 ```rist
-@+ os, pprint;
-+@ typing @+ Union;
+@+ os, pprint
++@ typing @+ Union
 
-define cls as function{}:;
-  os::system{"cls" if os::name == "nt" else "clear"};
+cls${}: os.system{"cls" if os.name == "nt" else "clear"}
 
-cls{};
+cls{}
 
-define something as function{PARAMS* var arg as Union[str, int]}:;
-  pprint::pprint{["myText", [arg]]};
+something${arg: Union[str, int]}:
+  pprint.pprint{["myText", [arg]]};
 
 something{"text2"};
 ```
@@ -41,7 +40,7 @@ print(rist("main.rist"))
 # if you want some text to compile then
 
 code = """
-print{"hello"};
+$p{"hello"} # Print
 """
 print(rist(code, fp=False))
 # if you wanna execute then
@@ -54,8 +53,6 @@ rist("main.rist", flags=W|E, compile_to="main.py")
 ```
 
 ## Syntax
-### Note
-Every line should end with `;` only if line is not empty
 ### Importing
 #### What can it Import?
 
@@ -64,30 +61,32 @@ It can Import all python modules
 #### How to Import?
 In python you do `import asyncio`
 
-In rist you have to do `@+ asyncio;`
+In rist you have to do `@+ asyncio`
 
 In python you do `from aiohttp import web`
 
-In rist you have to do `+@ aiohttp @+ web;`
+In rist you have to do `+@ aiohttp @+ web`
 
 ### Functions
 How do i make a function?
 #### Making a function
 ```rist
-// sync func;
-define MyFunc as function{}:;
-  pass;
-// async func;
-define AsMyFunc as async function{}:;
-  pass;
+# synchronous func;
+foo${}: # <name_of_func> + $
+  pass
+
+# asynchronous func
+$bar${}: # $ + <name_of_func> + $
+  pass
 ```
 How do i call it?
 #### Calling a function
 ```rist
-// sync function;
-MyFunc{};
-// async func;
-await AsMyFunc{};
+# synchronous function
+foo{}
+
+# asynchronous func
+?bar{} # ? + <name_of_func>
 ```
 ### Dict 
 How can I make dict as `{}` is used as `()`
@@ -96,62 +95,51 @@ To make dict to things are here
 `()` and `<>`
 For example
 ```rist
-("hi": "hello");
-("hello": ("wor": "ld"));
-<"hi": "hi">;
-// mixed;
-<;
-  1: <;
-    2: (;
-      3: 4;
-    ),;
-    5: 6;
-  >,;
-  7: 8;
->;
+("hi": "hello")
+("hello": ("wor": "ld"))
+<"hi": "hi">
+
+# mixed
+<
+  1: <
+    2: (
+      3: 4
+    ),
+    5: 6
+  >,
+  7: 8
+>
 ```
 ### Tuples and lists
 #### Making a List 
 ```rist
-[1,2];
-[;
-  1,;
-  2;
-];
+[1,2]
+[
+  1,
+  2
+]
 ```
 #### Making a Tuple 
 ```rist
-{1,2};
-{;
-  1,;
-  2;
-};
+{1,2}
+{
+  1,
+  2
+}
 ```
 ### Function Return TypeHints
 How do I use `def myfunc() -> None:` in rist if `>`
 is used in dict?
 
-Simple answer is to use `=-=>` in place of `->`
 ```rist
-define SomeFunc as function{} =-=> None:;
-  pass;
+SomeFunc${} -> None:
+  pass
 ```
 ### Comments 
-To use comment in this language, use `\\`
+To use comment in this language, use `#`, Just like Python
 
 For example:-
 ```rist
-// Some comment;
+# Some comment
 ```
-### Attributes
-In this language `.` is used as `::` while Ellipsis is still `...`
 
-For example:-
-```rist
-@+ os;
-// dot;
-os::system{"clear"};
-
-// Ellipsis;
-SomeFunc{ellipsis=...};
-```
