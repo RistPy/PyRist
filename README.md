@@ -155,17 +155,26 @@ some built-in functions, but with other syntax
 
 The syntax made for them is `$ + <function name>`
 ```rist
-$i # int
-$s # str
-$d # dict
-$l # list
-$t # type
-$n # input
-$p # print
-$u # tuple
-$l # locals
-$g # globals
-$m # __import__
+$i    # int
+$s    # str
+$y    # try
+$x    # xor
+$d    # dict
+$ei   # elif
+$e    # else
+$l    # list
+$t    # type
+$n    # input
+$p    # print
+$u    # tuple
+$ex   # except
+$la   # lambda
+$o    # locals
+$fi   # finally
+$g    # globals
+$m    # __import__
+$r    # ristpy.rist
+$eval # run rist code
 ```
 
 
