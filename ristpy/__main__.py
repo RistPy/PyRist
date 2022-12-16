@@ -81,7 +81,7 @@ def parse_args():
   _parser_.set_defaults(func=(lambda p,a: None))
   _parser = _parser_.add_subparsers(dest="subcommands",title="subcommands")
 
-  runner = _parset.add_parser('init', help="Compile and run rist files in bulk")
+  runner = _parser.add_parser('init', help="Compile and run rist files in bulk")
 
   runner.set_defaults(func=init)
 
