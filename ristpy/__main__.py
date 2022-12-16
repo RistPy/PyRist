@@ -1,6 +1,32 @@
+import os
+import json
 import argparse
 
 from ristpy import rist, execute, E, W, encrypt, decrypt
+
+
+def init(parser, args):
+  if "ristconf.json" not in os.listdir():
+    return parser.error("A file named 'ristconf.json' should must be in the project directory")
+  try:
+    with open("ristconf.json", "r") as f: conf=json.load(f)
+  except Exception as e:
+    raise e
+
+  mf=conf.get("main")
+  assert mf is not None, "A setting named 'main' should must be in the config file"
+  dirs=conf.get("dirs") or {}
+  ign=conf.get("ignore") or {}
+  if mf not in ign: ign.append(mf)
+  for dir in dirs:
+    if not dir.endswith("/"): dir+="/"
+    for file in os.listdir(dir):
+      if file.endswith(".rist"):
+        file=dir+file
+        if file not in ign:
+          rist(file, flags=W, compile_to=file[:-4]+"py")
+
+  rist(mf, flags=E)
 
 def compile_to(parser, to_read, to_write):
   if not to_read.endswith(".rist"):
@@ -55,13 +81,17 @@ def parse_args():
   _parser_.set_defaults(func=(lambda p,a: None))
   _parser = _parser_.add_subparsers(dest="subcommands",title="subcommands")
 
-  parser = _parser.add_parser("run",help="Rist language command")
+  runner = _parset.add_parser('init', help="Compile and run rist files in bulk")
+
+  runner.set_defaults(func=init)
+
+  parser = _parser.add_parser("run",help="Run and compile any rist code")
 
   parser.set_defaults(func=compile_fp)
   parser.add_argument('file', type=str, help='The file to be compiled in python')
   parser.add_argument('--compile-to', '-CT', help='Compiles the code, write in the provided file and then executes it', type=str, metavar="<filepath>")
 
-  writer = _parser.add_parser("compile",help="Rist language command")
+  writer = _parser.add_parser("compile",help="Compile any rist code")
 
   writer.set_defaults(func=(lambda p,a: compile_to(p, a.file, a.output)))
   writer.add_argument('file', type=str, help='The file to be compiled')
