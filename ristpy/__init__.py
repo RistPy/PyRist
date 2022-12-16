@@ -405,7 +405,7 @@ class __Interpreter:
         x="(lambda a,b:((not (a and b)) and (a or b)))"
         extra={"o":"locals","g":"globals","r":r,"eval":e,"e":"else","ei":"elif","la":"lambda","x":x,"y":"try","fi":"finally","ex":"except"}
         ntoks.append(_Token("PREDEFS",
-          {'i':"int",'p':"print",'d':"dict",'l':"list",'t':"type",'n':"input",'m':"__import__",'s':"str",'u':"tuple",**extra}[tok.value[-1]],
+          {'i':"int",'p':"print",'d':"dict",'l':"list",'t':"type",'n':"input",'m':"__import__",'s':"str",'u':"tuple",**extra}[tok.value[1:]],
           tok.line,tok.coloumn
         ))
       elif tok.name == "ARROW":
