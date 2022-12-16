@@ -1,6 +1,11 @@
-# PyRist
+# RistPy
 A programming language made by me ([@Rishiraj0100](https://GitHub.com/Rishiraj0100))
 
+**R** &nbsp; - Rist<br>
+**I** &nbsp;  &nbsp; - Is<br>
+**S** &nbsp; - Short<br>
+**T** &nbsp; - Text<br>
+**Py** - Python
 ## Usage
 
 First of all, it should be installed by
@@ -128,9 +133,11 @@ For example
 }
 ```
 ### Function Return TypeHints
-How do I use `def myfunc() -> None:` in rist if `>`
+How do I use `def myfunc() -> None:` in rist as `>` symbol
 is used in dict?
 
+`>` is used for dictionary but however, typehints
+doesn't gets converted, it's like `} -> Any:`
 ```rist
 SomeFunc${} -> None:
   pass
@@ -142,4 +149,24 @@ For example:-
 ```rist
 # Some comment
 ```
+### Built-ins
+Like every language, this language also have
+some built-in functions, but with other syntax
+
+The syntax made for them is `$ + <function name>`
+```rist
+$i # int
+$s # str
+$d # dict
+$l # list
+$t # type
+$n # input
+$p # print
+$u # tuple
+$l # locals
+$g # globals
+$m # __import__
+```
+
+
 
