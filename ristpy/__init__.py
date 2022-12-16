@@ -284,7 +284,7 @@ class __Interpreter:
         ('AT', '@{ATTRIBUTED_NAME}'),
         ('ARROW', r'\}( )?\-\>( )?{ATTRIBUTED_NAME}?'),
         ('GTORLT', r'__(\<|\>)'),
-        ('AWAIT', r'\?(\s)?'),
+        ('AWAIT', r'\?(\s+)?'),
         ('LARROW', r'\<'),
         ('RARROW', r'\>'),
         ('NUMBER', r'\d+\.\d+'),
