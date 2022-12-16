@@ -423,6 +423,7 @@ class __Interpreter:
 
     return code
 
+
 def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> __CompiledCode:
   flags = _parse_flags(flags)
   if fp:
