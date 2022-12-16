@@ -275,7 +275,7 @@ class __Interpreter:
     ('ERR_IMPORT', r'\+@ ({ATTRIBUTED_NAME}|{NAME}) @\+ {ATTRIBUTED_NAME}'),
     ('ERR_IMPORT', r'@\+ {ATTRIBUTED_NAME}'),
     ('FUNCDEF', r'(\$)?{NAME}\$\{'),
-    ('PREDEFS', r'\$(i|p|d|t|n|m|s|u|o|g|r|eval|ei|la|x|y|fi|ex|e|l)'),
+    ('PREDEFS', r'\$(i|p|d|t|n|m|s|u|o|g|r|eval|ei|la|y|fi|ex|e|l|x)'),
     ('AT', '@{ATTRIBUTED_NAME}'),
     ('ARROW', r'\}( )?\-\>( )?{ATTRIBUTED_NAME}?'),
     ('GTORLT', r'__(\<|\>)'),
