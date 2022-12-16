@@ -17,7 +17,8 @@ def init(parser, args):
   assert bool(mf) is True, "A setting named 'main' should must be in the config file"
   dirs=conf.get("dirs") or []
   ign=conf.get("ignore") or []
-  if mf not in ign: ign.append(mf)
+  if "." not in dirs: dirs.append(".")
+  ign.append(mf if "/" in mf else "./"+mf)
   for dir in dirs:
     if not dir.endswith("/"): dir+="/"
     for file in os.listdir(dir):
