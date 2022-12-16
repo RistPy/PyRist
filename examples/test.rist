@@ -1,20 +1,20 @@
-@+ os, pprint;
-+@ typing @+ Union;
+@+ os, pprint
++@ typing @+ Union
 
-define cls as function{}:;
-  var clear_cmd as str;
-  if os::name == "nt":;
-    clear_cmd = "cls";
-  else:;
-    clear_cmd = "clear";
-  os::system{clear_cmd};
+cls${}:
+  clear_cmd: str
+  if os.name == "nt":
+    clear_cmd = "cls"
+  else:
+    clear_cmd = "clear"
+  os.system{clear_cmd}
 
 cls{};
 
-define something as function{PARAMS* var arg as Union[str, int]}:;
-  var args as dict = <"arg": [arg]>;
-  pprint::pprint{args};
-  return args;
+something${arg: Union[str, int]}:
+  args: dict = <"arg": [arg]>
+  p$p.p$p{args} # p$p stands for pprint (p + $p) or (p + print)
+  return args
 
-var smth as dict = something{"text2"};
-print{smth};
+smth: dict = something{"text2"}
+$p{smth}
