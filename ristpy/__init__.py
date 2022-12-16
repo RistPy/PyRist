@@ -24,6 +24,7 @@ __all__ = (
   "COMPILE", "C",
   "WRITE", "W",
   "FILE", "F",
+  "encrypt", "decrypt",
 )
 
 # Flags
