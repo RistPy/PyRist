@@ -275,7 +275,7 @@ class __Interpreter:
     ('ERR_IMPORT', r'\+@ ({ATTRIBUTED_NAME}|{NAME}) @\+ {ATTRIBUTED_NAME}'),
     ('ERR_IMPORT', r'@\+ {ATTRIBUTED_NAME}'),
     ('FUNCDEF', r'(\$)?{NAME}\$\{'),
-    ('PREDEFS', r'\$(i|p|d|l|t|n|m|s|u|l|g|r|eval)'),
+    ('PREDEFS', r'\$(i|p|d|l|t|n|m|s|u|o|g|r|eval|e|ei|la|x|y|fi|ex)'),
     ('AT', '@{ATTRIBUTED_NAME}'),
     ('ARROW', r'\}( )?\-\>( )?{ATTRIBUTED_NAME}?'),
     ('GTORLT', r'__(\<|\>)'),
@@ -402,8 +402,10 @@ class __Interpreter:
       elif tok.name=="PREDEFS":
         r="__import__('ristpy').rist"
         e="(lambda code:__import__('ristpy').execute(code,[2])"
+        x="(lambda a,b:((not (a and b)) and (a or b)))"
+        kwrds={"o":"locals","g":"globals","r":r,"eval":e,"e":"else","ei":"elif","la":"lambda","x":x,"y":"try","fi":"finally","ex":"except"}
         ntoks.append(_Token("PREDEFS",
-          {'i':"int",'p':"print",'d':"dict",'l':"list",'t':"type",'n':"input",'m':"__import__",'s':"str",'u':"tuple","l":"locals","g":"globals","r":r,"eval":e}[tok.value[-1]],
+          {'i':"int",'p':"print",'d':"dict",'l':"list",'t':"type",'n':"input",'m':"__import__",'s':"str",'u':"tuple",**kwrds}[tok.value[-1]],
           tok.line,tok.coloumn
         ))
       elif tok.name == "ARROW":
