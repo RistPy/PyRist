@@ -29,34 +29,35 @@ __all__ = (
 
 # Flags
 class RistFlags(enum.IntFlag):
-    EXECUTE = E = 1
-    COMPILE = C = 2
-    WRITE   = W = 4
-    FILE    = F = 8
-    
-    def __repr__(self):
-        if self._name_ is not None:
-            return f'ristpy.{self._name_}'
-        value = self._value_
-        members = []
-        negative = value < 0
-        if negative:
-            value = ~value
-        for m in self.__class__:
-            if value & m._value_:
-                value &= ~m._value_
-                members.append(f'ristpy.{m._name_}')
-        if value:
-            members.append(hex(value))
-        res = '|'.join(members)
-        if negative:
-            if len(members) > 1:
-                res = f'~({res})'
-            else:
-                res = f'~{res}'
-        return res
+  EXECUTE = E = 1
+  COMPILE = C = 2
+  WRITE   = W = 4
+  FILE    = F = 8
 
-    __str__ = object.__str__
+  def __repr__(self):
+    if self._name_ is not None:
+      return f'ristpy.{self._name_}'
+    value = self._value_
+    members = []
+    negative = value < 0
+    if negative:
+      value = ~value
+    for m in self.__class__:
+      if value & m._value_:
+        value &= ~m._value_
+        members.append(f'ristpy.{m._name_}')
+    if value:
+      members.append(hex(value))
+    res = '|'.join(members)
+    if negative:
+      if len(members) > 1:
+        res = f'~({res})'
+      else:
+        res = f'~{res}'
+
+    return res
+
+  __str__ = object.__str__
 
 globals().update(RistFlags.__members__)
 
@@ -118,7 +119,7 @@ def get_parent_scope_from_var(name, global_ok=False, skip_frames=0) -> typing.Op
       finally:
         del frame
   finally:
-        del stack
+    del stack
   return None
 
 def get_parent_var(name, global_ok=False, default=None, skip_frames=0):
@@ -141,34 +142,29 @@ def _runner_func({{0}}):
 """.format(_iex.constants.IMPORTER)
 
 def _wrap_code(code: str, args: str = '', f=None) -> ast.Module:
-    user_code = _iex.parse(code, f, mode='exec')
-    mod = _iex.parse(__CODE.format(args), f, mode='exec')
+  user_code = _iex.parse(code, f, mode='exec')
+  mod = _iex.parse(__CODE.format(args), f, mode='exec')
+  definition = mod.body[-1]
+  assert isinstance(definition, ast.FunctionDef)
+  try_block = definition.body[-1]
+  assert isinstance(try_block, ast.Try)
 
-    definition = mod.body[-1]
-    assert isinstance(definition, ast.FunctionDef)
+  try_block.body.extend(user_code.body)
+  ast.fix_missing_locations(mod)
+  KeywordTransformer().generic_visit(try_block)
+  last_expr = try_block.body[-1]
 
-    try_block = definition.body[-1]
-    assert isinstance(try_block, ast.Try)
-
-    try_block.body.extend(user_code.body)
-
-    ast.fix_missing_locations(mod)
-
-    KeywordTransformer().generic_visit(try_block)
-
-    last_expr = try_block.body[-1]
-
-    if not isinstance(last_expr, ast.Expr):
-        return mod
-
-    if not isinstance(last_expr.value, ast.Yield):
-        yield_stmt = ast.Yield(last_expr.value)
-        ast.copy_location(yield_stmt, last_expr)
-        yield_expr = ast.Expr(yield_stmt)
-        ast.copy_location(yield_expr, last_expr)
-        try_block.body[-1] = yield_expr
-
+  if not isinstance(last_expr, ast.Expr):
     return mod
+
+  if not isinstance(last_expr.value, ast.Yield):
+    yield_stmt = ast.Yield(last_expr.value)
+    ast.copy_location(yield_stmt, last_expr)
+    yield_expr = ast.Expr(yield_stmt)
+    ast.copy_location(yield_expr, last_expr)
+    try_block.body[-1] = yield_expr
+
+  return mod
 
 class __CompiledCode(str):
   @classmethod
@@ -210,44 +206,43 @@ class Sender:
     self.send_value = value
 
 class _CodeExecutor:
-    __slots__ = ('args', 'arg_names', 'code', 'loop', 'scope', 'source', 'fname')
+  __slots__ = ('args', 'arg_names', 'code', 'loop', 'scope', 'source', 'fname')
 
-    def __init__(self, code: str, fname: str = "<unknown.rist>", scope: _Scope = None, arg_dict: dict = None, loop: asyncio.BaseEventLoop = None):
-        self.args = [self]
-        self.arg_names = ['_executor']
-        self.fname = fname or "<unknown.rist>"
+  def __init__(self, code: str, fname: str = "<unknown.rist>", scope: _Scope = None, arg_dict: dict = None, loop: asyncio.BaseEventLoop = None):
+    self.args = [self]
+    self.arg_names = ['_executor']
+    self.fname = fname or "<unknown.rist>"
 
-        if arg_dict:
-            for key, value in arg_dict.items():
-                self.arg_names.append(key)
-                self.args.append(value)
+    if arg_dict:
+      for key, value in arg_dict.items():
+        self.arg_names.append(key)
+        self.args.append(value)
 
-        self.source = code
-        self.code = _wrap_code(code, args=', '.join(self.arg_names), f=self.fname)
-        self.scope = scope or _Scope()
-        self.loop = loop or asyncio.get_event_loop()
+    self.source = code
+    self.code = _wrap_code(code, args=', '.join(self.arg_names), f=self.fname)
+    self.scope = scope or _Scope()
 
-    def __iter__(self):
-        exec(compile(self.code, self.fname, 'exec'), self.scope.globals, self.scope.locals)
-        func_def = self.scope.locals.get('_runner_func') or self.scope.globals['_runner_func']
+  def __iter__(self):
+    exec(compile(self.code, self.fname, 'exec'), self.scope.globals, self.scope.locals)
+    func_def = self.scope.locals.get('_runner_func') or self.scope.globals['_runner_func']
 
-        return self.__traverse(func_def)
+    return self.__traverse(func_def)
 
-    def __traverse(self, func):
-        try:
-            if inspect.isgeneratorfunction(func):
-                for send, result in Sender(func(*self.args)):
-                    send((yield result))
-            else:
-                yield func(*self.args)
-        except Exception:
-            linecache.cache[self.fname] = (
-                len(self.source),
-                None,
-                [line + '\n' for line in self.source.splitlines()],
-                self.fname
-            )
-            raise
+  def __traverse(self, func):
+    try:
+      if inspect.isgeneratorfunction(func):
+        for send, result in Sender(func(*self.args)):
+          send((yield result))
+      else:
+        yield func(*self.args)
+    except Exception:
+      linecache.cache[self.fname] = (
+        len(self.source),
+        None,
+        [line + '\n' for line in self.source.splitlines()],
+        self.fname
+      )
+      raise
 
 class _Token:
   def __init__(
@@ -272,43 +267,43 @@ class _Token:
 
 class __Interpreter:
   __rules: List[Tuple[str, str]] = [
-        ('COMMENT', r'#.*'),
-        ('STRING', r'((".*?")(?<!(\\)))'),
-        ('STRING', r"(('.*?')(?<!(\\)))"),
-        ('FROM', r'^(\s)*\+@ ({ATTRIBUTED_NAME}|{NAME}) @\+ {ATTRIBUTED_NAME}'),
-        ('IMPORT', r'^(\s)*@\+ {ATTRIBUTED_NAME}'),
-        ('ERR_IMPORT', r'\+@ ({ATTRIBUTED_NAME}|{NAME}) @\+ {ATTRIBUTED_NAME}'),
-        ('ERR_IMPORT', r'@\+ {ATTRIBUTED_NAME}'),
-        ('FUNCDEF', r'(\$)?{NAME}\$\{'),
-        ('PREDEF', r'\$(i|p|d|l|t|n|m|s|u)'),
-        ('AT', '@{ATTRIBUTED_NAME}'),
-        ('ARROW', r'\}( )?\-\>( )?{ATTRIBUTED_NAME}?'),
-        ('GTORLT', r'__(\<|\>)'),
-        ('AWAIT', r'\?(\s+)?'),
-        ('LARROW', r'\<'),
-        ('RARROW', r'\>'),
-        ('NUMBER', r'\d+\.\d+'),
-        ('NUMBER', r'\d+'),
-        ('ATTRIBUTED_NAME', r'{NAME}?([.]*(?=[a-zA-Z_])([a-zA-Z0-9_]*))+'),
-        ('NAME', r'[a-zA-Z_][a-zA-Z0-9_]*'),
-        ('TABSPACE', '\t'),
-        ('SPACE', ' '),
-        ('OPERATOR', r'[\+\*\-\/%]'),       # arithmetic operators
-        ('OPERATOR', r'==|!='),             # comparison operators
-        ('OPERATOR', r'\|\||\||&|&&'),      # boolean operators
-        ('OPERATOR', r'\.\.\.|\.\.'),       # range operators
-        ('OPERATOR', r'!'),
-        ('ASSIGN', '='),
-        ('LPAREN', r'\('),
-        ('RPAREN', r'\)'),
-        ('LBRACK', r'\['),
-        ('RBRACK', r'\]'),
-        ('LCBRACK', '{'),
-        ('RCBRACK', '}'),
-        ('COLON', r'\:'),
-        ('SEMICOLON', r'\;'),
-        ('COMMA', ','),
-        ("PYTHINGS",r"(\\|\~|\^)"),
+    ('COMMENT', r'#.*'),
+    ('STRING', r'((".*?")(?<!(\\)))'),
+    ('STRING', r"(('.*?')(?<!(\\)))"),
+    ('FROM', r'^(\s)*\+@ ({ATTRIBUTED_NAME}|{NAME}) @\+ {ATTRIBUTED_NAME}'),
+    ('IMPORT', r'^(\s)*@\+ {ATTRIBUTED_NAME}'),
+    ('ERR_IMPORT', r'\+@ ({ATTRIBUTED_NAME}|{NAME}) @\+ {ATTRIBUTED_NAME}'),
+    ('ERR_IMPORT', r'@\+ {ATTRIBUTED_NAME}'),
+    ('FUNCDEF', r'(\$)?{NAME}\$\{'),
+    ('PREDEFS', r'\$(i|p|d|l|t|n|m|s|u|l|g|r|eval)'),
+    ('AT', '@{ATTRIBUTED_NAME}'),
+    ('ARROW', r'\}( )?\-\>( )?{ATTRIBUTED_NAME}?'),
+    ('GTORLT', r'__(\<|\>)'),
+    ('AWAIT', r'\?(\s+)?'),
+    ('LARROW', r'\<'),
+    ('RARROW', r'\>'),
+    ('NUMBER', r'\d+\.\d+'),
+    ('NUMBER', r'\d+'),
+    ('ATTRIBUTED_NAME', r'{NAME}?([.]*(?=[a-zA-Z_])([a-zA-Z0-9_]*))+'),
+    ('NAME', r'[a-zA-Z_][a-zA-Z0-9_]*'),
+    ('TABSPACE', '\t'),
+    ('SPACE', ' '),
+    ('OPERATOR', r'[\+\*\-\/%]'),       # arithmetic operators
+    ('OPERATOR', r'==|!='),             # comparison operators
+    ('OPERATOR', r'\|\||\||&|&&'),      # boolean operators
+    ('OPERATOR', r'\.\.\.|\.\.'),       # range operators
+    ('OPERATOR', r'!'),
+    ('ASSIGN', '='),
+    ('LPAREN', r'\('),
+    ('RPAREN', r'\)'),
+    ('LBRACK', r'\['),
+    ('RBRACK', r'\]'),
+    ('LCBRACK', '{'),
+    ('RCBRACK', '}'),
+    ('COLON', r'\:'),
+    ('SEMICOLON', r'\;'),
+    ('COMMA', ','),
+    ("PYTHINGS",r"(\\|\~|\^)"),
   ]
 
   def __init__(self) -> None:
@@ -404,8 +399,13 @@ class __Interpreter:
         ntoks.append(_Token("LCBRACK", "{", tok.line, tok.coloumn))
       elif (tok.name == "RPAREN" and tok.value == ")") or (tok.name == "RARROW" and tok.value == ">"):
         ntoks.append(_Token("RCBRACK", "}", tok.line, tok.coloumn))
-      elif tok.name=="PREDEF":
-        ntoks.append(_Token("PREDEF", {'i':"int",'p':"print",'d':"dict",'l':"list",'t':"type",'n':"input",'m':"__import__",'s':"str",'u':"tuple"}[tok.value[-1]],tok.line,tok.coloumn))
+      elif tok.name=="PREDEFS":
+        r="__import__('ristpy').rist"
+        e="(lambda code:__import__('ristpy').execute(code,[2])"
+        ntoks.append(_Token("PREDEFS",
+          {'i':"int",'p':"print",'d':"dict",'l':"list",'t':"type",'n':"input",'m':"__import__",'s':"str",'u':"tuple","l":"locals","g":"globals","r":r,"eval":e}[tok.value[-1]],
+          tok.line,tok.coloumn
+        ))
       elif tok.name == "ARROW":
         ntoks.append(_Token(tok.name, ")"+tok.value[1:], tok.line, tok.coloumn))
       elif tok.name == "AWAIT":
@@ -421,9 +421,7 @@ class __Interpreter:
 
     code = "".join(list(str(t) for t in ntoks))
 
-
     return code
-
 
 def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> __CompiledCode:
   flags = _parse_flags(flags)
