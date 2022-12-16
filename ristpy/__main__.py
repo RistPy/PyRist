@@ -14,7 +14,7 @@ def init(parser, args):
     raise e
 
   mf=conf.get("main")
-  assert mf is not None, "A setting named 'main' should must be in the config file"
+  assert bool(mf) is True, "A setting named 'main' should must be in the config file"
   dirs=conf.get("dirs") or []
   ign=conf.get("ignore") or []
   if mf not in ign: ign.append(mf)
