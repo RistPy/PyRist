@@ -47,12 +47,11 @@ def enc(parser, args):
 
 def dec(parser, args):
   try:
-    arg,depth,key = args.arg,1,args.key
-    if not key: return parser.error("You must provide a 'key' for decryption")
+    arg,depth = args.arg,1
+    if not args.key: return parser.error("You must provide a 'key' for decryption")
     if args.filepath: arg = open(args.arg).read()
     if args.depth: depth=args.depth
     code = decrypt(arg,args.key,depth=depth)
-    if key: code,key=code
     if args.output:
       with open(args.output,"w") as f: f.write(code)
     else: print("Decryption success\n\n",code)
