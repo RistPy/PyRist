@@ -285,6 +285,7 @@ class __Interpreter:
         ('GTORLT', r'__(\<|\>)'),
         ('LARROW', r'\<'),
         ('RARROW', r'\>'),
+        ('NUMBER', r'\d+\.\d+'),
         ('NUMBER', r'\d+'),
         ('FUNCDEF', r'(\$)?{NAME}\$\{'),
         ('ATTRIBUTED_NAME', r'{NAME}?([.]*(?=[a-zA-Z_])([a-zA-Z0-9_]*))+'),
