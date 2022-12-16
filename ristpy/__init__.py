@@ -270,12 +270,12 @@ class __Interpreter:
     ('COMMENT', r'#.*'),
     ('STRING', r'((".*?")(?<!(\\)))'),
     ('STRING', r"(('.*?')(?<!(\\)))"),
-    ('FROM', r'^(\s)*\+@ ({ATTRIBUTED_NAME}|{NAME}) @\+ {ATTRIBUTED_NAME}'),
-    ('IMPORT', r'^(\s)*@\+ {ATTRIBUTED_NAME}'),
+    ('FROM', r'^(\s)*\+@(\s*)({ATTRIBUTED_NAME}|{NAME})(\s*)@\+(\s*){ATTRIBUTED_NAME}'),
+    ('IMPORT', r'^(\s)*@\+(\s*){ATTRIBUTED_NAME}'),
     ('ERR_IMPORT', r'\+@ ({ATTRIBUTED_NAME}|{NAME}) @\+ {ATTRIBUTED_NAME}'),
     ('ERR_IMPORT', r'@\+ {ATTRIBUTED_NAME}'),
     ('FUNCDEF', r'(\$)?{NAME}\$\{'),
-    ('PREDEFS', r'\$(i|p|d|l|t|n|m|s|u|o|g|r|eval|e|ei|la|x|y|fi|ex)'),
+    ('PREDEFS', r'\$(i|p|d|t|n|m|s|u|o|g|r|eval|ei|la|x|y|fi|ex|e|l)'),
     ('AT', '@{ATTRIBUTED_NAME}'),
     ('ARROW', r'\}( )?\-\>( )?{ATTRIBUTED_NAME}?'),
     ('GTORLT', r'__(\<|\>)'),
@@ -414,8 +414,8 @@ class __Interpreter:
         ntoks.append(_Token(tok.name, "await ", tok.line, tok.coloumn))
       elif tok.name == "FROM":
         ntoks.append(_Token(tok.name, tok.value.replace("+@","from").replace("@+","import"), tok.line, tok.coloumn))
-      elif tok.name == "IMPORT" and tok.value.startswith("@+ "):
-        ntoks.append(_Token(tok.name, "import"+tok.value[2:], tok.line, tok.coloumn))
+      elif tok.name == "IMPORT":
+        ntoks.append(_Token(tok.name, tok.value.replace("@+","import"), tok.line, tok.coloumn))
       elif tok.name == "GTORLT" and tok.value.startswith('__'):
         ntoks.append(_Token(tok.name, tok.value[-1], tok.line, tok.coloumn))
       else:
