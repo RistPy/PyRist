@@ -166,23 +166,6 @@ def _wrap_code(code: str, args: str = '', f=None) -> ast.Module:
 
   return mod
 
-class __CompiledCode(str):
-  @classmethod
-  def setup(cls, code: str, fname: str = '<unknown>') -> None:
-    self=cls(code)
-    self.__code = code
-    self.file = fname
-    return self
-
-  def __repr__(self) -> str:
-    return str(self)
-
-  def __str__(self) -> str:
-    return self.__code
-
-  @property
-  def code(self) -> str:
-    return self.__code
 
 class Sender:
   __slots__ = ('iterator', 'send_value')
@@ -435,6 +418,25 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> __Compile
   else:
     code = arg
     fname = '<unknown.rist>'
+
+  class __CompiledCode(str):
+    @classmethod
+    def setup(cls, code: str, fname: str = '<unknown>') -> None:
+      self=cls(code)
+      self.__code = code
+      self.file = fname
+      return self
+
+    def __repr__(self) -> str:
+      return str(self)
+
+    def __str__(self) -> str:
+      return self.__code
+
+    @property
+    def code(self) -> str:
+      return self.__code
+
   code = __CompiledCode.setup(__Interpreter.interprete(code, fname),fname)
 
   if flags.WRITE and not "compile_to" in kwargs:
@@ -449,7 +451,7 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> __Compile
 
   return code
 
-def execute(code: Union[str, __CompiledCode], flags: RistFlags = E, **kwargs) -> None:
+def execute(code: str, flags: RistFlags = E, **kwargs) -> None:
   flags = _parse_flags(flags)
 
   if flags.WRITE and flags.COMPILE:
@@ -457,8 +459,9 @@ def execute(code: Union[str, __CompiledCode], flags: RistFlags = E, **kwargs) ->
   if flags.COMPILE:
     return rist(code, fp=flags.FILE, flags=EXECUTE)
 
-  if not isinstance(code, __CompiledCode):
+  if (not getattr(code, "__module__", False)) or (code.__module__!="ristpy"):
     raise TypeError("The code must be compiled from ristpy module not any other")
+
   for send, result in Sender(_CodeExecutor(str(code), arg_dict=get_builtins(), fname=code.file)):
     if result is None:
       continue
