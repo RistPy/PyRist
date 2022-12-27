@@ -369,7 +369,7 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> str:
               raise err
             else:
               pos += 1
-              tokens.append(_Token("UNDER_DOCSTRING",line_num, pos))
+              tokens.append(_Token("UNDER_DOCSTRING",line[pos-1],line_num, pos))
 
       for token in tokens:
         yield token
