@@ -248,7 +248,7 @@ class _Token:
   def __str__(self) -> str:
     return str(self.value)
 
-def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> __CompiledCode:
+def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> str:
   flags = _parse_flags(flags)
   if fp:
     with open(arg, 'r') as f:
