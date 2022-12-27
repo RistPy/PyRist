@@ -367,6 +367,9 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> str:
               for k, v in kwrds.items():
                 setattr(err, k, v)
               raise err
+            else:
+              pos += 1
+              tokens.append(_Token("UNDER_DOCSTRING",line_num, pos))
 
       for token in tokens:
         yield token
