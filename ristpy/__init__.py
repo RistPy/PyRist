@@ -358,7 +358,7 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> str:
               else:
                 self.under_docstring=val
             elif self.under_docstring:
-              name = 'DOCSTRING'
+              name = 'UNDER_DOCSTRING'
             tokens.append(_Token(name, value, line_num, matches.start() + 1))
           else:
             if not self.under_docstring:
