@@ -248,167 +248,6 @@ class _Token:
   def __str__(self) -> str:
     return str(self.value)
 
-class __Interpreter:
-  __rules: List[Tuple[str, str]] = [
-    ('COMMENT', r'#.*'),
-    ('STRING', r'((".*?")(?<!(\\)))'),
-    ('STRING', r"(('.*?')(?<!(\\)))"),
-    ('FROM', r'^(\s)*\+@(\s*)({ATTRIBUTED_NAME}|{NAME})(\s*)@\+(\s*){ATTRIBUTED_NAME}'),
-    ('IMPORT', r'^(\s)*@\+(\s*){ATTRIBUTED_NAME}'),
-    ('ERR_IMPORT', r'\+@ ({ATTRIBUTED_NAME}|{NAME}) @\+ {ATTRIBUTED_NAME}'),
-    ('ERR_IMPORT', r'@\+ {ATTRIBUTED_NAME}'),
-    ('FUNCDEF', r'(\$)?{NAME}\$\{'),
-    ('PREDEFS', r'\$(i|p|d|t|n|m|s|u|o|g|r|eval|ei|la|y|fi|ex|e|l|x)'),
-    ('AT', '@{ATTRIBUTED_NAME}'),
-    ('ARROW', r'\}( )?\-\>( )?{ATTRIBUTED_NAME}?'),
-    ('GTORLT', r'__(\<|\>)'),
-    ('AWAIT', r'\?(\s+)?'),
-    ('LARROW', r'\<'),
-    ('RARROW', r'\>'),
-    ('NUMBER', r'\d+\.\d+'),
-    ('NUMBER', r'\d+'),
-    ('ATTRIBUTED_NAME', r'{NAME}?([.]*(?=[a-zA-Z_])([a-zA-Z0-9_]*))+'),
-    ('NAME', r'[a-zA-Z_][a-zA-Z0-9_]*'),
-    ('TABSPACE', '\t'),
-    ('SPACE', ' '),
-    ('OPERATOR', r'[\+\*\-\/%]'),       # arithmetic operators
-    ('OPERATOR', r'==|!='),             # comparison operators
-    ('OPERATOR', r'\|\||\||&|&&'),      # boolean operators
-    ('OPERATOR', r'\.\.\.|\.\.'),       # range operators
-    ('OPERATOR', r'!'),
-    ('ASSIGN', '='),
-    ('LPAREN', r'\('),
-    ('RPAREN', r'\)'),
-    ('LBRACK', r'\['),
-    ('RBRACK', r'\]'),
-    ('LCBRACK', '{'),
-    ('RCBRACK', '}'),
-    ('COLON', r'\:'),
-    ('SEMICOLON', r'\;'),
-    ('COMMA', ','),
-    ("PYTHINGS",r"(\\|\~|\^)"),
-  ]
-
-  def __init__(self) -> None:
-    self.__regex = self.__compile_rules()
-
-  def __convert_rules(self) -> Generator[str, None, None]:
-    rules: List[Tuple[str, str]] = self.__rules
-
-    grouped_rules = OrderedDict()
-    for name, pattern in rules:
-      grouped_rules.setdefault(name, [])
-      grouped_rules[name].append(pattern)
-
-    for name, patterns in iter(grouped_rules.items()):
-      ptrn = '|'.join(['({})'.format(p) for p in patterns])
-      for pname, ptrns in iter(grouped_rules.items()):
-        while "{"+pname+"}" in ptrn:
-          ptrn = ptrn.replace("{"+pname+"}", '|'.join(['({ptrn})'.format(ptrn=p) for p in ptrns]))
-      grouped_rules[name] = [ptrn]
-
-    for name, patterns in iter(grouped_rules.items()):
-      joined_patterns = '|'.join(['({ptrn})'.format(ptrn=p) for p in patterns])
-      yield '(?P<{}>{})'.format(name, joined_patterns)
-
-  def __compile_rules(self,):
-    return re.compile('|'.join(self.__convert_rules()))
-
-  def __interprete_line(self, line, line_num, f) -> Generator[_Token, None, None]:
-    pos = 0
-    tokens = []
-
-    if line.endswith("//:Rist://NC"):
-      tokens.append(_Token("lInE", line[:-12], line_num, 1))
-    else:
-      while pos < len(line):
-        matches = self.__regex.match(line, pos)
-        if matches is not None:
-          name = matches.lastgroup
-          pos = matches.end(name)
-          value = matches.group(name)
-          if name == "TABSPACE":
-            value = "	"
-          elif name == "SPACE":
-            value = " "
-
-          if name == "ERR_IMPORT":
-            err = SyntaxError(f"Unexpected position of 'IMPORT' syntax, it should not come after any text")
-            kwrds = dict(filename=f, lineno=line_num, offset=matches.start()+1, text=line)
-            for k, v in kwrds.items():
-              setattr(err, k, v)
-            if sys.version_info>(3,9):setattr(err, end_offset, pos+1+len(value))
-            raise err
-
-          tokens.append(_Token(name, value, line_num, matches.start() + 1))
-        else:
-          err = SyntaxError(f"Unexpected Character '{line[pos]}' in Identifier")
-          kwrds = dict(filename=f, lineno=line_num, offset=pos+1, text=line)
-          for k, v in kwrds.items():
-            setattr(err, k, v)
-
-          raise err
-
-    for token in tokens:
-      yield token
-
-  @classmethod
-  def interprete(cls, s, f) -> str:
-    self = cls()
-    tokens = []
-    line_num = 0
-    for line_num, line in enumerate(s.splitlines(), 1):
-      line = line.rstrip()
-      if not line:
-        tokens.append(_Token('NEWLINE', "\n", line_num, 1))
-        continue
-      line_tokens = list(self.__interprete_line(line, line_num, f))
-      if line_tokens:
-        tokens.extend(line_tokens)
-        tokens.append(_Token('NEWLINE', "\n", line_num, len(line) + 1))
-
-    ntoks = []
-    for tok in tokens:
-      if tok.name == "LCBRACK" and tok.value == "{":
-        ntoks.append(_Token("LPAREN", "(", tok.line, tok.coloumn))
-      elif tok.name == "RCBRACK" and tok.value == "}":
-        ntoks.append(_Token("RPAREN", ")", tok.line, tok.coloumn))
-      elif tok.name == "FUNCDEF":
-        if tok.value.startswith("$"):val="async def "+tok.value[1:]
-        else:val="def "+tok.value
-        val=val.replace("${","(")
-        ntoks.append(_Token("FUNCDEF", val, tok.line, tok.coloumn))
-      elif (tok.name == "LPAREN" and tok.value == "(") or (tok.name == "LARROW" and tok.value == "<"):
-        ntoks.append(_Token("LCBRACK", "{", tok.line, tok.coloumn))
-      elif (tok.name == "RPAREN" and tok.value == ")") or (tok.name == "RARROW" and tok.value == ">"):
-        ntoks.append(_Token("RCBRACK", "}", tok.line, tok.coloumn))
-      elif tok.name=="PREDEFS":
-        r="__import__('ristpy').rist"
-        e="(lambda code:__import__('ristpy').execute(code,[2])"
-        x="(lambda a,b:((not (a and b)) and (a or b)))"
-        extra={"o":"locals","g":"globals","r":r,"eval":e,"e":"else","ei":"elif","la":"lambda","x":x,"y":"try","fi":"finally","ex":"except"}
-        ntoks.append(_Token("PREDEFS",
-          {'i':"int",'p':"print",'d':"dict",'l':"list",'t':"type",'n':"input",'m':"__import__",'s':"str",'u':"tuple",**extra}[tok.value[1:]],
-          tok.line,tok.coloumn
-        ))
-      elif tok.name == "ARROW":
-        ntoks.append(_Token(tok.name, ")"+tok.value[1:], tok.line, tok.coloumn))
-      elif tok.name == "AWAIT":
-        ntoks.append(_Token(tok.name, "await ", tok.line, tok.coloumn))
-      elif tok.name == "FROM":
-        ntoks.append(_Token(tok.name, tok.value.replace("+@","from").replace("@+","import"), tok.line, tok.coloumn))
-      elif tok.name == "IMPORT":
-        ntoks.append(_Token(tok.name, tok.value.replace("@+","import"), tok.line, tok.coloumn))
-      elif tok.name == "GTORLT" and tok.value.startswith('__'):
-        ntoks.append(_Token(tok.name, tok.value[-1], tok.line, tok.coloumn))
-      else:
-        ntoks.append(tok)
-
-    code = "".join(list(str(t) for t in ntoks))
-
-    return code
-
-
 def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> __CompiledCode:
   flags = _parse_flags(flags)
   if fp:
@@ -418,7 +257,184 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> __Compile
   else:
     code = arg
     fname = '<unknown.rist>'
+  class __Interpreter:
+    __rules: List[Tuple[str, str]] = [
+      ('COMMENT', r'#.*'),
+      ('DOCSTRING', r'"""'),
+      ('DOCSTRING', r"'''"),
+      ('STRING', r'((".*?")(?<!(\\)))'),
+      ('STRING', r"(('.*?')(?<!(\\)))"),
+      ('FROM', r'^(\s)*\+@(\s*)({ATTRIBUTED_NAME}|{NAME})(\s*)@\+(\s*){ATTRIBUTED_NAME}'),
+      ('IMPORT', r'^(\s)*@\+(\s*){ATTRIBUTED_NAME}'),
+      ('ERR_IMPORT', r'\+@ ({ATTRIBUTED_NAME}|{NAME}) @\+ {ATTRIBUTED_NAME}'),
+      ('ERR_IMPORT', r'@\+ {ATTRIBUTED_NAME}'),
+      ('FUNCDEF', r'(\$)?{NAME}\$\{'),
+      ('PREDEFS', r'\$(i|p|d|t|n|m|s|u|o|g|r|eval|ei|la|y|fi|ex|e|l|x)'),
+      ('AT', '@{ATTRIBUTED_NAME}'),
+      ('ARROW', r'\}( )?\-\>( )?{ATTRIBUTED_NAME}?'),
+      ('GTORLT', r'__(\<|\>)'),
+      ('AWAIT', r'\?(\s+)?'),
+      ('LARROW', r'\<'),
+      ('RARROW', r'\>'),
+      ('NUMBER', r'\d+\.\d+'),
+      ('NUMBER', r'\d+'),
+      ('ATTRIBUTED_NAME', r'{NAME}?([.]*(?=[a-zA-Z_])([a-zA-Z0-9_]*))+'),
+      ('NAME', r'[a-zA-Z_][a-zA-Z0-9_]*'),
+      ('TABSPACE', '\t'),
+      ('SPACE', ' '),
+      ('OPERATOR', r'[\+\*\-\/%]'),       # arithmetic operators
+      ('OPERATOR', r'==|!='),             # comparison operators
+      ('OPERATOR', r'\|\||\||&|&&'),      # boolean operators
+      ('OPERATOR', r'\.\.\.|\.\.'),       # range operators
+      ('OPERATOR', r'!'),
+      ('ASSIGN', '='),
+      ('LPAREN', r'\('),
+      ('RPAREN', r'\)'),
+      ('LBRACK', r'\['),
+      ('RBRACK', r'\]'),
+      ('LCBRACK', '{'),
+      ('RCBRACK', '}'),
+      ('COLON', r'\:'),
+      ('SEMICOLON', r'\;'),
+      ('COMMA', ','),
+      ("PYTHINGS",r"(\\|\~|\^)"),
+    ]
+  
+    def __init__(self) -> None:
+      self.__regex = self.__compile_rules()
+      self.under_docstring = 0
+  
+    def __convert_rules(self) -> Generator[str, None, None]:
+      rules: List[Tuple[str, str]] = self.__rules
+  
+      grouped_rules = OrderedDict()
+      for name, pattern in rules:
+        grouped_rules.setdefault(name, [])
+        grouped_rules[name].append(pattern)
+  
+      for name, patterns in iter(grouped_rules.items()):
+        ptrn = '|'.join(['({})'.format(p) for p in patterns])
+        for pname, ptrns in iter(grouped_rules.items()):
+          while "{"+pname+"}" in ptrn:
+            ptrn = ptrn.replace("{"+pname+"}", '|'.join(['({ptrn})'.format(ptrn=p) for p in ptrns]))
+        grouped_rules[name] = [ptrn]
+  
+      for name, patterns in iter(grouped_rules.items()):
+        joined_patterns = '|'.join(['({ptrn})'.format(ptrn=p) for p in patterns])
+        yield '(?P<{}>{})'.format(name, joined_patterns)
+  
+    def __compile_rules(self,):
+      return re.compile('|'.join(self.__convert_rules()))
+  
+    def __interprete_line(self, line, line_num, f) -> Generator[_Token, None, None]:
+      pos = 0
+      tokens = []
+  
+      if line.endswith("//:Rist://NC"):
+        tokens.append(_Token("lInE", line[:-12], line_num, 1))
+      else:
+        while pos < len(line):
+          matches = self.__regex.match(line, pos)
+          if matches is not None:
+            name = matches.lastgroup
+            pos = matches.end(name)
+            value = matches.group(name)
+            if name == "TABSPACE":
+              value = "	"
+            elif name == "SPACE":
+              value = " "
+  
+            if name == "ERR_IMPORT":
+              err = SyntaxError(f"Unexpected position of 'IMPORT' syntax, it should not come after any text")
+              kwrds = dict(filename=f, lineno=line_num, offset=matches.start()+1, text=line)
+              for k, v in kwrds.items():
+                setattr(err, k, v)
+              if sys.version_info>(3,9):setattr(err, end_offset, pos+1+len(value))
+              raise err
+            if name == 'DOCSTRING':
+              val={'"':2,"'":1}[value[0]]
+              if self.under_docstring and self.under_docstring==val:
+                self.under_docstring = 0
+              else:
+                self.under_docstring=val
+            elif self.under_docstring:
+              name = 'DOCSTRING'
+            tokens.append(_Token(name, value, line_num, matches.start() + 1))
+          else:
+            if not self.under_docstring:
+              err = SyntaxError(f"Unexpected Character '{line[pos]}' in Identifier")
+              kwrds = dict(filename=f, lineno=line_num, offset=pos+1, text=line)
+              for k, v in kwrds.items():
+                setattr(err, k, v)
+              raise err
 
+      for token in tokens:
+        yield token
+  
+    @classmethod
+    def interprete(cls, s, f) -> str:
+      self = cls()
+      tokens = []
+      line_num = 0
+      lines = s.splitlines()
+      for line_num, line in enumerate(lines, 1):
+        line = line.rstrip()
+        if not line:
+          tokens.append(_Token('NEWLINE', "\n", line_num, 1))
+          continue
+        line_tokens = list(self.__interprete_line(line, line_num, f))
+        if line_tokens:
+          tokens.extend(line_tokens)
+          tokens.append(_Token('NEWLINE', "\n", line_num, len(line) + 1))
+
+      if self.under_docstring:
+        err = SyntaxError(f"EOF while scanning docstring literal")
+        kwrds = dict(filename=f, lineno=len(lines), offset=len(lines[-1]), text=lines[-1])
+        for k, v in kwrds.items():
+          setattr(err, k, v)
+        raise err
+
+      ntoks = []
+      for tok in tokens:
+        if tok.name == "LCBRACK" and tok.value == "{":
+          ntoks.append(_Token("LPAREN", "(", tok.line, tok.coloumn))
+        elif tok.name == "RCBRACK" and tok.value == "}":
+          ntoks.append(_Token("RPAREN", ")", tok.line, tok.coloumn))
+        elif tok.name == "FUNCDEF":
+          if tok.value.startswith("$"):val="async def "+tok.value[1:]
+          else:val="def "+tok.value
+          val=val.replace("${","(")
+          ntoks.append(_Token("FUNCDEF", val, tok.line, tok.coloumn))
+        elif (tok.name == "LPAREN" and tok.value == "(") or (tok.name == "LARROW" and tok.value == "<"):
+          ntoks.append(_Token("LCBRACK", "{", tok.line, tok.coloumn))
+        elif (tok.name == "RPAREN" and tok.value == ")") or (tok.name == "RARROW" and tok.value == ">"):
+          ntoks.append(_Token("RCBRACK", "}", tok.line, tok.coloumn))
+        elif tok.name=="PREDEFS":
+          r="__import__('ristpy').rist"
+          e="(lambda code:__import__('ristpy').execute(code,[2])"
+          x="(lambda a,b:((not (a and b)) and (a or b)))"
+          extra={"o":"locals","g":"globals","r":r,"eval":e,"e":"else","ei":"elif","la":"lambda","x":x,"y":"try","fi":"finally","ex":"except"}
+          ntoks.append(_Token("PREDEFS",
+            {'i':"int",'p':"print",'d':"dict",'l':"list",'t':"type",'n':"input",'m':"__import__",'s':"str",'u':"tuple",**extra}[tok.value[1:]],
+            tok.line,tok.coloumn
+          ))
+        elif tok.name == "ARROW":
+          ntoks.append(_Token(tok.name, ")"+tok.value[1:], tok.line, tok.coloumn))
+        elif tok.name == "AWAIT":
+          ntoks.append(_Token(tok.name, "await ", tok.line, tok.coloumn))
+        elif tok.name == "FROM":
+          ntoks.append(_Token(tok.name, tok.value.replace("+@","from").replace("@+","import"), tok.line, tok.coloumn))
+        elif tok.name == "IMPORT":
+          ntoks.append(_Token(tok.name, tok.value.replace("@+","import"), tok.line, tok.coloumn))
+        elif tok.name == "GTORLT" and tok.value.startswith('__'):
+          ntoks.append(_Token(tok.name, tok.value[-1], tok.line, tok.coloumn))
+        else:
+          ntoks.append(tok)
+
+      code = "".join(list(str(t) for t in ntoks))
+  
+      return code
+  
   class __CompiledCode(str):
     @classmethod
     def setup(cls, code: str, fname: str = '<unknown>') -> None:
