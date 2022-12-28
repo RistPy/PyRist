@@ -209,7 +209,7 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> str:
               kwrds = dict(filename=f, lineno=line_num, offset=matches.start()+1, text=line)
               for k, v in kwrds.items():
                 setattr(err, k, v)
-              if sys.version_info>(3,9):setattr(err, end_offset, pos+1+len(value))
+              if sys.version_info>(3,9):setattr(err, "end_offset", pos+1+len(value))
               raise err
             if name == 'DOCSTRING':
               val={'"':2,"'":1}[value[0]]
