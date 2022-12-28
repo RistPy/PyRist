@@ -1,16 +1,17 @@
 # RistPy
 A programming language made by me ([@Rishiraj0100](https://GitHub.com/Rishiraj0100))
-
-**R** &nbsp; - Rist<br>
-**I** &nbsp;  &nbsp; - Is<br>
-**S** &nbsp; - Short<br>
-**T** &nbsp; - Text<br>
-**Py** - Python
+```
+R  - Rist
+I  - Is
+S  - Short
+T  - Text
+Py - Python
+```
 ## Usage
 
 First of all, it should be installed by
 ```sh
-python3 -m pip install git+https://github.com/Rishiraj0100/PyRist/
+python3 -m pip install git+https://github.com/RistPy/PyRist/
 ```
 
 Create a file named `main.rist`<br />
@@ -19,23 +20,23 @@ A sample code is given here
 @+ os, pprint
 +@ typing @+ Union
 
-cls${}: os.system{"cls" if os.name == "nt" else "clear"}
+cls${}: os.system{"cls" if os.name == "nt" $e "clear"}
 
 cls{}
 
 something${arg: Union[str, int]}:
-  pprint.pprint{["myText", [arg]]};
+  p$p.p$p{["myText", [arg]]};
 
 something{"text2"};
 ```
 
 Then in your shell
 ```sh
-rist main.rist
+rist run main.rist
 ```
 Or if you want to compile into python file then run in your shell
 ```sh
-rist main.rist --compile-to rist_compiled_main.py
+rist run main.rist --compile-to rist_compiled_main.py
 ```
 Or in your python file
 ```py
@@ -143,7 +144,7 @@ SomeFunc${} -> None:
   pass
 ```
 ### Comments 
-To use comment in this language, use `#`, Just like Python
+To use comments in this language, use `#`, Just like Python
 
 For example:-
 ```rist
@@ -176,6 +177,3 @@ $m    # __import__
 $r    # ristpy.rist
 $eval # run rist code
 ```
-
-
-
