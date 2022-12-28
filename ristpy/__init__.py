@@ -364,7 +364,7 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> str:
               val={'"':2,"'":1}[value[0]]
               if self.under_docstring and self.under_docstring==val:
                 self.under_docstring = 0
-              else:
+              elif not self.under_docstring:
                 self.under_docstring=val
             tokens.append(_Token(name, value, line_num, matches.start() + 1))
           else:
