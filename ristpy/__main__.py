@@ -37,7 +37,7 @@ def init(parser, args):
       for file in os.listdir(dir):
         if file.endswith(".rist"):
           file=dir+file
-          mk(f)
+          mk(file)
     mk(mf)
     os.system(f'python3 {mf[:-4]+"py"}')
   except Exception as e:
