@@ -17,9 +17,9 @@ def init(parser, args):
   assert bool(mf) is True, "A setting named 'main' should must be in the config file"
   assert mf.endswith(".rist"), "Your main file should must be a rist file"
   mf=mf if "/" in mf else "./"+mf
-  ign.append(mf)
   dirs=conf.get("dirs") or []
   ign=conf.get("ignore") or []
+  ign.append(mf)
   if "." not in dirs: dirs.append(".")
   pyfiles=[]
   def rm():
