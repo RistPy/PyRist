@@ -60,7 +60,7 @@ class RistFlags(enum.IntFlag):
 
 globals().update(RistFlags.__members__)
 
-def _parse_flags(flags: RistFlags) -> _ParsedFlags:
+def _parse_flags(flags: RistFlags) -> object:
   class _ParsedFlags(object):
     __slots__ = ("COMPILE", "WRITE", "EXECUTE", "FILE")
 
