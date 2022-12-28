@@ -1,5 +1,5 @@
 {
   "main": "main.rist",
-  "dirs": ["dir_example"]
+  "dirs": ["dir_example"],
   "ignore": ["./ignore.rist"]
 }
