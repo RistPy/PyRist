@@ -13,10 +13,10 @@ def init(parser, args):
   except Exception as e:
     raise e
 
-  mf=conf.get("main") or ""
-  assert bool(mf) is True, "A setting named 'main' should must be in the config file"
-  assert mf.endswith(".rist"), "Your main file should must be a rist file"
-  mf=mf if "/" in mf else "./"+mf
+  main=conf.get("main") or ""
+  assert bool(main) is True, "A setting named 'main' should must be in the config file"
+  assert main.endswith(".rist"), "Your main file should must be a rist file"
+  mf=main if "/" in main else "./"+main
   dirs=conf.get("dirs") or []
   ign=conf.get("ignore") or []
   ign.append(mf)
@@ -39,7 +39,7 @@ def init(parser, args):
           file=dir+file
           mk(file)
     mk(mf)
-    os.system(f'python3 {mf[:-4]+"py"}')
+    os.system(f'python3 {main[:-4]+"py"}')
   except Exception as e:
     rm()
     raise e
