@@ -183,21 +183,46 @@ You can encrypt anything with rist!
 
 ### Encrypting from shell
 If you want to encrypt something, then just run this in your shell
-```rist encrypt <file_to_encrypt> --output <encrypted_output_file> --key <any_integer> --depth 2```
+```
+rist encrypt --filepath <file_to_encrypt> --output <encrypted_output_file> --key <any_integer> --depth 2
+```
 Here, key is any number of your choice which will be the passcode and it is optional.
 Generates automatically if not given
 Depth is also a number, between 1 to 8 which specifies the layers/times
 it will be encrypted. It is 1 by default
 
 For example:
-```rist encrypt myfile.rist --output myfile.rist.enc --key 22 --depth 2```
+```
+rist encrypt --filepath myfile.rist --output myfile.rist.enc --key 22 --depth 2
+```
 
 ### Encrypting from rist
 If you want to encrypt something from rist, then
 ```rist
 +@ ristpy @+ encrypt
 
-text="Some Text"
+text="Some_Text"
 encrypted=encrypt{text,22,depth=2}
 $p{encrypted}
+```
+
+
+### Decrypting from shell
+If you want to Decrypt something, then just run this in your shell
+```
+rist decrypt --filepath <file_to_decrypt> --output <decrypted_output_file> --key <your_key> --depth <the_depth_you_used>
+```
+For example:
+```
+rist decrypt --filepath myfile.rist.enc --output myfile.rist --key 22 --depth 2
+```
+
+### Decrypting from rist
+If you want to decrypt something from rist, then
+```rist
++@ ristpy @+ decrypt
+
+text="1100 1254 1166 1254 726 1122 1166 1210 1166 726 1122 1166 1122 1078 726 1122 1122 1166 1166 726 1122 1100 1100 1122 726 1100 1254 1232 1078 726 1122 1122 1166 1166 726 1122 1210 1210 1122 726 1122 1188 1232 1166"
+decrypted=decrypt{text,22,depth=2}
+$p{decrypted}
 ```
