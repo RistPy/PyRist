@@ -13,28 +13,33 @@ def init(parser, args):
   except Exception as e:
     raise e
 
-  mf=conf.get("main")
+  mf=conf.get("main") or ""
   assert bool(mf) is True, "A setting named 'main' should must be in the config file"
+  assert mf.endswith(".rist"), "Your main file should must be a rist file"
+  mf=mf if "/" in mf else "./"+mf
+  ign.append(mf)
   dirs=conf.get("dirs") or []
   ign=conf.get("ignore") or []
   if "." not in dirs: dirs.append(".")
-  ign.append(mf if "/" in mf else "./"+mf)
   pyfiles=[]
   def rm():
     for f in pyfiles:
       try:os.remove(f)
       except:continue
   try:
+    def mk(f):
+      nonlocal pyfiles
+      if f not in ign:
+        pyfiles.append(f[:-4]+"py")
+        rist(f, flags=W, compile_to=f[:-4]+"py")
     for dir in dirs:
       if not dir.endswith("/"): dir+="/"
       for file in os.listdir(dir):
         if file.endswith(".rist"):
           file=dir+file
-          if file not in ign:
-            pyfiles.append(file[:-4]+"py")
-            rist(file, flags=W, compile_to=file[:-4]+"py")
-
-    rist(mf, flags=E)
+          mk(f)
+    mk(mf)
+    os.system(f'python3 {mf[:-4]+"py"}')
   except Exception as e:
     rm()
     raise e
