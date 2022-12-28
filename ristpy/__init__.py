@@ -299,13 +299,22 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> str:
       ('COMMA', ','),
       ("PYTHINGS",r"(\\|\~|\^)"),
     ]
-  
+
+    __rules2: List[Tuple[str, str]] = [
+      ('DOCSTRING', r'"""'),
+      ('DOCSTRING', r"'''"),
+    ]
+
     def __init__(self) -> None:
-      self.__regex = self.__compile_rules()
+      self.__regex,self.__regex2 = self.__compile_rules()
       self.under_docstring = 0
-  
-    def __convert_rules(self) -> Generator[str, None, None]:
-      rules: List[Tuple[str, str]] = self.__rules
+
+    @property
+    def regex(self) -> re.Pattern:
+      return self.__regex2 if self.under_docstring else self.__regex
+
+    def __convert_rules(self,ds=False) -> Generator[str, None, None]:
+      rules: List[Tuple[str, str]] = self.__rules2 if ds else self.__rules
   
       grouped_rules = OrderedDict()
       for name, pattern in rules:
@@ -324,7 +333,7 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> str:
         yield '(?P<{}>{})'.format(name, joined_patterns)
   
     def __compile_rules(self,):
-      return re.compile('|'.join(self.__convert_rules()))
+      return re.compile('|'.join(self.__convert_rules())),re.compile('|'.join(self.__convert_rules(1)))
   
     def __interprete_line(self, line, line_num, f) -> Generator[_Token, None, None]:
       pos = 0
@@ -334,7 +343,7 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> str:
         tokens.append(_Token("lInE", line[:-12], line_num, 1))
       else:
         while pos < len(line):
-          matches = self.__regex.match(line, pos)
+          matches = self.regex.match(line, pos)
           if matches is not None:
             name = matches.lastgroup
             pos = matches.end(name)
@@ -357,8 +366,6 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> str:
                 self.under_docstring = 0
               else:
                 self.under_docstring=val
-            elif self.under_docstring:
-              name = 'UNDER_DOCSTRING'
             tokens.append(_Token(name, value, line_num, matches.start() + 1))
           else:
             if not self.under_docstring:
