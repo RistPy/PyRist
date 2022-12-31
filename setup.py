@@ -33,8 +33,6 @@ setup(
   install_requires=["import_expression"],
   packages=find_packages(exclude=[".github", "examples"]),
   classifiers=[
-    "Programming Language :: Rist",
-    "Programming Language :: Rist :: 1.0",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
