@@ -11,7 +11,7 @@ Py - Python
 
 First of all, it should be installed by
 ```sh
-python3 -m pip install git+https://github.com/RistPy/PyRist/
+python3 -m pip install -U RistLang
 ```
 
 Create a file named `main.rist`<br />
