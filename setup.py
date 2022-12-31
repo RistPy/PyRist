@@ -31,7 +31,7 @@ setup(
   python_requires=">=3.8",
   entry_points={'console_scripts': ['rist=ristpy.__main__:main']},
   install_requires=["import_expression"],
-  packages=find_packages(),
+  packages=find_packages(exclude=[".github", "examples"]),
   classifiers=[
     "Programming Language :: Rist",
     "Programming Language :: Rist :: 1.0",
@@ -42,5 +42,9 @@ setup(
     "Programming Language :: Python :: 3.11",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
-    ],
+  ],
+  project_urls={
+    "Issue tracker": "https://github.com/RistPy/PyRist/issues"
+  },
+  url="https://github.com/RistPy/PyRist"
 )
