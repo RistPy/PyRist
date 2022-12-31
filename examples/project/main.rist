@@ -1,0 +1,7 @@
+$p{"DBG: Running main file"}
++@ dir_example.example @+ smth
+$p{"DBG: dir_example loaded"}
+$y:
+  @+ ignore
+$ex:
+  $p{"DBG: Ignored ignore.rist"}

@@ -1,37 +1,42 @@
-# PyRist
+# RistPy
 A programming language made by me ([@Rishiraj0100](https://GitHub.com/Rishiraj0100))
-
+```
+R  - Rist
+I  - Is
+S  - Short
+T  - Text
+Py - Python
+```
 ## Usage
 
 First of all, it should be installed by
 ```sh
-python3 -m pip install git+https://github.com/Rishiraj0100/PyRist/
+python3 -m pip install git+https://github.com/RistPy/PyRist/
 ```
 
 Create a file named `main.rist`<br />
 A sample code is given here
 ```rist
-@+ os, pprint;
-+@ typing @+ Union;
+@+ os, pprint
++@ typing @+ Union
 
-define cls as function{}:;
-  os::system{"cls" if os::name == "nt" else "clear"};
+cls${}: os.system{"cls" if os.name == "nt" $e "clear"}
 
-cls{};
+cls{}
 
-define something as function{PARAMS* var arg as Union[str, int]}:;
-  pprint::pprint{["myText", [arg]]};
+something${arg: Union[str, int]}:
+  p$p.p$p{["myText", [arg]]};
 
 something{"text2"};
 ```
 
 Then in your shell
 ```sh
-rist main.rist
+rist run main.rist
 ```
 Or if you want to compile into python file then run in your shell
 ```sh
-rist main.rist --compile-to rist_compiled_main.py
+rist run main.rist --compile-to rist_compiled_main.py
 ```
 Or in your python file
 ```py
@@ -41,7 +46,7 @@ print(rist("main.rist"))
 # if you want some text to compile then
 
 code = """
-print{"hello"};
+$p{"hello"} # Print
 """
 print(rist(code, fp=False))
 # if you wanna execute then
@@ -54,8 +59,6 @@ rist("main.rist", flags=W|E, compile_to="main.py")
 ```
 
 ## Syntax
-### Note
-Every line should end with `;` only if line is not empty
 ### Importing
 #### What can it Import?
 
@@ -64,30 +67,32 @@ It can Import all python modules
 #### How to Import?
 In python you do `import asyncio`
 
-In rist you have to do `@+ asyncio;`
+In rist you have to do `@+ asyncio`
 
 In python you do `from aiohttp import web`
 
-In rist you have to do `+@ aiohttp @+ web;`
+In rist you have to do `+@ aiohttp @+ web`
 
 ### Functions
 How do i make a function?
 #### Making a function
 ```rist
-// sync func;
-define MyFunc as function{}:;
-  pass;
-// async func;
-define AsMyFunc as async function{}:;
-  pass;
+# synchronous func;
+foo${}: # <name_of_func> + $
+  pass
+
+# asynchronous func
+$bar${}: # $ + <name_of_func> + $
+  pass
 ```
 How do i call it?
 #### Calling a function
 ```rist
-// sync function;
-MyFunc{};
-// async func;
-await AsMyFunc{};
+# synchronous function
+foo{}
+
+# asynchronous func
+?bar{} # ? + <name_of_func>
 ```
 ### Dict 
 How can I make dict as `{}` is used as `()`
@@ -96,62 +101,128 @@ To make dict to things are here
 `()` and `<>`
 For example
 ```rist
-("hi": "hello");
-("hello": ("wor": "ld"));
-<"hi": "hi">;
-// mixed;
-<;
-  1: <;
-    2: (;
-      3: 4;
-    ),;
-    5: 6;
-  >,;
-  7: 8;
->;
+("hi": "hello")
+("hello": ("wor": "ld"))
+<"hi": "hi">
+
+# mixed
+<
+  1: <
+    2: (
+      3: 4
+    ),
+    5: 6
+  >,
+  7: 8
+>
 ```
 ### Tuples and lists
 #### Making a List 
 ```rist
-[1,2];
-[;
-  1,;
-  2;
-];
+[1,2]
+[
+  1,
+  2
+]
 ```
 #### Making a Tuple 
 ```rist
-{1,2};
-{;
-  1,;
-  2;
-};
+{1,2}
+{
+  1,
+  2
+}
 ```
 ### Function Return TypeHints
-How do I use `def myfunc() -> None:` in rist if `>`
+How do I use `def myfunc() -> None:` in rist as `>` symbol
 is used in dict?
 
-Simple answer is to use `=-=>` in place of `->`
+`>` is used for dictionary but however, typehints
+doesn't gets converted, it's like `} -> Any:`
 ```rist
-define SomeFunc as function{} =-=> None:;
-  pass;
+SomeFunc${} -> None:
+  pass
 ```
 ### Comments 
-To use comment in this language, use `\\`
+To use comments in this language, use `#`, Just like Python
 
 For example:-
 ```rist
-// Some comment;
+# Some comment
 ```
-### Attributes
-In this language `.` is used as `::` while Ellipsis is still `...`
+### Built-ins
+Like every language, this language also have
+some built-in functions, but with other syntax
 
-For example:-
+The syntax made for them is `$ + <function name>`
 ```rist
-@+ os;
-// dot;
-os::system{"clear"};
+$i    # int
+$s    # str
+$y    # try
+$x    # xor
+$d    # dict
+$ei   # elif
+$e    # else
+$l    # list
+$t    # type
+$n    # input
+$p    # print
+$u    # tuple
+$ex   # except
+$la   # lambda
+$o    # locals
+$fi   # finally
+$g    # globals
+$m    # __import__
+$r    # ristpy.rist
+$eval # run rist code
+```
+## Encryptions/Decryptions
+Encryptions and Decryptions too comes with rist.
+You can encrypt anything with rist!
 
-// Ellipsis;
-SomeFunc{ellipsis=...};
+### Encrypting from shell
+If you want to encrypt something, then just run this in your shell
+```
+rist encrypt --filepath <file_to_encrypt> --output <encrypted_output_file> --key <any_integer> --depth 2
+```
+Here, key is any number of your choice which will be the passcode and it is optional.
+Generates automatically if not given
+Depth is also a number, between 1 to 8 which specifies the layers/times
+it will be encrypted. It is 1 by default
+
+For example:
+```
+rist encrypt --filepath myfile.rist --output myfile.rist.enc --key 22 --depth 2
+```
+
+### Encrypting from rist
+If you want to encrypt something from rist, then
+```rist
++@ ristpy @+ encrypt
+
+text="Some_Text"
+encrypted=encrypt{text,22,depth=2}
+$p{encrypted}
+```
+
+
+### Decrypting from shell
+If you want to Decrypt something, then just run this in your shell
+```
+rist decrypt --filepath <file_to_decrypt> --output <decrypted_output_file> --key <your_key> --depth <the_depth_you_used>
+```
+For example:
+```
+rist decrypt --filepath myfile.rist.enc --output myfile.rist --key 22 --depth 2
+```
+
+### Decrypting from rist
+If you want to decrypt something from rist, then
+```rist
++@ ristpy @+ decrypt
+
+text="1100 1254 1166 1254 726 1122 1166 1210 1166 726 1122 1166 1122 1078 726 1122 1122 1166 1166 726 1122 1100 1100 1122 726 1100 1254 1232 1078 726 1122 1122 1166 1166 726 1122 1210 1210 1122 726 1122 1188 1232 1166"
+decrypted=decrypt{text,22,depth=2}
+$p{decrypted}
 ```
