@@ -120,7 +120,7 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> str:
       ('ERR_IMPORT', r'\+@ ({ATTRIBUTED_NAME}|{NAME}) @\+ ({ATTRIBUTED_NAME}|\*|\()'),
       ('ERR_IMPORT', r'@\+ {ATTRIBUTED_NAME}'),
       ('FUNCDEF', r'(\$)?{NAME}\$\{'),
-      ('PREDEFS', r'\$(i|p|d|t|n|m|s|u|o|g|r|eval|ei|la|y|fi|ex|e|l|x)'),
+      ('PREDEFS', r'\$(ret|re|co|yi|pa|b|i|p|d|t|n|m|s|u|o|g|r|eval|ei|la|y|fi|ex|e|l|x|f)'),
       ('AT', '@{ATTRIBUTED_NAME}'),
       ('ARROW', r'\}( )?\-\>( )?{ATTRIBUTED_NAME}?'),
       ('GTORLT', r'__(\<|\>)'),
@@ -275,8 +275,9 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> str:
           e="(lambda code:__import__('ristpy').execute(code,[2])"
           x="(lambda a,b:((not (a and b)) and (a or b)))"
           extra={"o":"locals","g":"globals","r":r,"eval":e,"e":"else","ei":"elif","la":"lambda","x":x,"y":"try","fi":"finally","ex":"except"}
+          ex2={"b":"break","f":"for","re":"__import__('re')","ret":"return","co":"continue","yi":"yield","pa":"pass"}
           ntoks.append(_Token("PREDEFS",
-            {'i':"int",'p':"print",'d':"dict",'l':"list",'t':"type",'n':"input",'m':"__import__",'s':"str",'u':"tuple",**extra}[tok.value[1:]],
+            {'i':"int",'p':"print",'d':"dict",'l':"list",'t':"type",'n':"input",'m':"__import__",'s':"str",'u':"tuple",**extra,**ex2}[tok.value[1:]],
             tok.line,tok.coloumn
           ))
         elif tok.name == "ARROW":
