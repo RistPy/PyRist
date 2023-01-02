@@ -156,6 +156,7 @@ some built-in functions, but with other syntax
 
 The syntax made for them is `$ + <function name>`
 ```rist
+$f    # for
 $i    # int
 $s    # str
 $y    # try
@@ -164,19 +165,54 @@ $d    # dict
 $ei   # elif
 $e    # else
 $l    # list
+$p    # pass
 $t    # type
+$b    # break
 $n    # input
 $p    # print
 $u    # tuple
+$yi   # yield
 $ex   # except
 $la   # lambda
 $o    # locals
 $fi   # finally
 $g    # globals
+$ret  # return
+$co   # continue
 $m    # __import__
 $r    # ristpy.rist
 $eval # run rist code
+$re   # regex library (re)
 ```
+
+The `xor` given here is a function provided by rist
+which takes two inputs/parameters and returns boolean value as follows:
+
+| Input1 | Input2 | Output |
+---------|--------|---------
+| False | False | False |
+| False | True | True |
+| True | False | True |
+| True | True | False |
+
+Which can be written as
+```rist
+t = True
+f = False
+
+$p{$x{f,f}}
+$p{$x{f,t}}
+$p{$x{t,f}}
+$p{$x{t,t}}
+```
+And its output will be
+```
+False
+True
+True
+False
+```
+
 ## Encryptions/Decryptions
 Encryptions and Decryptions too comes with rist.
 You can encrypt anything with rist!
