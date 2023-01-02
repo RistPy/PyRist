@@ -115,9 +115,9 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> str:
       ('DOCSTRING', r"'''"),
       ('STRING', r'((".*?")(?<!(\\)))'),
       ('STRING', r"(('.*?')(?<!(\\)))"),
-      ('FROM', r'^(\s)*\+@(\s*)([.]?{ATTRIBUTED_NAME}|{NAME})(\s*)@\+(\s*)({ATTRIBUTED_NAME}|\*|\()'),
+      ('FROM', r'^(\s)*\+@(\s*)([.]?{ATTRIBUTED_NAME}|{NAME})(\s*)@\+(\s*)({ATTRIBUTED_NAME}|\*|\{)'),
       ('IMPORT', r'^(\s)*@\+(\s*){ATTRIBUTED_NAME}'),
-      ('ERR_IMPORT', r'\+@ ({ATTRIBUTED_NAME}|{NAME}) @\+ ({ATTRIBUTED_NAME}|\*|\()'),
+      ('ERR_IMPORT', r'\+@ ({ATTRIBUTED_NAME}|{NAME}) @\+ ({ATTRIBUTED_NAME}|\*|\{)'),
       ('ERR_IMPORT', r'@\+ {ATTRIBUTED_NAME}'),
       ('FUNCDEF', r'(\$)?{NAME}\$\{'),
       ('PREDEFS', r'\$(ret|re|co|yi|pa|b|i|p|d|t|n|m|s|u|o|g|r|eval|ei|la|y|fi|ex|e|l|x|f)'),
@@ -285,7 +285,7 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> str:
         elif tok.name == "AWAIT":
           ntoks.append(_Token(tok.name, "await ", tok.line, tok.coloumn))
         elif tok.name == "FROM":
-          ntoks.append(_Token(tok.name, tok.value.replace("+@","from").replace("@+","import"), tok.line, tok.coloumn))
+          ntoks.append(_Token(tok.name, tok.value.replace("+@","from").replace("@+","import").replace("{","("), tok.line, tok.coloumn))
         elif tok.name == "IMPORT":
           ntoks.append(_Token(tok.name, tok.value.replace("@+","import"), tok.line, tok.coloumn))
         elif tok.name == "GTORLT" and tok.value.startswith('__'):
