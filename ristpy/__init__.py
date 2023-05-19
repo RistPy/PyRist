@@ -369,14 +369,15 @@ def execute(code: str, flags: RistFlags = E, **kwargs) -> None:
       return self
 
   __CODE = """
-  def _runner_func({{0}}):
-      import asyncio, aiohttp
-      from importlib import import_module as {0}
+# indent: 4 spaces
+def _runner_func({{0}}):
+    import asyncio, aiohttp
+    from importlib import import_module as {0}
 
-      try:
-          pass
-      finally:
-          _executor.scope.globals.update(locals())
+    try:
+        pass
+    finally:
+        _executor.scope.globals.update(locals())
   """.format(_iex.constants.IMPORTER)
 
   def _wrap_code(code: str, args: str = '', f=None) -> ast.Module:
