@@ -78,6 +78,11 @@ def _parse_flags(flags: RistFlags) -> object:
   return flags
 
 def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> str:
+  macros = kwargs.pop("macros", {})
+  macro_py = kwargs.pop("macros_py", {})
+  for n, snippet in macros.items():
+    assert n not in macro_py, "Name of all the snippets should be unique"
+    macro_py[n] = rist(snippet, False, C, file=f"<macro_{n}>", macro_py=macro_py).splitlines()
   flags = _parse_flags(flags)
   if fp:
     with open(arg, 'r') as f:
@@ -85,7 +90,7 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> str:
     fname = arg
   else:
     code = arg
-    fname = '<unknown.rist>'
+    fname = kwargs.pop("file", "<unknown.rist>")
 
   class _Token:
     def __init__(
@@ -115,18 +120,16 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> str:
       ('DOCSTRING', r"'''"),
       ('STRING', r'((".*?")(?<!(\\)))'),
       ('STRING', r"(('.*?')(?<!(\\)))"),
+      ('MACRO', r"^(\s)*\%\-(\s)*{NAME}(\s)*\-\%(\s)*$"),
       ('FROM', r'^(\s)*\+@(\s*)([.]?{ATTRIBUTED_NAME}|{NAME})(\s*)@\+(\s*)({ATTRIBUTED_NAME}|\*|\{)'),
       ('IMPORT', r'^(\s)*@\+(\s*){ATTRIBUTED_NAME}'),
       ('ERR_IMPORT', r'\+@ ({ATTRIBUTED_NAME}|{NAME}) @\+ ({ATTRIBUTED_NAME}|\*|\{)'),
       ('ERR_IMPORT', r'@\+ {ATTRIBUTED_NAME}'),
       ('FUNCDEF', r'(\$)?{NAME}\$\{'),
-      ('PREDEFS', r'\$(ret|re|co|yi|pa|b|i|p|d|t|n|m|s|u|o|g|r|eval|ei|la|y|fi|ex|e|l|x|f)'),
+      ('PREDEFS', r'\$(ret|re|co|yi|pa|b|i|p|d|t|n|m|s|u|o|g|r|eval|ei|la|y|fi|ex|e|l|x|f|wh)'),
       ('AT', '@{ATTRIBUTED_NAME}'),
       ('ARROW', r'\}( )?\-\>( )?{ATTRIBUTED_NAME}?'),
-      ('GTORLT', r'__(\<|\>)'),
       ('AWAIT', r'\?(\s+)?'),
-      ('LARROW', r'\<'),
-      ('RARROW', r'\>'),
       ('NUMBER', r'\d+\.\d+'),
       ('NUMBER', r'\d+'),
       ('ATTRIBUTED_NAME', r'{NAME}?([.]*(?=[a-zA-Z_])([a-zA-Z0-9_]*))+'),
@@ -134,7 +137,7 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> str:
       ('TABSPACE', '\t'),
       ('SPACE', ' '),
       ('OPERATOR', r'[\+\*\-\/%]'),       # arithmetic operators
-      ('OPERATOR', r'==|!='),             # comparison operators
+      ('OPERATOR', r'==|!=|\<|\>'),             # comparison operators
       ('OPERATOR', r'\|\||\||&|&&'),      # boolean operators
       ('OPERATOR', r'\.\.\.|\.\.'),       # range operators
       ('OPERATOR', r'!'),
@@ -238,6 +241,8 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> str:
       tokens = []
       line_num = 0
       lines = s.splitlines()
+      under = ""
+      under_info = {}
       for line_num, line in enumerate(lines, 1):
         line = line.rstrip()
         if not line:
@@ -254,22 +259,55 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> str:
         for k, v in kwrds.items():
           setattr(err, k, v)
         raise err
-
+      
       ntoks = []
+      i_n=[0,0]
+      el = 0
       for tok in tokens:
-        if tok.name == "LCBRACK" and tok.value == "{":
-          ntoks.append(_Token("LPAREN", "(", tok.line, tok.coloumn))
+        if tok.line!=i_n[0]:
+          i_n = [tok.line, 0]
+        if tok.name not in ("STRING", "DOCSTRING", "COMMENT"):
+          for i in tok.value:
+            i_n[-1]+=1
+            if i not in "[{()}]":
+              continue
+            if i in ")}]":
+              if (not under) or under[-1]!=i:
+                err = SyntaxError(f"Unmatched '{i}'" if not under else f"Got '{i}', while expecting '{under[-1]}'")
+                kwrds = dict(filename=f, lineno=tok.line, offset=i_n[-1], text=lines[tok.line-1])
+                for k, v in kwrds.items(): setattr(err, k, v)
+                raise err
+
+              under = under[:-1]
+              under_info = under_info["par"]
+            if i in "[{(":
+              under+={"[":"]","{":"}","(":")"}[i]
+              under_info["par"] = {**under_info}
+              under_info["line"] = tok.line
+              under_info["offset"] = i_n[-1]
+              
+        tok.under=under
+        l_n = tok.line + el
+        if tok.name == "MACRO":
+          indent, n = tok.value.split("%-")
+          n = n.split("-%")[0].strip()
+          assert n in macro_py, f"Snippet '{n}' not found!"
+          v = indent + f"\n{indent}".join(macro_py[n])
+          el+=len(v.splitlines())-1
+          ntoks.append(_Token(f"MACRO_{n}", v, tok.line, 0))
+        elif tok.name == "LCBRACK" and tok.value == "{":
+          ntoks.append(_Token("LPAREN", "(", l_n, tok.coloumn))
         elif tok.name == "RCBRACK" and tok.value == "}":
-          ntoks.append(_Token("RPAREN", ")", tok.line, tok.coloumn))
+          ntoks.append(_Token("RPAREN", ")", l_n, tok.coloumn))
         elif tok.name == "FUNCDEF":
           if tok.value.startswith("$"):val="async def "+tok.value[1:]
           else:val="def "+tok.value
           val=val.replace("${","(")
-          ntoks.append(_Token("FUNCDEF", val, tok.line, tok.coloumn))
-        elif (tok.name == "LPAREN" and tok.value == "(") or (tok.name == "LARROW" and tok.value == "<"):
-          ntoks.append(_Token("LCBRACK", "{", tok.line, tok.coloumn))
-        elif (tok.name == "RPAREN" and tok.value == ")") or (tok.name == "RARROW" and tok.value == ">"):
-          ntoks.append(_Token("RCBRACK", "}", tok.line, tok.coloumn))
+          ntoks.append(_Token("FUNCDEF", val, l_n, tok.coloumn))
+        elif tok.name == "LPAREN" and tok.value == "(":
+          ntoks.append(_Token("LCBRACK", "{", l_n, tok.coloumn))
+        elif tok.name == "RPAREN" and tok.value == ")":
+          ntoks.append(_Token("RCBRACK", "}", l_n, tok.coloumn))
         elif tok.name=="PREDEFS":
           r="__import__('ristpy').rist"
           e="(lambda code:__import__('ristpy').execute(code,[2])"
@@ -277,22 +315,28 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> str:
           extra={"o":"locals","g":"globals","r":r,"eval":e,"e":"else","ei":"elif","la":"lambda","x":x,"y":"try","fi":"finally","ex":"except"}
           ex2={"b":"break","f":"for","re":"__import__('re')","ret":"return","co":"continue","yi":"yield","pa":"pass"}
           ntoks.append(_Token("PREDEFS",
-            {'i':"int",'p':"print",'d':"dict",'l':"list",'t':"type",'n':"input",'m':"__import__",'s':"str",'u':"tuple",**extra,**ex2}[tok.value[1:]],
-            tok.line,tok.coloumn
+            {'i':"int",'p':"print",'d':"dict",'l':"list",'t':"type",'n':"input",'m':"__import__",'s':"str",'u':"tuple","wh":"while",**extra,**ex2}[tok.value[1:]],
+            l_n,tok.coloumn
           ))
         elif tok.name == "ARROW":
-          ntoks.append(_Token(tok.name, ")"+tok.value[1:], tok.line, tok.coloumn))
+          ntoks.append(_Token(tok.name, ")"+tok.value[1:], l_n, tok.coloumn))
         elif tok.name == "AWAIT":
-          ntoks.append(_Token(tok.name, "await ", tok.line, tok.coloumn))
+          ntoks.append(_Token(tok.name, "await ", l_n, tok.coloumn))
         elif tok.name == "FROM":
-          ntoks.append(_Token(tok.name, tok.value.replace("+@","from").replace("@+","import").replace("{","("), tok.line, tok.coloumn))
+          ntoks.append(_Token(tok.name, tok.value.replace("+@","from").replace("@+","import").replace("{","("), l_n, tok.coloumn))
         elif tok.name == "IMPORT":
-          ntoks.append(_Token(tok.name, tok.value.replace("@+","import"), tok.line, tok.coloumn))
-        elif tok.name == "GTORLT" and tok.value.startswith('__'):
-          ntoks.append(_Token(tok.name, tok.value[-1], tok.line, tok.coloumn))
+          ntoks.append(_Token(tok.name, tok.value.replace("@+","import"), l_n, tok.coloumn))
         else:
           ntoks.append(tok)
+          
+        ntoks[-1].under = under
 
+      if under:
+        err = SyntaxError(f"Unexpected EOF")
+        kwrds = dict(filename=f, lineno=under_info["line"], offset=under_info["offset"], text=lines[under_info["line"]-1])
+        for k, v in kwrds.items():
+          setattr(err, k, v)
+        raise err
       code = "".join(list(str(t) for t in ntoks))
   
       return code

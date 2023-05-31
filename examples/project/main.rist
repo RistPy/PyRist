@@ -1,6 +1,11 @@
 $p{"DBG: Running main file"}
 +@ dir_example.example @+ smth
 $p{"DBG: dir_example loaded"}
+
+%-in_rist-%
+
+%- in_py -%
+
 $y:
   @+ ignore
 $ex:

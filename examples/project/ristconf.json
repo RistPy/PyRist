@@ -1,5 +1,18 @@
 {
   "main": "main.rist",
   "dirs": ["dir_example"],
-  "ignore": ["./ignore.rist"]
+  "ignore": ["./ignore.rist"],
+  "snippets": {
+    "in_rist": [
+      "$p{'This is an',end=' '}",
+      "$p{'example snippet in Rist'}"
+    ]
+  },
+  "snippets_py": {
+    "in_py": [
+      "print(",
+      "  'This is an example snippet in Python'",
+      ")"
+    ]
+  }
 }

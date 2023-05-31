@@ -1,5 +1,7 @@
 import os
 import json
+import atexit
+import signal
 import argparse
 
 from ristpy import rist, execute, E, W, encrypt, decrypt
@@ -17,6 +19,15 @@ def init(parser, args):
   assert bool(main) is True, "A setting named 'main' should must be in the config file"
   assert main.endswith(".rist"), "Your main file should must be a rist file"
   mf=main if "/" in main else "./"+main
+  macros = conf.get("snippets", {})
+  for name, snippet in macros.items():
+    if type(snippet) is list: macros[name] = "\n".join(snippet)
+      
+  macros_py = conf.get("snippets_py", {})
+  for name, snippet in macros_py.items():
+    if type(snippet) is list:
+      snippet = "\n".join(snippet)
+    macros_py[name] = snippet.splitlines()
   dirs=conf.get("dirs") or []
   ign=conf.get("ignore") or []
   ign.append(mf)
@@ -31,7 +42,7 @@ def init(parser, args):
       nonlocal pyfiles
       if f not in ign:
         pyfiles.append(f[:-4]+"py")
-        rist(f, flags=W, compile_to=f[:-4]+"py")
+        rist(f, flags=W, compile_to=f[:-4]+"py", macros={**macros}, macros_py={**macros_py})
     for dir in dirs:
       if not dir.endswith("/"): dir+="/"
       for file in os.listdir(dir):
@@ -39,6 +50,9 @@ def init(parser, args):
           file=dir+file
           mk(file)
     mk(main)
+    atexit.register(rm)
+    signal.signal(signal.SIGTERM, rm)
+    signal.signal(signal.SIGINT, rm)
     os.system(f'python3 {main[:-4]+"py"}')
   except Exception as e:
     rm()

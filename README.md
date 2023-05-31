@@ -96,26 +96,17 @@ foo{}
 ```
 ### Dict 
 How can I make dict as `{}` is used as `()`
-#### Working With Dict
-To make dict to things are here
-`()` and `<>`
+#### Working With Dictionaries and sets
+Dictionaries and Sets, in this language are enclosed within parentheses
+`()`
+
 For example
+
 ```rist
 ("hi": "hello")
 ("hello": ("wor": "ld"))
-<"hi": "hi">
-
-# mixed
-<
-  1: <
-    2: (
-      3: 4
-    ),
-    5: 6
-  >,
-  7: 8
->
 ```
+
 ### Tuples and lists
 #### Making a List 
 ```rist
@@ -133,16 +124,7 @@ For example
   2
 }
 ```
-### Function Return TypeHints
-How do I use `def myfunc() -> None:` in rist as `>` symbol
-is used in dict?
 
-`>` is used for dictionary but however, typehints
-doesn't gets converted, it's like `} -> Any:`
-```rist
-SomeFunc${} -> None:
-  pass
-```
 ### Comments 
 To use comments in this language, use `#`, Just like Python
 
@@ -171,13 +153,14 @@ $b    # break
 $n    # input
 $p    # print
 $u    # tuple
+$wh   # while
 $yi   # yield
 $ex   # except
 $la   # lambda
 $o    # locals
+$ret  # return
 $fi   # finally
 $g    # globals
-$ret  # return
 $co   # continue
 $m    # __import__
 $r    # ristpy.rist
@@ -212,6 +195,111 @@ True
 True
 False
 ```
+
+## MultiFile Project
+For Multiple File projects, make a file named `ristconf.json`
+
+Format of the file is
+```json
+{
+  "main": "<main file>",
+  "dirs": [
+    "<directories to use>"
+  ],
+  "ignore": [
+    "<files to ignore>"
+  ],
+  "snippets": {
+    "<macro name>": [
+      "line1",
+      "line2"
+    ]
+  },
+  "snippets_py": {
+    "<macro name>": [
+      "line1",
+      "line2"
+    ]
+  }
+}
+```
+Here `main` key is required while others are optional
+
+A sample file is given here
+```json{
+  "main": "main.rist",
+  "dirs": ["dir_example"],
+  "ignore": ["not_to_compile.rist"],
+  "snippets": {
+    "a": [
+      "$p{0}",
+      "$p{1}",
+      "$p{2}"
+    ]
+  },
+  "snippets_py": {
+    "b": [
+      "print(3)",
+      "print(4)",
+      "print(5)"
+    ]
+  }
+}
+```
+Now the question arises, what is the `snippets` key given here.
+
+Here you can create macros which you can directly import in rist files
+
+## Working with macros
+Syntax
+```json
+{
+  "snippets": {
+    "<name of macro>": [
+      "Line 1, (in rist)",
+      "Line 2, (in rist)",
+      "and so on...(in rist)"
+    ]
+  },
+  "snippets_py": {
+    "<name of macro>": [
+      "Line 1, (in Python)",
+      "Line 2, (in Python)",
+      "and so on...(in Python)"
+    ]
+  }
+}
+```
+For example
+```json
+{
+  "main": "main.rist",
+  "snippets": {
+    "a": [
+      "$p{0}",
+      "$p{1}",
+      "$p{2}"
+    ]
+  },
+  "snippets_py": {
+    "b": [
+      "print(3)",
+      "print(4)"
+    ]
+  }
+}
+```
+You can use it by `%- <name of macro> -%`
+
+```rist
+%- a -%
+
+# inside function
+func${}:
+  %- b -%
+
+```
+> Note: Nothing other should be there in the lines containing `%-` syntax
 
 ## Encryptions/Decryptions
 Encryptions and Decryptions too comes with rist.
