@@ -226,7 +226,8 @@ Format of the file is
 Here `main` key is required while others are optional
 
 A sample file is given here
-```json{
+```json
+{
   "main": "main.rist",
   "dirs": ["dir_example"],
   "ignore": ["not_to_compile.rist"],
