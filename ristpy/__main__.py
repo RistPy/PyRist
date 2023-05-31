@@ -28,6 +28,12 @@ def init(parser, args):
     if type(snippet) is list:
       snippet = "\n".join(snippet)
     macros_py[name] = snippet.splitlines()
+    
+  
+  for n, snippet in macros.items():
+    assert n not in macros_py, "Name of all the snippets should be unique"
+    macros_py[n] = rist(snippet, False, file=f"<macro_{n}>", macro_py=macros_py).splitlines()
+
   dirs=conf.get("dirs") or []
   ign=conf.get("ignore") or []
   ign.append(mf)
@@ -42,7 +48,7 @@ def init(parser, args):
       nonlocal pyfiles
       if f not in ign:
         pyfiles.append(f[:-4]+"py")
-        rist(f, flags=W, compile_to=f[:-4]+"py", macros={**macros}, macros_py={**macros_py})
+        rist(f, flags=W, compile_to=f[:-4]+"py", macros_py={**macros_py})
     for dir in dirs:
       if not dir.endswith("/"): dir+="/"
       for file in os.listdir(dir):
