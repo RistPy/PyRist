@@ -1,5 +1,5 @@
 # RistPy
-A programming language made by me ([@Rishiraj0100](https://GitHub.com/Rishiraj0100))
+Just a programming language made to shorten the Python code
 ```
 R  - Rist
 I  - Is
