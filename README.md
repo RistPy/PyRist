@@ -147,7 +147,7 @@ $d    # dict
 $ei   # elif
 $e    # else
 $l    # list
-$p    # pass
+$pa   # pass
 $t    # type
 $b    # break
 $n    # input
