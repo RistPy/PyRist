@@ -1,8 +1,6 @@
 from .core import Token, TokenList
 
 
-INDENT = "    "
-
 class IndentParser:
     def __init__(self, scope: dict):
         scope["indents"] = [[""]]
@@ -20,6 +18,7 @@ class IndentParser:
 
     def parse(self) -> str:
         tok = self.scope["current_token"]
+        INDENT  = self.scope["INDENT"]
         indents = self.scope["indents"][self.stacklen]
         ntoks: TokenList = self.scope["new_tokens"]
         last_real = ntoks.last_real

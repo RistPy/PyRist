@@ -11,7 +11,6 @@ import import_expression as _iex
 from collections import OrderedDict
 from typing import Generator, Callable, Any
 from .parsers import (
-    INDENT,
     IndentParser,
     Token,
     TokenList
@@ -87,6 +86,7 @@ def _parse_flags(flags: RistFlags) -> object:
 def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> str:
     macros = kwargs.pop("macros", {})
     macro_py = kwargs.pop("macros_py", {})
+    minify = kwargs.pop("minify", False)
     for n, snippet in macros.items():
         assert n not in macro_py, "Name of all the snippets should be unique"
         macro_py[n] = rist(snippet, False, C, file=f"<macro_{n}>", macro_py=macro_py).splitlines()
@@ -201,12 +201,6 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> str:
                     elif name == "SPACE":
                         value = " "
 
-                    if name == "ERR_IMPORT":
-                        err = SyntaxError(f"Unexpected position of 'IMPORT' syntax, it should not come after any text")
-                        kwrds = dict(filename=f, lineno=line_num, offset=matches.start()+1, text=line, end_offset= pos+1+len(value))
-                        for k, v in kwrds.items():
-                            setattr(err, k, v)
-                        raise err
                     if name == 'DOCSTRING':
                         val={'"':2,"'":1}[value[0]]
                         if self.under_docstring and self.under_docstring==val:
@@ -228,15 +222,15 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> str:
             for token in tokens:
                 yield token
 
-        def build_inline_wrapper(self, id_, async_, params, body, name):
+        def build_inline_wrapper(self, id_, async_, params, body, name, INDENT):
             params = "".join(str(i) for i in params)
             body = "".join(str(i) for i in body)
-            inner_def = f"""\n    {'async ' if async_ else ''}def {name}({params}):\n{body}"""
+            inner_def = f"""{INDENT}{'async ' if async_ else ''}def {name}({params}):\n{body.strip('\n')}"""
             return f"""
-def {id_}_wrapper(_g, _l):
-{INDENT}locals().update(_g)
-{INDENT}locals().update(_l)
-{INDENT}del _g,_l
+def {id_}_wrapper({id_}_g, {id_}_l):
+{INDENT}locals().update({id_}_g)
+{INDENT}locals().update({id_}_l)
+{INDENT}del {id_}_g,{id_}_l
 {inner_def}
 
 {INDENT}{name}.__name__ = '{'<rist:inline>' if name == id_ else name}'
@@ -283,6 +277,7 @@ def {id_}_wrapper(_g, _l):
                 transpiler = cls,
                 inline_stack = inline_stack
             )
+            INDENT = scope["INDENT"] = " " if minify else "    "
             IndentParser(scope)
             autoindent: list[int] = []
             ternary: list[tuple[int, int]] = []
@@ -328,7 +323,7 @@ def {id_}_wrapper(_g, _l):
                     body = r[len(stack)+2:]
                     if stack[0].name == "FUNCDEF": stack.pop(0)
                     stack.pop(0)
-                    ret = self.build_inline_wrapper(inline["id"], inline["asynchronous"], stack, body, inline["name"])
+                    ret = self.build_inline_wrapper(inline["id"], inline["asynchronous"], stack, body, inline["name"], INDENT)
                     ntoks.insert(0, Token("INLINE_DEF", ret, *inline["data"]))
 
                     for i in range(len(autoindent)):
@@ -431,9 +426,10 @@ def {id_}_wrapper(_g, _l):
                         if (not ntok.under) or len(ntok.under) == comp: break
 
                     ntoks.append(Token("RPAREN", ")", tok.line, tok.column))
-                    ternary.append((index, len(ntoks)))
-                elif tok.name == "COLON" and ternary:
-                    index, start = ternary.pop()
+                    ternary.append((index, len(ntoks), tok.under))
+                elif tok.name == "COLON" and ternary and tok.under == ternary[-1][-1]:
+                    index, start, _ = ternary.pop()
+
                     new = [Token("TERNARY_ELSE"," else ", tok.line, tok.column)]
                     rem = ntoks.splice(start, len(ntoks), *new)
                     if ternary_paren:
@@ -485,7 +481,17 @@ def {id_}_wrapper(_g, _l):
                     setattr(err, k, v)
                 raise err
             elif ternary:
-                err = SyntaxError("Unclosed ternary.")
+                err = SyntaxError("Incomplete ternary")
+                kwrds = dict(
+                    filename=f,
+                    lineno=ntoks[ternary[-1][0]].line,
+                    offset=ntoks[ternary[-1][0]].column,
+                    text=lines[ntoks[ternary[-1][0]].line-1],
+                    end_lineno=ntoks[ternary[-1][0]].line,
+                    end_offset = ntoks[ternary[-1][1]].column
+                )
+                for k, v in kwrds.items():
+                    setattr(err, k, v)
                 raise err
 
             return ntoks.detokenize()
