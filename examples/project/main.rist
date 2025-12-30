@@ -1,12 +1,11 @@
-$p{"DBG: Running main file"}
+print("DBG: Running main file")
 +@ dir_example.example @+ smth
-$p{"DBG: dir_example loaded"}
+print("DBG: dir_example loaded")
 
 %- in_rist -%
 
 %- in_py -%
 
-$y:
-  @+ ignore
-$ex:
-  $p{"DBG: Ignored ignore.rist"}
+try { @+ ignore } except ImportError { print("DBG: Ignored ignore.rist") }
+@+ time
+time.sleep(10)

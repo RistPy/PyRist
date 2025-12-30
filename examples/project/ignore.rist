@@ -1,1 +1,1 @@
-$p{"DBG: ignore.rist wasn't ignored..."}
+print("DBG: ignore.rist wasn't ignored...")

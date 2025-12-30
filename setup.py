@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 
-version = "1.2.1"
+version = "2.0.0a"
 
 with open("README.md", "r") as f:
   long_description = f.read()
@@ -28,18 +28,20 @@ setup(
   long_description=long_description,
   long_description_content_type="text/markdown",
   license="MIT",
-  python_requires=">=3.8",
+  python_requires=">=3.9",
   entry_points={'console_scripts': ['rist=ristpy.__main__:main']},
   install_requires=["import_expression"],
   packages=find_packages(exclude=[".github", "examples"]),
   classifiers=[
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.14",
     "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
+    "Operating System :: Linux",
   ],
   project_urls={
     "Issue tracker": "https://github.com/RistPy/PyRist/issues"

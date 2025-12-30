@@ -4,8 +4,8 @@
   "ignore": ["./ignore.rist"],
   "snippets": {
     "in_rist": [
-      "$p{'This is an',end=' '}",
-      "$p{'example snippet in Rist'}"
+      "print('This is an',end=' ')",
+      "print('example snippet in Rist')"
     ]
   },
   "snippets_py": {

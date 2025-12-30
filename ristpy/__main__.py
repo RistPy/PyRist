@@ -9,15 +9,15 @@ from ristpy import rist, execute, E, W, encrypt, decrypt
 
 def init(parser, args):
   if "ristconf.json" not in os.listdir():
-    return parser.error("A file named 'ristconf.json' should must be in the project directory")
+    return parser.error("A file named 'ristconf.json' must be present in the project directory")
   try:
     with open("ristconf.json", "r") as f: conf=json.load(f)
   except Exception as e:
     raise e
 
   main=conf.get("main") or ""
-  assert bool(main) is True, "A setting named 'main' should must be in the config file"
-  assert main.endswith(".rist"), "Your main file should must be a rist file"
+  assert bool(main) is True, "A setting named 'main' must be present in the config file"
+  assert main.endswith(".rist"), "Your main file must be a rist file"
   mf=main if "/" in main else "./"+main
   macros = conf.get("snippets", {})
   for name, snippet in macros.items():
@@ -31,7 +31,7 @@ def init(parser, args):
     
   
   for n, snippet in macros.items():
-    assert n not in macros_py, "Name of all the snippets should be unique"
+    assert n not in macros_py, "Name of all the snippets must be unique"
     macros_py[n] = rist(snippet, False, file=f"<macro_{n}>", macro_py=macros_py).splitlines()
 
   dirs=conf.get("dirs") or []

@@ -14,20 +14,19 @@ First of all, it should be installed by
 python3 -m pip install -U RistLang
 ```
 
-Create a file named `main.rist`<br />
+Create a file named `main.rist` <br />
 A sample code is given here
 ```rist
 @+ os, pprint
-+@ typing @+ Union
 
-cls${}: os.system{"cls" if os.name == "nt" $e "clear"}
+cls$(): os.system("cls" if os.name == "nt" else "clear")
 
-cls{}
+cls()
 
-something${arg: Union[str, int]}:
-  p$p.p$p{["myText", [arg]]};
-
-something{"text2"};
+something$(arg: Union[str, int]){
+  pprint.pprint(["myText", [arg]])
+}
+something{"text2"}
 ```
 
 Then in your shell
@@ -46,7 +45,7 @@ print(rist("main.rist"))
 # if you want some text to compile then
 
 code = """
-$p{"hello"} # Print
+$p$():...
 """
 print(rist(code, fp=False))
 # if you wanna execute then
@@ -78,122 +77,27 @@ How do i make a function?
 #### Making a function
 ```rist
 # synchronous func;
-foo${}: # <name_of_func> + $
+foo$(): # <name_of_func> + $
   pass
 
 # asynchronous func
-$bar${}: # $ + <name_of_func> + $
+$bar$(): # $ + <name_of_func> + $
   pass
 ```
 How do i call it?
 #### Calling a function
 ```rist
 # synchronous function
-foo{}
-
+foo()
 # asynchronous func
-?bar{} # ? + <name_of_func>
+?bar() # ? + <name_of_func>
 ```
-### Dict 
-How can I make dict as `{}` is used as `()`
-#### Working With Dictionaries and sets
-Dictionaries and Sets, in this language are enclosed within parentheses
-`()`
-
-For example
-
-```rist
-("hi": "hello")
-("hello": ("wor": "ld"))
-```
-
-### Tuples and lists
-#### Making a List 
-```rist
-[1,2]
-[
-  1,
-  2
-]
-```
-#### Making a Tuple 
-```rist
-{1,2}
-{
-  1,
-  2
-}
-```
-
 ### Comments 
 To use comments in this language, use `#`, Just like Python
 
 For example:-
 ```rist
 # Some comment
-```
-### Built-ins
-Like every language, this language also have
-some built-in functions, but with other syntax
-
-The syntax made for them is `$ + <function name>`
-```rist
-$f    # for
-$i    # int
-$s    # str
-$y    # try
-$x    # xor
-$d    # dict
-$ei   # elif
-$e    # else
-$l    # list
-$pa   # pass
-$t    # type
-$b    # break
-$n    # input
-$p    # print
-$u    # tuple
-$wh   # while
-$yi   # yield
-$ex   # except
-$la   # lambda
-$o    # locals
-$ret  # return
-$fi   # finally
-$g    # globals
-$co   # continue
-$m    # __import__
-$r    # ristpy.rist
-$eval # run rist code
-$re   # regex library (re)
-```
-
-The `xor` given here is a function provided by rist
-which takes two inputs/parameters and returns boolean value as follows:
-
-| Input1 | Input2 | Output |
----------|--------|---------
-| False | False | False |
-| False | True | True |
-| True | False | True |
-| True | True | False |
-
-Which can be written as
-```rist
-t = True
-f = False
-
-$p{$x{f,f}}
-$p{$x{f,t}}
-$p{$x{t,f}}
-$p{$x{t,t}}
-```
-And its output will be
-```
-False
-True
-True
-False
 ```
 
 ## MultiFile Project
@@ -277,9 +181,8 @@ For example
   "main": "main.rist",
   "snippets": {
     "a": [
-      "$p{0}",
-      "$p{1}",
-      "$p{2}"
+      "@+ math",
+      "foo$(a:int,b:int){return math.sqrt(a)+math.sqrt(b)}"
     ]
   },
   "snippets_py": {
@@ -327,8 +230,8 @@ If you want to encrypt something from rist, then
 +@ ristpy @+ encrypt
 
 text="Some_Text"
-encrypted=encrypt{text,22,depth=2}
-$p{encrypted}
+encrypted=encrypt(text,22,depth=2)
+print(encrypted)
 ```
 
 
@@ -348,6 +251,6 @@ If you want to decrypt something from rist, then
 +@ ristpy @+ decrypt
 
 text="1100 1254 1166 1254 726 1122 1166 1210 1166 726 1122 1166 1122 1078 726 1122 1122 1166 1166 726 1122 1100 1100 1122 726 1100 1254 1232 1078 726 1122 1122 1166 1166 726 1122 1210 1210 1122 726 1122 1188 1232 1166"
-decrypted=decrypt{text,22,depth=2}
-$p{decrypted}
+decrypted=decrypt(text,22,depth=2)
+print(decrypted)
 ```

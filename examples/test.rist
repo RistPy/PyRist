@@ -1,20 +1,19 @@
 @+ os, pprint
-+@ typing @+ Union
 
-cls${}:
+(cls$() => {
   clear_cmd: str
   if os.name == "nt":
     clear_cmd = "cls"
   else:
     clear_cmd = "clear"
-  os.system{clear_cmd}
+  os.system(clear_cmd)
+})()
 
-cls{};
-
-something${arg: Union[str, int]}:
-  args: dict = <"arg": [arg]>
-  p$p.p$p{args} # p$p stands for pprint (p + $p) or (p + print)
+something$(arg: str|int){
+  args: dict = {"arg": [arg]}
+  pprint.pprint(args)
   return args
+}
 
-smth: dict = something{"text2"}
-$p{smth}
+smth: dict = something("text2")
+print(smth)
