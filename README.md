@@ -23,14 +23,14 @@ RIST introduces C-style syntax features to replace verbose Python keywords and m
 
 | Feature | RIST Syntax | Python Equivalent |
 | :--- | :--- | :--- |
-| **Standard Import** | `@ module_name` | `import module_name` |
+| **Standard Import** | `@+ module_name` | `import module_name` |
 | **`from ... import *`** | `@+ module_name` | `from module_name import *` |
-| **Alias Import** | `@ module as alias` | `import module as alias` |
+| **Alias Import** | `@+ module as alias` | `import module as alias` |
 
 **Example Code:**
 
 ```rist
-@ sys; @ pandas as pd
+@+ sys; @+ pandas as pd
 @+ my_utils 
 ```
 
@@ -41,20 +41,20 @@ RIST uses a trailing operator to define functions.
 | Feature | RIST Syntax | Python Equivalent |
 | :--- | :--- | :--- |
 | **Synchronous Function** | `func$() { ... }` | `def func(): ...` |
-| **Asynchronous Function** | `func!() { ... }` | `async def func(): ...` |
-| **Class Definition** | `class name^ { ... }` | `class name: ...` |
+| **Asynchronous Function** | `$func$() { ... }` | `async def func(): ...` |
+| **Class Definition** | `class name { ... }` | `class name: ...` |
 | **Inline Function (Closure)** | `(args) => { return expr; }` | (Feature Under Development) |
 
 **Example Code:**
 
 ```rist
-class APIClient^ {
+class APIClient {
     init$(self, url) {
         self.url = url;
     }
 }
 
-async_fetch!() {
+$async_fetch$() {
     # ...
 }
 ```
@@ -69,7 +69,7 @@ The RIST Range Operator provides a concise way to define iterable ranges. It tra
 
 | RIST Syntax | Python Equivalent |
 | :--- | :--- |
-| `start..end` | `range(start, end)` |
+| `(start)..(end)` | `range(start, end)` |
 
 #### ⚠️ **Constraint: Range Operands Parentheses**
 
@@ -79,17 +79,16 @@ If the start or end operand is a variable or a complex expression, **both operan
 
 ```rist
 MAX_VAL = 10;
-for i in (1)..(MAX_VAL) {
+for i in 1..(MAX_VAL) {
     # Prints 1, 2, ..., 9
-    print(i);
+    print(i)
 }
 
-start_num = 5;
-end_num = start_num + 3;
-for x in (start_num)..(end_num) {
+start_num = 5
+end_num = start_num + 3
+for x in (start_num)..(end_num):
     # Prints 5, 6, 7
-    print(x);
-}
+    print(x)
 ```
 
 ### B. Ternary Conditional Operator (`? :`)
