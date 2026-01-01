@@ -225,13 +225,15 @@ def rist(arg: str, fp: bool = True, flags: RistFlags = C, **kwargs) -> str:
         def build_inline_wrapper(self, id_, async_, params, body, name, INDENT):
             params = "".join(str(i) for i in params)
             body = "".join(str(i) for i in body)
-            inner_def = f"""{INDENT}{'async ' if async_ else ''}def {name}({params}):\n{body.strip('\n')}"""
+            inner_def = f"""{'async ' if async_ else ''}def {name}({params}):\n{body.strip('\n')}"""
             return f"""
 def {id_}_wrapper({id_}_g, {id_}_l):
-{INDENT}locals().update({id_}_g)
-{INDENT}locals().update({id_}_l)
+{INDENT}{id_}_scope = {{}}
+{INDENT}{id_}_scope.update({id_}_g)
+{INDENT}{id_}_scope.update({id_}_l)
 {INDENT}del {id_}_g,{id_}_l
-{inner_def}
+{INDENT}exec({inner_def!r}, {id_}_scope)
+{INDENT}{name} = {id_}_scope['{name}']
 
 {INDENT}{name}.__name__ = '{'<rist:inline>' if name == id_ else name}'
 {INDENT}{name}.__qualname__ = '{'<rist:inline>' if name == id_ else name}'
@@ -306,7 +308,7 @@ def {id_}_wrapper({id_}_g, {id_}_l):
                             under_info["par"] = {**under_info}
                             under_info["line"] = tok.line
                             under_info["offset"] = i_n[-1]
-                            
+
                 tok.under=under
                 l_n = tok.line + el
 
@@ -330,6 +332,7 @@ def {id_}_wrapper({id_}_g, {id_}_l):
                         autoindent[i] -= 1
                     if autoindent[-1] == 0: autoindent.pop()
                     continue
+                
 
                 if tok.name == "INLINE_FUNC_END":
                     stack = TokenList()
@@ -352,9 +355,12 @@ def {id_}_wrapper({id_}_g, {id_}_l):
                         if "async" in v: asynchronous = True
                         name = v.split(" ")[-1]
                         index -= 1
+                        for i in range(len(autoindent)): autoindent[i] -= 1
                     elif stack[0].name == "INLINE_FUNC_START":
                         if v.count("$") == 2:
                             asynchronous = True
+                    else:
+                        for i in range(len(autoindent)): autoindent[i] -= 1
 
                     inline = dict(
                         id = id_,
@@ -388,8 +394,8 @@ def {id_}_wrapper({id_}_g, {id_}_l):
                             autoindent.pop()
                             ntoks.append(Token("NEWLINE", "\n", tok.line, tok.column))
                             ntoks.append(Token("INDENT", indent+(INDENT*len(autoindent)), tok.line, tok.column))
-
                             continue
+
 
                 if tok.name in "TABSPACE" and ntoks[-1].name == "INDENT":
                     continue
@@ -427,6 +433,8 @@ def {id_}_wrapper({id_}_g, {id_}_l):
 
                     ntoks.append(Token("RPAREN", ")", tok.line, tok.column))
                     ternary.append((index, len(ntoks), tok.under))
+                    for i in range(len(autoindent)): autoindent[i] -= 1
+
                 elif tok.name == "COLON" and ternary and tok.under == ternary[-1][-1]:
                     index, start, _ = ternary.pop()
 
